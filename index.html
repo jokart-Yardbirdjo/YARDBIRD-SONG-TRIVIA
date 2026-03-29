@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yardbird's Song Trivia</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Yardbird">
+    <meta name="theme-color" content="#0a0a0c">
+
     <style>
         :root { 
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
@@ -19,7 +27,6 @@
             min-height: 100vh; padding: 10px;
         }
 
-        /* Unified Single-Column Layout */
         .container { 
             background: var(--card); padding: 1.5rem; border-radius: 24px; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; 
@@ -40,7 +47,7 @@
 
         #main-title { margin: 0 0 5px 0; color: #fff; font-size: 1.8rem; transition: color 0.4s ease; line-height: 1.2; text-transform: uppercase; }
 
-        /* Score & Points UI (New Horizontal Pills) */
+        /* Score UI */
         .high-score-box { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 20px; color: #ffcc00; font-weight: bold; font-size: 0.85rem; text-align: center; }
         
         .score-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
@@ -145,7 +152,7 @@
                     </select>
                 </div>
                 <div style="flex:1">
-                    <label>ROUNDS</label>
+                    <label>ROUNDS PER PLAYER</label>
                     <select id="num-songs">
                         <option value="3">3 Rounds (Quick)</option>
                         <option value="5">5 Rounds</option>
@@ -266,6 +273,8 @@
             <p id="winner-text" style="font-size: 1.1rem; margin-bottom: 10px;"></p>
             <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:20px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
             
+            <button class="btn btn-main" style="background:var(--p2); border:none; margin-bottom:20px; box-shadow: 0 0 15px rgba(0,242,255,0.4);" onclick="shareChallenge()">⚔️ CHALLENGE A FRIEND</button>
+            
             <div class="playlist-box">
                 <h4>Open Playlist In:</h4>
                 <div class="platform-toggles">
@@ -286,7 +295,7 @@
 <script>
     // --- GLOBAL VARIABLES & SFX ---
     let songs = [], globalPool = [];
-    let curIdx = 0, numPlayers = 1, maxRounds = 10;
+    let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let scores = [], streaks = [];
     let timeLimit = 30, hitLimit = 5, timeTaken = 0;
     let timerId, guessTimerId, timeLeft, startTime;
@@ -302,9 +311,33 @@
     const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black eyed Peas", "Meat Loaf", "Mr.BIG", "Michael Jackson", "Cardigans"];
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
-    document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
 
-    // --- UTILITIES ---
+    // --- INITIALIZATION & URL LISTENER (CHALLENGE INTERCEPTOR) ---
+    window.onload = () => {
+        document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
+        
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('tracks')) {
+            const targetScore = params.get('score');
+            const fmt = params.get('fmt');
+            const mod = params.get('mode');
+            
+            let challengeText = fmt === 'mc' ? 'Multiple Choice' : 'Classic Typing';
+            
+            document.getElementById('setup-screen').innerHTML = `
+                <div class="high-score-box" style="font-size:1.2rem; background:rgba(0,242,255,0.1); border-color:var(--p2); color:var(--p2);">⚔️ CHALLENGE RECEIVED!</div>
+                <p style="color:#fff; font-size:1.1rem; margin:20px 0; line-height:1.5;">You've been challenged to beat a score of <b style="color:var(--p1); font-size:1.3rem;">${targetScore} Pts</b> using the exact same songs!</p>
+                <div style="font-size:0.85rem; color:#888; margin-bottom:20px; text-transform:uppercase;">Format: ${challengeText}</div>
+                <div class="switch-container">
+                    <span class="switch-label">Enable Hint Mode & Trivia</span>
+                    <label class="switch"><input type="checkbox" id="hint-mode" checked><span class="slider"></span></label>
+                </div>
+                <button class="btn btn-main" style="margin-top:25px;" onclick="startChallenge('${params.get('tracks')}', '${fmt}', '${mod}')">ACCEPT CHALLENGE</button>
+                <button class="btn btn-reset" style="margin-top:15px; border:none; background:transparent;" onclick="window.location.href=window.location.pathname">Return to Main Menu</button>
+            `;
+        }
+    };
+
     document.addEventListener("DOMContentLoaded", () => {
         const triggerSubmit = (e) => { if (e.key === 'Enter') document.getElementById('submit-btn').click(); };
         document.getElementById('guess-artist').addEventListener('keypress', triggerSubmit);
@@ -392,18 +425,19 @@
         `).join('');
     }
 
-    // --- FETCHING LOGIC ---
+    // --- FETCHING LOGIC (STANDARD GAME) ---
     async function startGame() {
         numPlayers = parseInt(document.getElementById('player-count').value);
         timeLimit = parseInt(document.getElementById('diff-select').value);
         hitLimit = parseInt(document.getElementById('hit-density').value);
         isHintMode = document.getElementById('hint-mode').checked;
         answerFormat = document.getElementById('answer-format').value;
-        maxRounds = parseInt(document.getElementById('num-songs').value) || 10;
+        
+        roundsPerPlayer = parseInt(document.getElementById('num-songs').value) || 10;
+        maxRounds = roundsPerPlayer * numPlayers;
         
         scores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         
-        // Hide start button and show loading text
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('feedback-setup').innerText = "Loading Audio Catalog...";
 
@@ -480,21 +514,60 @@
             
             globalPool = pool; 
             songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
-            if(songs.length < 1) throw new Error();
+            if(songs.length < maxRounds && songs.length > 0) {
+                maxRounds = songs.length; // Adjust rounds if pool is small
+            } else if(songs.length < 1) throw new Error();
             
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('play-screen').classList.remove('hidden');
-            
-            document.getElementById('guess-artist').classList.toggle('hidden', currentMode !== 'mode-genre');
-            document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
-            document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
-            
-            updateLeaderboard();
-            nextTrack();
+            launchGameUI();
         } catch (e) { 
             alert("Could not fetch enough distinct songs for this criteria. Try a wider selection!"); 
             location.reload(); 
         }
+    }
+
+    // --- FETCHING LOGIC (CHALLENGE INTERCEPTOR) ---
+    async function startChallenge(trackIds, fmt, mode) {
+        numPlayers = 1;
+        timeLimit = 30; // Default time for challenges to keep it fair
+        answerFormat = fmt || 'text';
+        currentMode = mode || 'mode-genre';
+        isHintMode = document.getElementById('hint-mode').checked;
+        
+        scores = [0]; streaks = [0];
+        document.getElementById('setup-screen').innerHTML = `<div style="color:var(--p2); font-weight:bold; padding:20px;">Fetching Challenge Data...</div>`;
+
+        try {
+            const res = await fetch(`https://itunes.apple.com/lookup?id=${trackIds}`);
+            const d = await res.json();
+            
+            // Reconstruct the array to match the exact order it was played
+            const idArray = trackIds.split(',').map(Number);
+            songs = idArray.map(id => d.results.find(t => t.trackId === id)).filter(Boolean);
+            
+            if (songs.length === 0) throw new Error();
+            
+            // Fallback for MC wrong answers: Use the other challenge songs as the false choices
+            globalPool = [...songs]; 
+            roundsPerPlayer = songs.length;
+            maxRounds = roundsPerPlayer;
+            
+            launchGameUI();
+        } catch(e) {
+            alert("Could not load challenge data. Returning to main menu.");
+            window.location.href = window.location.pathname;
+        }
+    }
+
+    function launchGameUI() {
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('play-screen').classList.remove('hidden');
+        
+        document.getElementById('guess-artist').classList.toggle('hidden', currentMode !== 'mode-genre');
+        document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
+        document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
+        
+        updateLeaderboard();
+        nextTrack();
     }
 
     // --- GAMEPLAY LOGIC ---
@@ -506,7 +579,10 @@
         
         document.getElementById('main-title').style.color = currentColor;
         const tag = document.getElementById('active-player');
-        tag.innerText = `PLAYER ${pIdx + 1} TURN (${curIdx + 1}/${maxRounds})`;
+        
+        // Correct Player Round Display Math
+        const currentRound = Math.floor(curIdx / numPlayers) + 1;
+        tag.innerText = `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})`;
         tag.style.color = currentColor; tag.style.borderColor = currentColor;
         
         document.getElementById('stop-btn').style.backgroundColor = currentColor; document.getElementById('stop-btn').style.color = "#000";
@@ -620,7 +696,10 @@
 
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        let wrongPool = globalPool.filter(s => getMCLabel(s) !== correctStr).sort(() => 0.5 - Math.random());
+        
+        // Use global pool, but if it's too small (like in a challenge), fallback to using the other songs from the challenge array
+        let sourcePool = globalPool.length > 5 ? globalPool : songs;
+        let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr).sort(() => 0.5 - Math.random());
         
         let wrongStrs = new Set();
         let wrongOptions = [];
@@ -704,9 +783,28 @@
         if (currentMode === 'mode-movie') fbText += `<div style="font-size:0.85rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
 
         document.getElementById('feedback').innerHTML = fbText;
-        document.getElementById('guess-artist').value = ""; document.getElementById('guess-song').value = ""; document.getElementById('guess-movie').value = "";
+        if(document.getElementById('guess-artist')) document.getElementById('guess-artist').value = ""; 
+        if(document.getElementById('guess-song')) document.getElementById('guess-song').value = ""; 
+        if(document.getElementById('guess-movie')) document.getElementById('guess-movie').value = "";
         
         curIdx++; setTimeout(nextTrack, 4000); 
+    }
+
+    // --- SHARE LOGIC & FINALE ---
+    function shareChallenge() {
+        const maxScore = Math.max(...scores);
+        // Map the track IDs out to pass into the URL
+        const trackIds = songs.map(s => s.trackId).join(',');
+        
+        const url = `${window.location.origin}${window.location.pathname}?score=${Math.round(maxScore)}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
+        const text = `I just scored ${Math.round(maxScore)} points on Yardbird's Song Trivia! 🎸 Think you can beat me using the exact same songs? Try it here:`;
+        
+        if (navigator.share) {
+            navigator.share({ title: "Beat My Score!", text: text, url: url }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(text + " " + url);
+            alert("Challenge link copied to clipboard! Paste it to your friends.");
+        }
     }
 
     function endGameSequence() {
