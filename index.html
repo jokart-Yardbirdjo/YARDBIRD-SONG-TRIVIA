@@ -16,6 +16,7 @@
         :root { 
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
             --bg: #0a0a0c; --card: #16161a;
+            --success: #2ecc71; --fail: #e74c3c;
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -52,14 +53,18 @@
         
         .score-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
         .score-pill { flex: 1; min-width: 65px; background: #1a1a24; border: 2px solid; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
-        .score-pill .p-name { font-size: 0.7rem; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .score-pill .p-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .score-pill .p-pts { font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; margin: 4px 0; }
         .score-pill .p-streak { font-size: 0.65rem; font-weight: bold; }
 
         /* Game UI */
         .player-tag { font-size: 1.2rem; font-weight: 800; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; border: 2px solid transparent; transition: all 0.4s ease; }
         .timer-display { font-size: 3.5rem; font-weight: 900; margin: 10px 0; font-family: 'Courier New', monospace; transition: color 0.3s; }
-        .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 10px auto; display: none; border: 3px solid white; object-fit: cover; }
+        
+        /* Feedback & Cover Art */
+        #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; }
+        .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 15px auto; display: none; border: 3px solid white; object-fit: cover; }
+        
         .hint-box { background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; color: #ffcc00; text-align: left; display: none; word-wrap: break-word; }
 
         /* Forms & Inputs */
@@ -73,7 +78,7 @@
 
         /* Multiple Choice Buttons */
         .mc-btn { background: #25252b; border: 2px solid #3f3f4a; color: white; padding: 16px; border-radius: 10px; font-size: 1.05rem; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
-        .mc-btn:hover { background: var(--p2); color: black; border-color: var(--p2); }
+        .mc-btn:hover { background: #444; color: white; border-color: #666; }
         .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Switches */
@@ -85,8 +90,6 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--p1); }
         input:checked + .slider:before { transform: translateX(24px); }
-
-        #feedback { margin-top: 15px; min-height: 80px; font-weight: 600; font-size: 1rem; line-height: 1.4; }
 
         /* Playlist Export */
         .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
@@ -125,7 +128,7 @@
             <li><strong>Formats:</strong> Choose between Multiple Choice or Classic Typing.</li>
             <li><strong>Multiple Choice:</strong> Options appear instantly! Click the right answer before time runs out.</li>
             <li><strong>Typing Mode:</strong> Hit "STOP" to pause the song. You'll get a 20s Hot Seat timer to type your guess.</li>
-            <li><strong>Close Enough:</strong> Misspellings are fine if you are typing. If you hit 60% of the words, you get the points.</li>
+            <li><strong>Close Enough:</strong> Misspellings are fine if you are typing. A few correct words will trigger a match!</li>
         </ul>
         <button class="btn btn-main" onclick="hideRules()" style="margin-top: 10px;">Got it! Let's Play</button>
     </div>
@@ -251,6 +254,8 @@
             <div id="active-player" class="player-tag">Player 1 Turn</div>
             <div id="hint-area" class="hint-box"></div>
             <div id="timer" class="timer-display">30</div>
+            
+            <div id="feedback"></div>
             <img id="reveal-art" class="cover-art" src="" alt="Album Art">
             
             <button id="stop-btn" class="btn btn-main" style="margin-bottom:10px;" onclick="handleStop()">STOP & GUESS</button>
@@ -264,7 +269,6 @@
 
             <div id="mc-fields" class="hidden"></div>
 
-            <div id="feedback"></div>
             <button class="btn btn-reset" onclick="location.reload()">Reset Game</button>
         </div>
 
@@ -273,7 +277,7 @@
             <p id="winner-text" style="font-size: 1.1rem; margin-bottom: 10px;"></p>
             <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:20px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
             
-            <button class="btn btn-main" style="background:var(--p2); border:none; margin-bottom:20px; box-shadow: 0 0 15px rgba(0,242,255,0.4);" onclick="shareChallenge()">⚔️ CHALLENGE A FRIEND</button>
+            <button class="btn btn-main" style="margin-bottom:20px;" onclick="shareChallenge()">⚔️ CHALLENGE A FRIEND</button>
             
             <div class="playlist-box">
                 <h4>Open Playlist In:</h4>
@@ -312,7 +316,7 @@
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
-    // --- INITIALIZATION & URL LISTENER (CHALLENGE INTERCEPTOR) ---
+    // --- INITIALIZATION & URL LISTENER ---
     window.onload = () => {
         document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
         
@@ -348,7 +352,7 @@
     function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
     function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
 
-    // Fuzzy Match
+    // --- REBUILT FUZZY MATCHING V2.8 ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -363,37 +367,45 @@
 
     function isCloseEnough(guess, actual) {
         if (!guess || !actual) return false;
-        const cleanA = actual.replace(/\(.*?\)|\[.*?\]/g, '').toLowerCase().trim();
-        const cleanG = guess.toLowerCase().trim();
-
-        if (cleanA.replace(/[^a-z0-9]/g, '').includes(cleanG.replace(/[^a-z0-9]/g, ''))) return true;
-
-        const phonA = cleanA.replace(/[^a-z0-9]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
-        const phonG = cleanG.replace(/[^a-z0-9]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
         
-        if (phonA.includes(phonG)) return true;
+        let cleanA = actual.replace(/\(.*?\)|\[.*?\]/g, '').toLowerCase().trim();
+        let cleanG = guess.toLowerCase().trim();
 
-        if (phonG.length > 3) {
-            const dist = levenshtein(phonG, phonA);
-            const maxLen = Math.max(phonG.length, phonA.length);
-            if ((maxLen - dist) / maxLen >= 0.7) return true; 
-        }
+        // 1. Phonetic Reduction
+        const reduce = s => s.replace(/[^a-z0-9 ]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
+        let phonA = reduce(cleanA);
+        let phonG = reduce(cleanG);
 
-        const gWords = cleanG.replace(/[^\w\s]/gi, '').split(' ').filter(w => w.length > 2);
-        const aWords = cleanA.replace(/[^\w\s]/gi, '').split(' ').filter(w => w.length > 2);
-        
+        // 2. The Compound String Rule (Fixes Tamil/Bollywood split words e.g. "vinai thandi" vs "vinnaithaandi")
+        let flatA = phonA.replace(/\s+/g, '');
+        let flatG = phonG.replace(/\s+/g, '');
+        if (flatG.length >= 5 && flatA.includes(flatG)) return true;
+
+        // 3. Word by Word Evaluation
+        const stopWords = ['the','a','an','and','of','to','in','on','i','dont','want','my','is','it'];
+        let aWords = phonA.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
+        let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
+
         if (gWords.length === 0) return false;
 
+        // 4. The First Name Rule (If guessing 1 word, it must be the start of the title/artist)
+        if (gWords.length === 1) {
+            let gW = gWords[0];
+            if (aWords.length > 0) {
+                // Must heavily match first or second word. Rejects random end words like "thing"
+                if (levenshtein(gW, aWords[0]) <= 1 || gW.includes(aWords[0]) || aWords[0].includes(gW)) return true;
+                if (aWords[1] && (levenshtein(gW, aWords[1]) <= 1 || gW.includes(aWords[1]) || aWords[1].includes(gW))) return true;
+            }
+            return false; 
+        }
+
+        // 5. Multi-Word Matching (Needs 50% overlap of typed words)
         let matchCount = 0;
         gWords.forEach(gW => {
-            const pgW = gW.replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
-            if (aWords.some(aW => {
-                const paW = aW.replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
-                return paW.includes(pgW) || pgW.includes(paW) || levenshtein(pgW, paW) <= 1;
-            })) matchCount++;
+            if (aWords.some(aW => aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1)) matchCount++;
         });
 
-        return (matchCount / Math.max(gWords.length, 1)) >= 0.6; 
+        return (matchCount / Math.max(gWords.length, 1)) >= 0.5; 
     }
 
     // --- UI DYNAMICS ---
@@ -415,17 +427,25 @@
         document.getElementById('custom-input').classList.toggle('hidden', val !== 'custom'); 
     }
 
-    function updateLeaderboard() {
-        document.getElementById('score-board').innerHTML = scores.map((s, i) => `
-            <div class="score-pill" style="border-color:${colors[i]};">
-                <div class="p-name" style="color:${colors[i]}">P${i+1}</div>
-                <div class="p-pts">${Math.round(s)}</div>
-                <div class="p-streak" style="color:${colors[i]}; opacity:${streaks[i] > 0 ? 1 : 0}">🔥 ${streaks[i]}</div>
+    // UPDATED: Active Player Neon vs Grey Focus
+    function updateLeaderboard(activeIdx = 0) {
+        document.getElementById('score-board').innerHTML = scores.map((s, i) => {
+            const isActive = (i === activeIdx) || activeIdx === -1; // -1 means game over (light everyone up)
+            const bColor = isActive ? colors[i] : '#333';
+            const tColor = isActive ? colors[i] : '#666';
+            const ptsColor = isActive ? '#fff' : '#aaa';
+            
+            return `
+            <div class="score-pill" style="border-color:${bColor};">
+                <div class="p-name" style="color:${tColor}">${numPlayers === 1 ? 'SCORE' : 'P'+(i+1)}</div>
+                <div class="p-pts" style="color:${ptsColor}">${Math.round(s)}</div>
+                <div class="p-streak" style="color:${tColor}; opacity:${streaks[i] > 0 ? 1 : 0}">🔥 ${streaks[i]}</div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
-    // --- FETCHING LOGIC (STANDARD GAME) ---
+    // --- FETCHING LOGIC ---
     async function startGame() {
         numPlayers = parseInt(document.getElementById('player-count').value);
         timeLimit = parseInt(document.getElementById('diff-select').value);
@@ -515,7 +535,7 @@
             globalPool = pool; 
             songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
             if(songs.length < maxRounds && songs.length > 0) {
-                maxRounds = songs.length; // Adjust rounds if pool is small
+                maxRounds = songs.length; 
             } else if(songs.length < 1) throw new Error();
             
             launchGameUI();
@@ -525,12 +545,9 @@
         }
     }
 
-    // --- FETCHING LOGIC (CHALLENGE INTERCEPTOR) ---
     async function startChallenge(trackIds, fmt, mode) {
-        numPlayers = 1;
-        timeLimit = 30; // Default time for challenges to keep it fair
-        answerFormat = fmt || 'text';
-        currentMode = mode || 'mode-genre';
+        numPlayers = 1; timeLimit = 30; 
+        answerFormat = fmt || 'text'; currentMode = mode || 'mode-genre';
         isHintMode = document.getElementById('hint-mode').checked;
         
         scores = [0]; streaks = [0];
@@ -540,13 +557,11 @@
             const res = await fetch(`https://itunes.apple.com/lookup?id=${trackIds}`);
             const d = await res.json();
             
-            // Reconstruct the array to match the exact order it was played
             const idArray = trackIds.split(',').map(Number);
             songs = idArray.map(id => d.results.find(t => t.trackId === id)).filter(Boolean);
             
             if (songs.length === 0) throw new Error();
             
-            // Fallback for MC wrong answers: Use the other challenge songs as the false choices
             globalPool = [...songs]; 
             roundsPerPlayer = songs.length;
             maxRounds = roundsPerPlayer;
@@ -566,7 +581,7 @@
         document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
         document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
         
-        updateLeaderboard();
+        updateLeaderboard(0); // Start with P1 neon
         nextTrack();
     }
 
@@ -577,18 +592,19 @@
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
         
+        updateLeaderboard(pIdx); // Move neon highlight to active player
+        
         document.getElementById('main-title').style.color = currentColor;
         const tag = document.getElementById('active-player');
         
-        // Correct Player Round Display Math
         const currentRound = Math.floor(curIdx / numPlayers) + 1;
-        tag.innerText = `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})`;
+        tag.innerText = numPlayers > 1 ? `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})` : `Round ${currentRound}/${roundsPerPlayer}`;
         tag.style.color = currentColor; tag.style.borderColor = currentColor;
         
         document.getElementById('stop-btn').style.backgroundColor = currentColor; document.getElementById('stop-btn').style.color = "#000";
         document.getElementById('submit-btn').style.backgroundColor = currentColor; document.getElementById('submit-btn').style.color = "#000";
         
-        document.getElementById('feedback').innerText = "";
+        document.getElementById('feedback').innerHTML = "";
         document.getElementById('hint-area').style.display = 'none';
         document.getElementById('reveal-art').style.display = 'none';
         document.getElementById('timer').style.color = '#fff';
@@ -697,7 +713,6 @@
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
         
-        // Use global pool, but if it's too small (like in a challenge), fallback to using the other songs from the challenge array
         let sourcePool = globalPool.length > 5 ? globalPool : songs;
         let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr).sort(() => 0.5 - Math.random());
         
@@ -723,6 +738,7 @@
         });
     }
 
+    // --- EVALUATION WITH SPLIT FEEDBACK ---
     function evaluateGuess(isCorrectMC = null) {
         clearInterval(timerId); clearInterval(guessTimerId); audio.pause(); 
         
@@ -733,7 +749,10 @@
 
         const pIdx = curIdx % numPlayers;
         let roundPts = Math.max(0, 30 - timeTaken);
-        let msg = "", correct = false;
+        let correct = false;
+        
+        // Granular Feedback Tracking
+        let artOk = false, sonOk = false, movOk = false;
 
         const realA = songs[curIdx].artistName;
         const realS = songs[curIdx].trackName;
@@ -741,48 +760,70 @@
 
         if (answerFormat === 'mc') {
             correct = (isCorrectMC === true);
-            if (correct) {
-                if (currentMode === 'mode-genre') { roundPts *= 2; msg = "🔥 PERFECT DOUBLE!"; }
-                else { msg = "✅ CORRECT!"; }
-            }
+            if (correct) { artOk = true; sonOk = true; movOk = true; roundPts *= (currentMode === 'mode-genre' ? 2 : 1); }
         } else {
             const artG = document.getElementById('guess-artist').value;
             const sonG = document.getElementById('guess-song').value;
             const movG = document.getElementById('guess-movie').value;
             
             if (currentMode === 'mode-genre') {
-                const artOk = isCloseEnough(artG, realA);
-                const sonOk = isCloseEnough(sonG, realS);
+                artOk = isCloseEnough(artG, realA);
+                sonOk = isCloseEnough(sonG, realS);
                 if (artOk || sonOk) {
                     correct = true;
-                    if (artOk && sonOk) { roundPts *= 2; msg = "🔥 PERFECT DOUBLE!"; } 
-                    else { msg = "✅ CLOSE ENOUGH!"; }
+                    if (artOk && sonOk) roundPts *= 2;
                 }
             } else if (currentMode === 'mode-artist') {
-                if (isCloseEnough(sonG, realS)) { correct = true; msg = "✅ CORRECT SONG!"; }
+                if (isCloseEnough(sonG, realS)) { correct = true; sonOk = true; }
             } else if (currentMode === 'mode-movie') {
-                if (isCloseEnough(movG, realM)) { correct = true; msg = "✅ CORRECT MOVIE!"; }
+                if (isCloseEnough(movG, realM)) { correct = true; movOk = true; }
             }
+        }
+
+        // Render Split Feedback
+        let fbHTML = "";
+        const succColor = "var(--success)";
+        const failColor = "var(--fail)";
+
+        if (currentMode === 'mode-genre' && answerFormat === 'text') {
+            if (artOk && sonOk) {
+                fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 PERFECT DOUBLE!</div>`;
+            } else if (artOk || sonOk) {
+                fbHTML += `<div style="font-size:1.1rem; font-weight:bold; display:flex; justify-content:center; gap:15px;">
+                    <span style="color:${artOk ? succColor : failColor}">${artOk ? '✅' : '❌'} ARTIST</span>
+                    <span style="color:#666;">|</span>
+                    <span style="color:${sonOk ? succColor : failColor}">${sonOk ? '✅' : '❌'} SONG</span>
+                </div>`;
+            } else {
+                fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
+            }
+        } else {
+            // Standard Feedback for MC and other modes
+            if (correct) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">✅ CORRECT!</div>`;
+            else fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
         }
 
         if (correct) {
             streaks[pIdx]++;
-            if(msg.includes("DOUBLE")) { sfxCheer.currentTime=0; sfxCheer.play().catch(e=>{}); }
-            if (streaks[pIdx] % 3 === 0) { roundPts += 50; msg += " (+50 STREAK BONUS)"; }
+            if(fbHTML.includes("DOUBLE")) { sfxCheer.currentTime=0; sfxCheer.play().catch(e=>{}); }
+            if (streaks[pIdx] % 3 === 0) { roundPts += 50; fbHTML += `<div style="color:var(--p4); font-size:0.85rem; margin-top:5px;">+50 STREAK BONUS</div>`; }
         } else {
             sfxBuzzer.currentTime = 0; sfxBuzzer.play().catch(e=>{});
-            streaks[pIdx] = 0; roundPts = 0; msg = "❌ INCORRECT"; 
+            streaks[pIdx] = 0; roundPts = 0; 
         }
 
-        scores[pIdx] += roundPts; updateLeaderboard();
+        scores[pIdx] += roundPts; 
+        updateLeaderboard(pIdx); // Keep current player lit until next round starts
 
+        // Reveal Text & Art below the feedback message
+        fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
+        if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
+
+        document.getElementById('feedback').innerHTML = fbHTML;
+        
         const img = document.getElementById('reveal-art');
         img.src = songs[curIdx].artworkUrl100.replace('100x100bb', '400x400bb'); img.style.display = 'block';
 
-        let fbText = `<div style="color:${colors[pIdx]}">${msg}</div><div style="font-size:0.95rem; color:#fff; margin-top:5px;">${realA} - ${realS}</div>`;
-        if (currentMode === 'mode-movie') fbText += `<div style="font-size:0.85rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
-
-        document.getElementById('feedback').innerHTML = fbText;
         if(document.getElementById('guess-artist')) document.getElementById('guess-artist').value = ""; 
         if(document.getElementById('guess-song')) document.getElementById('guess-song').value = ""; 
         if(document.getElementById('guess-movie')) document.getElementById('guess-movie').value = "";
@@ -793,7 +834,6 @@
     // --- SHARE LOGIC & FINALE ---
     function shareChallenge() {
         const maxScore = Math.max(...scores);
-        // Map the track IDs out to pass into the URL
         const trackIds = songs.map(s => s.trackId).join(',');
         
         const url = `${window.location.origin}${window.location.pathname}?score=${Math.round(maxScore)}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
@@ -812,8 +852,10 @@
         document.getElementById('final-screen').classList.remove('hidden');
         document.getElementById('main-title').style.color = '#ffffff'; 
         
+        updateLeaderboard(-1); // -1 lights up everyone at the end of the game
+        
         const maxScore = Math.max(...scores); const winIdx = scores.indexOf(maxScore);
-        document.getElementById('winner-text').innerText = `🏆 PLAYER ${winIdx + 1} WINS! Total: ${Math.round(maxScore)} Pts`;
+        document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${Math.round(maxScore)} Pts` : `🏆 Total Score: ${Math.round(maxScore)} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
         if (maxScore > globalHighScore && maxScore > 0) {
