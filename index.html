@@ -8,9 +8,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Yardbird">
     <meta name="theme-color" content="#0a0a0c">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Yardbird","short_name":"Yardbird","display":"standalone","background_color":"#0a0a0c","theme_color":"#0a0a0c","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
 
     <style>
         :root { 
@@ -18,39 +20,16 @@
             --bg: #0a0a0c; --card: #16161a;
             --success: #2ecc71; --fail: #e74c3c;
         }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body { 
-            background: var(--bg); color: white; 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            margin: 0; display: flex; justify-content: center; 
-            min-height: 100vh; padding: 10px;
-        }
-
-        .container { 
-            background: var(--card); padding: 1.5rem; border-radius: 24px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; 
-            border: 1px solid #2d2d35; width: 100%; max-width: 750px; 
-            position: relative; margin-bottom: 20px;
-        }
-
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
+        .container { background: var(--card); padding: 1.5rem; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; border: 1px solid #2d2d35; width: 100%; max-width: 750px; position: relative; margin-bottom: 20px; }
         #game-header { position: relative; margin-bottom: 15px; padding: 0 40px; }
-        
-        .info-btn {
-            position: absolute; top: 0; right: 0; width: 32px; height: 32px;
-            border-radius: 50%; background: transparent; border: 2px solid #888;
-            color: #888; font-size: 1.1rem; font-weight: bold; font-family: 'Times New Roman', serif;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s; padding-bottom: 2px;
-        }
+        .info-btn { position: absolute; top: 0; right: 0; width: 32px; height: 32px; border-radius: 50%; background: transparent; border: 2px solid #888; color: #888; font-size: 1.1rem; font-weight: bold; font-family: 'Times New Roman', serif; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
         .info-btn:hover { border-color: var(--p2); color: var(--p2); transform: scale(1.1); }
-
         #main-title { margin: 0 0 5px 0; color: #fff; font-size: 1.8rem; transition: color 0.4s ease; line-height: 1.2; text-transform: uppercase; }
 
         /* Score UI */
         .high-score-box { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 20px; color: #ffcc00; font-weight: bold; font-size: 0.85rem; text-align: center; }
-        
         .score-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
         .score-pill { flex: 1; min-width: 65px; background: #1a1a24; border: 2px solid; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
         .score-pill .p-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
@@ -64,13 +43,11 @@
         /* Feedback & Cover Art */
         #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; }
         .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 15px auto; display: none; border: 3px solid white; object-fit: cover; }
-        
         .hint-box { background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; color: #ffcc00; text-align: left; display: none; word-wrap: break-word; }
 
         /* Forms & Inputs */
         label { display: block; text-align: left; font-size: 0.65rem; color: #888; margin-top: 15px; margin-bottom: 4px; text-transform: uppercase; }
         select, input[type="text"], input[type="number"] { background: #25252b; border: 1px solid #3f3f4a; color: white; padding: 14px; border-radius: 10px; font-size: 1rem; width: 100%; outline: none; box-sizing: border-box; }
-        
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; }
         .btn-main { background: white; color: black; }
         .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; }
@@ -300,7 +277,7 @@
     // --- GLOBAL VARIABLES & SFX ---
     let songs = [], globalPool = [];
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
-    let scores = [], streaks = [];
+    let scores = [], streaks = [], matchHistory = [];
     let timeLimit = 30, hitLimit = 5, timeTaken = 0;
     let timerId, guessTimerId, timeLeft, startTime;
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text';
@@ -325,7 +302,6 @@
             const targetScore = params.get('score');
             const fmt = params.get('fmt');
             const mod = params.get('mode');
-            
             let challengeText = fmt === 'mc' ? 'Multiple Choice' : 'Classic Typing';
             
             document.getElementById('setup-screen').innerHTML = `
@@ -352,7 +328,7 @@
     function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
     function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
 
-    // --- REBUILT FUZZY MATCHING V2.8 ---
+    // --- REBUILT FUZZY MATCHING V2.9 ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -376,7 +352,7 @@
         let phonA = reduce(cleanA);
         let phonG = reduce(cleanG);
 
-        // 2. The Compound String Rule (Fixes Tamil/Bollywood split words e.g. "vinai thandi" vs "vinnaithaandi")
+        // 2. Direct Match or Compound String Match (For Tamil/Bollywood split words)
         let flatA = phonA.replace(/\s+/g, '');
         let flatG = phonG.replace(/\s+/g, '');
         if (flatG.length >= 5 && flatA.includes(flatG)) return true;
@@ -388,24 +364,25 @@
 
         if (gWords.length === 0) return false;
 
-        // 4. The First Name Rule (If guessing 1 word, it must be the start of the title/artist)
+        // 4. The First Name Rule (If 1 word guess, strictly check start of title)
         if (gWords.length === 1) {
             let gW = gWords[0];
             if (aWords.length > 0) {
-                // Must heavily match first or second word. Rejects random end words like "thing"
-                if (levenshtein(gW, aWords[0]) <= 1 || gW.includes(aWords[0]) || aWords[0].includes(gW)) return true;
-                if (aWords[1] && (levenshtein(gW, aWords[1]) <= 1 || gW.includes(aWords[1]) || aWords[1].includes(gW))) return true;
+                let allowedTypos = gW.length > 6 ? 2 : 1;
+                if (levenshtein(gW, aWords[0]) <= allowedTypos || gW.includes(aWords[0]) || aWords[0].includes(gW)) return true;
+                if (aWords[1] && (levenshtein(gW, aWords[1]) <= allowedTypos || gW.includes(aWords[1]) || aWords[1].includes(gW))) return true;
             }
             return false; 
         }
 
-        // 5. Multi-Word Matching (Needs 50% overlap of typed words)
+        // 5. Multi-Word Matching (Stricter Overlap required)
         let matchCount = 0;
         gWords.forEach(gW => {
-            if (aWords.some(aW => aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1)) matchCount++;
+            if (aWords.some(aW => aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1)) matchCount++;
         });
 
-        return (matchCount / Math.max(gWords.length, 1)) >= 0.5; 
+        // Must match 80% of what they typed, OR multiple words covering 50% of the actual title.
+        return (matchCount / Math.max(gWords.length, 1)) >= 0.8 || (matchCount >= 2 && matchCount / Math.max(aWords.length, 1) >= 0.5); 
     }
 
     // --- UI DYNAMICS ---
@@ -427,21 +404,18 @@
         document.getElementById('custom-input').classList.toggle('hidden', val !== 'custom'); 
     }
 
-    // UPDATED: Active Player Neon vs Grey Focus
     function updateLeaderboard(activeIdx = 0) {
         document.getElementById('score-board').innerHTML = scores.map((s, i) => {
-            const isActive = (i === activeIdx) || activeIdx === -1; // -1 means game over (light everyone up)
+            const isActive = (i === activeIdx) || activeIdx === -1;
             const bColor = isActive ? colors[i] : '#333';
             const tColor = isActive ? colors[i] : '#666';
             const ptsColor = isActive ? '#fff' : '#aaa';
-            
             return `
             <div class="score-pill" style="border-color:${bColor};">
                 <div class="p-name" style="color:${tColor}">${numPlayers === 1 ? 'SCORE' : 'P'+(i+1)}</div>
                 <div class="p-pts" style="color:${ptsColor}">${Math.round(s)}</div>
                 <div class="p-streak" style="color:${tColor}; opacity:${streaks[i] > 0 ? 1 : 0}">🔥 ${streaks[i]}</div>
-            </div>
-            `;
+            </div>`;
         }).join('');
     }
 
@@ -452,11 +426,11 @@
         hitLimit = parseInt(document.getElementById('hit-density').value);
         isHintMode = document.getElementById('hint-mode').checked;
         answerFormat = document.getElementById('answer-format').value;
-        
         roundsPerPlayer = parseInt(document.getElementById('num-songs').value) || 10;
         maxRounds = roundsPerPlayer * numPlayers;
         
         scores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
+        matchHistory = new Array(numPlayers).fill().map(() => []); // Wordle Grid tracking
         
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('feedback-setup').innerText = "Loading Audio Catalog...";
@@ -467,6 +441,7 @@
             let minYear = 1900, maxYear = 2099;
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); 
+            const artistCount = {}; // Artist Diversity Tracker
 
             if (currentMode === 'mode-genre') {
                 const genre = document.getElementById('genre-select').value;
@@ -481,7 +456,12 @@
                             const yr = new Date(t.releaseDate).getFullYear();
                             const cName = t.trackName.toLowerCase().replace(/[^a-z0-9]/g, '');
                             if (yr < 1990 || yr > 1999 || seenTracks.has(cName)) return false;
-                            seenTracks.add(cName); return true;
+                            
+                            const cArt = (t.artistName || "").toLowerCase();
+                            if(artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+
+                            seenTracks.add(cName); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                            return true;
                         }).slice(0, hitLimit);
                         pool = pool.concat(filtered);
                     });
@@ -515,17 +495,25 @@
                     const cName = t.trackName.toLowerCase().replace(/[^a-z0-9]/g, '');
                     if (seenTracks.has(cName)) return false; 
                     
-                    if (currentMode === 'mode-genre') {
+                    if (currentMode === 'mode-artist') {
+                        // Strict Artist Validation Check
+                        if (!t.artistName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+                    } else if (currentMode === 'mode-genre') {
                         const yr = new Date(t.releaseDate).getFullYear();
-                        if (yr < minYear || yr > maxYear) return false;
-                    }
-                    
-                    if (currentMode === 'mode-movie') {
+                        // Fixed Compilation Year Buffer
+                        if (yr < minYear - 5 || yr > maxYear + 5) return false;
+                    } else if (currentMode === 'mode-movie') {
                         if (!t.collectionName) return false;
                         const gName = (t.primaryGenreName || "").toLowerCase();
                         const colName = t.collectionName.toLowerCase();
                         const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
                         if (!isVerifiedMovie) return false;
+                    }
+                    
+                    if (currentMode !== 'mode-artist') {
+                        const cArt = (t.artistName || "").toLowerCase();
+                        if(artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+                        artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                     }
                     
                     seenTracks.add(cName); return true;
@@ -534,9 +522,8 @@
             
             globalPool = pool; 
             songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
-            if(songs.length < maxRounds && songs.length > 0) {
-                maxRounds = songs.length; 
-            } else if(songs.length < 1) throw new Error();
+            if(songs.length < maxRounds && songs.length > 0) maxRounds = songs.length; 
+            else if(songs.length < 1) throw new Error();
             
             launchGameUI();
         } catch (e) { 
@@ -546,26 +533,18 @@
     }
 
     async function startChallenge(trackIds, fmt, mode) {
-        numPlayers = 1; timeLimit = 30; 
-        answerFormat = fmt || 'text'; currentMode = mode || 'mode-genre';
+        numPlayers = 1; timeLimit = 30; answerFormat = fmt || 'text'; currentMode = mode || 'mode-genre';
         isHintMode = document.getElementById('hint-mode').checked;
-        
-        scores = [0]; streaks = [0];
+        scores = [0]; streaks = [0]; matchHistory = [[]];
         document.getElementById('setup-screen').innerHTML = `<div style="color:var(--p2); font-weight:bold; padding:20px;">Fetching Challenge Data...</div>`;
 
         try {
             const res = await fetch(`https://itunes.apple.com/lookup?id=${trackIds}`);
             const d = await res.json();
-            
             const idArray = trackIds.split(',').map(Number);
             songs = idArray.map(id => d.results.find(t => t.trackId === id)).filter(Boolean);
-            
             if (songs.length === 0) throw new Error();
-            
-            globalPool = [...songs]; 
-            roundsPerPlayer = songs.length;
-            maxRounds = roundsPerPlayer;
-            
+            globalPool = [...songs]; roundsPerPlayer = songs.length; maxRounds = roundsPerPlayer;
             launchGameUI();
         } catch(e) {
             alert("Could not load challenge data. Returning to main menu.");
@@ -576,12 +555,10 @@
     function launchGameUI() {
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('play-screen').classList.remove('hidden');
-        
         document.getElementById('guess-artist').classList.toggle('hidden', currentMode !== 'mode-genre');
         document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
         document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
-        
-        updateLeaderboard(0); // Start with P1 neon
+        updateLeaderboard(0);
         nextTrack();
     }
 
@@ -592,11 +569,10 @@
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
         
-        updateLeaderboard(pIdx); // Move neon highlight to active player
+        updateLeaderboard(pIdx); 
         
         document.getElementById('main-title').style.color = currentColor;
         const tag = document.getElementById('active-player');
-        
         const currentRound = Math.floor(curIdx / numPlayers) + 1;
         tag.innerText = numPlayers > 1 ? `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})` : `Round ${currentRound}/${roundsPerPlayer}`;
         tag.style.color = currentColor; tag.style.borderColor = currentColor;
@@ -627,21 +603,12 @@
         
         timerId = setInterval(() => {
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
-            
-            if (timeLeft <= 3 && timeLeft > 0) {
-                document.getElementById('timer').style.color = '#ff3333';
-                sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); 
-            }
-
+            if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
             if (isHintMode && timeLeft === Math.floor(timeLimit / 2)) showHint();
-            
             if (timeLeft <= 0) {
                 clearInterval(timerId); audio.pause();
-                if (answerFormat === 'mc') {
-                    timeTaken = timeLimit; evaluateGuess(false); 
-                } else {
-                    handleStop(); 
-                }
+                if (answerFormat === 'mc') { timeTaken = timeLimit; evaluateGuess(false); } 
+                else { handleStop(); }
             }
         }, 1000);
     }
@@ -650,18 +617,25 @@
         const s = songs[curIdx];
         let h1 = "", h2 = "", funFact = "";
         
+        // Hint Prefixes and Cleaner
+        const stripPrefix = str => str.replace(/^(the|a|an)\s+/i, '');
+        let cleanArtist = stripPrefix(s.artistName);
+        let cleanSong = stripPrefix(s.trackName);
+
         if (currentMode === 'mode-movie') {
-            h1 = `🎼 <b>Composer/Artist:</b> ${s.artistName}`;
+            // Scrub "Cast Of Movie Name"
+            cleanArtist = cleanArtist.replace(/cast of .*?/ig, 'Various Artists').replace(/from .*?/ig, '');
+            h1 = `🎼 <b>Composer/Artist:</b> ${cleanArtist}`;
             h2 = `🎵 <b>Song:</b> ${s.trackName}`;
             funFact = `📅 <b>Year:</b> ${new Date(s.releaseDate).getFullYear()} — Can you name the Movie?`;
         } else if (currentMode === 'mode-artist') {
             let cleanAlbum = s.collectionName ? s.collectionName.replace(/\(.*?\)|\[.*?\]/g, '').trim() : "Unknown Album";
             h1 = `📅 <b>Year:</b> ${new Date(s.releaseDate).getFullYear()}`;
             h2 = `💿 <b>Album:</b> ${cleanAlbum}`;
-            funFact = `Song Initials: ${s.trackName.substring(0, 3).toUpperCase()}...`;
+            funFact = `Song Initials: ${cleanSong.substring(0, 3).toUpperCase()}...`;
         } else {
-            h1 = `🎤 <b>Artist:</b> ${s.artistName.substring(0, 3).toUpperCase()}...`;
-            h2 = `🎵 <b>Song:</b> ${s.trackName.substring(0, 3).toUpperCase()}...`;
+            h1 = `🎤 <b>Artist:</b> ${cleanArtist.substring(0, 3).toUpperCase()}...`;
+            h2 = `🎵 <b>Song:</b> ${cleanSong.substring(0, 3).toUpperCase()}...`;
             funFact = s.trackNumber === 1 ? "This was a massive album opener!" : `A classic from ${new Date(s.releaseDate).getFullYear()}.`;
         }
 
@@ -677,10 +651,8 @@
     }
 
     function handleStop() { 
-        clearInterval(timerId); audio.pause(); 
-        timeTaken = (Date.now() - startTime) / 1000; 
+        clearInterval(timerId); audio.pause(); timeTaken = (Date.now() - startTime) / 1000; 
         document.getElementById('stop-btn').classList.add('hidden'); 
-        
         document.getElementById('guess-fields').classList.remove('hidden');
         setTimeout(() => {
             if(currentMode === 'mode-genre') document.getElementById('guess-artist').focus();
@@ -688,19 +660,12 @@
             if(currentMode === 'mode-movie') document.getElementById('guess-movie').focus();
         }, 50);
 
-        let guessTime = 20;
-        document.getElementById('timer').innerText = guessTime;
-        document.getElementById('timer').style.color = '#ffcc00'; 
+        let guessTime = 20; document.getElementById('timer').innerText = guessTime; document.getElementById('timer').style.color = '#ffcc00'; 
         
         guessTimerId = setInterval(() => {
             guessTime--; document.getElementById('timer').innerText = guessTime;
-            if (guessTime <= 3 && guessTime > 0) {
-                document.getElementById('timer').style.color = '#ff3333';
-                sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); 
-            }
-            if (guessTime <= 0) {
-                clearInterval(guessTimerId); evaluateGuess(); 
-            }
+            if (guessTime <= 3 && guessTime > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
+            if (guessTime <= 0) { clearInterval(guessTimerId); evaluateGuess(); }
         }, 1000);
     }
 
@@ -713,8 +678,10 @@
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
         
+        // Shuffle pool every time to prevent repetitive wrong options
+        globalPool = globalPool.sort(() => 0.5 - Math.random());
         let sourcePool = globalPool.length > 5 ? globalPool : songs;
-        let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr).sort(() => 0.5 - Math.random());
+        let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr);
         
         let wrongStrs = new Set();
         let wrongOptions = [];
@@ -750,8 +717,6 @@
         const pIdx = curIdx % numPlayers;
         let roundPts = Math.max(0, 30 - timeTaken);
         let correct = false;
-        
-        // Granular Feedback Tracking
         let artOk = false, sonOk = false, movOk = false;
 
         const realA = songs[curIdx].artistName;
@@ -760,7 +725,7 @@
 
         if (answerFormat === 'mc') {
             correct = (isCorrectMC === true);
-            if (correct) { artOk = true; sonOk = true; movOk = true; roundPts *= (currentMode === 'mode-genre' ? 2 : 1); }
+            if (correct) { artOk = true; sonOk = true; movOk = true; roundPts *= 2; } // All MC gets 2x
         } else {
             const artG = document.getElementById('guess-artist').value;
             const sonG = document.getElementById('guess-song').value;
@@ -774,38 +739,31 @@
                     if (artOk && sonOk) roundPts *= 2;
                 }
             } else if (currentMode === 'mode-artist') {
-                if (isCloseEnough(sonG, realS)) { correct = true; sonOk = true; }
+                if (isCloseEnough(sonG, realS)) { correct = true; sonOk = true; roundPts *= 2; }
             } else if (currentMode === 'mode-movie') {
-                if (isCloseEnough(movG, realM)) { correct = true; movOk = true; }
+                if (isCloseEnough(movG, realM)) { correct = true; movOk = true; roundPts *= 2; }
             }
         }
 
+        // Grid History Tracker
+        matchHistory[pIdx].push(correct ? '🟩' : '🟥');
+
         // Render Split Feedback
         let fbHTML = "";
-        const succColor = "var(--success)";
-        const failColor = "var(--fail)";
+        const succColor = "var(--success)"; const failColor = "var(--fail)";
 
         if (currentMode === 'mode-genre' && answerFormat === 'text') {
-            if (artOk && sonOk) {
-                fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 PERFECT DOUBLE!</div>`;
-            } else if (artOk || sonOk) {
-                fbHTML += `<div style="font-size:1.1rem; font-weight:bold; display:flex; justify-content:center; gap:15px;">
-                    <span style="color:${artOk ? succColor : failColor}">${artOk ? '✅' : '❌'} ARTIST</span>
-                    <span style="color:#666;">|</span>
-                    <span style="color:${sonOk ? succColor : failColor}">${sonOk ? '✅' : '❌'} SONG</span>
-                </div>`;
-            } else {
-                fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
-            }
+            if (artOk && sonOk) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 PERFECT DOUBLE!</div>`;
+            else if (artOk || sonOk) fbHTML += `<div style="font-size:1.1rem; font-weight:bold; display:flex; justify-content:center; gap:15px;"><span style="color:${artOk ? succColor : failColor}">${artOk ? '✅' : '❌'} ARTIST</span><span style="color:#666;">|</span><span style="color:${sonOk ? succColor : failColor}">${sonOk ? '✅' : '❌'} SONG</span></div>`;
+            else fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
         } else {
-            // Standard Feedback for MC and other modes
-            if (correct) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">✅ CORRECT!</div>`;
+            if (correct) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 CORRECT (+2x PTS)!</div>`;
             else fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
         }
 
         if (correct) {
             streaks[pIdx]++;
-            if(fbHTML.includes("DOUBLE")) { sfxCheer.currentTime=0; sfxCheer.play().catch(e=>{}); }
+            if(fbHTML.includes("DOUBLE") || fbHTML.includes("CORRECT")) { sfxCheer.currentTime=0; sfxCheer.play().catch(e=>{}); }
             if (streaks[pIdx] % 3 === 0) { roundPts += 50; fbHTML += `<div style="color:var(--p4); font-size:0.85rem; margin-top:5px;">+50 STREAK BONUS</div>`; }
         } else {
             sfxBuzzer.currentTime = 0; sfxBuzzer.play().catch(e=>{});
@@ -813,14 +771,12 @@
         }
 
         scores[pIdx] += roundPts; 
-        updateLeaderboard(pIdx); // Keep current player lit until next round starts
+        updateLeaderboard(pIdx); 
 
-        // Reveal Text & Art below the feedback message
         fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
         if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
 
         document.getElementById('feedback').innerHTML = fbHTML;
-        
         const img = document.getElementById('reveal-art');
         img.src = songs[curIdx].artworkUrl100.replace('100x100bb', '400x400bb'); img.style.display = 'block';
 
@@ -834,16 +790,25 @@
     // --- SHARE LOGIC & FINALE ---
     function shareChallenge() {
         const maxScore = Math.max(...scores);
-        const trackIds = songs.map(s => s.trackId).join(',');
+        const winIdx = scores.indexOf(maxScore);
         
+        // Build Wordle Grid (5 per row)
+        const grid = matchHistory[winIdx].reduce((res, item, idx) => {
+            res += item;
+            if ((idx + 1) % 5 === 0) res += '\n';
+            return res;
+        }, '');
+
+        const trackIds = songs.map(s => s.trackId).join(',');
         const url = `${window.location.origin}${window.location.pathname}?score=${Math.round(maxScore)}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
-        const text = `I just scored ${Math.round(maxScore)} points on Yardbird's Song Trivia! 🎸 Think you can beat me using the exact same songs? Try it here:`;
+        
+        const text = `Yardbird's Song Trivia 🎸\nScore: ${Math.round(maxScore)} Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
         
         if (navigator.share) {
             navigator.share({ title: "Beat My Score!", text: text, url: url }).catch(console.error);
         } else {
-            navigator.clipboard.writeText(text + " " + url);
-            alert("Challenge link copied to clipboard! Paste it to your friends.");
+            navigator.clipboard.writeText(text + "\n" + url);
+            alert("Challenge link & grid copied to clipboard! Paste it to your friends.");
         }
     }
 
@@ -852,7 +817,7 @@
         document.getElementById('final-screen').classList.remove('hidden');
         document.getElementById('main-title').style.color = '#ffffff'; 
         
-        updateLeaderboard(-1); // -1 lights up everyone at the end of the game
+        updateLeaderboard(-1); 
         
         const maxScore = Math.max(...scores); const winIdx = scores.indexOf(maxScore);
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${Math.round(maxScore)} Pts` : `🏆 Total Score: ${Math.round(maxScore)} Pts`;
