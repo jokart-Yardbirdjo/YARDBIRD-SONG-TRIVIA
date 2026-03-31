@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yardbird's Song Trivia</title>
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
+    <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -32,14 +32,27 @@
         .score-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
         .score-pill { flex: 1; min-width: 65px; background: #1a1a24; border: 2px solid; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
         .score-pill .p-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-        .score-pill .p-pts { font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; margin: 4px 0; }
+        .score-pill .p-pts { font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; margin: 4px 0; transition: color 0.3s;}
         .score-pill .p-streak { font-size: 0.65rem; font-weight: bold; }
 
         /* Game UI */
         .player-tag { font-size: 1.2rem; font-weight: 800; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; border: 2px solid transparent; transition: all 0.4s ease; }
-        .timer-display { font-size: 3.5rem; font-weight: 900; margin: 10px 0; font-family: 'Courier New', monospace; transition: color 0.3s; }
+        .timer-display { font-size: 3.5rem; font-weight: 900; margin: 5px 0; font-family: 'Courier New', monospace; transition: color 0.3s; }
         
-        /* Feedback & Cover Art */
+        /* Audio Visualizer */
+        .visualizer { display: flex; gap: 5px; justify-content: center; height: 25px; align-items: flex-end; margin-bottom: 5px; opacity: 0; transition: opacity 0.3s; }
+        .vis-bar { width: 8px; background: #fff; border-radius: 4px 4px 0 0; animation: bounce 0.5s infinite alternate; }
+        .vis-bar:nth-child(2) { animation-delay: 0.15s; }
+        .vis-bar:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes bounce { from { height: 5px; } to { height: 25px; } }
+        .visualizer.active { opacity: 1; }
+        .visualizer.active .vis-bar { background: var(--p1); }
+        .visualizer.paused .vis-bar { animation-play-state: paused; height: 5px; background: #555; }
+
+        /* Smooth UI Transitions */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; }
         .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 15px auto; display: none; border: 3px solid white; object-fit: cover; }
         .hint-box { background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; color: #ffcc00; text-align: left; display: none; word-wrap: break-word; }
@@ -105,8 +118,10 @@
             <li><strong>Multiple Choice:</strong> Options appear instantly! Click the right answer before time runs out.</li>
             <li><strong>Typing Mode:</strong> Hit "STOP" to pause the song. You'll get a 20s Hot Seat timer to type your guess.</li>
             <li><strong>Close Enough:</strong> Misspellings are fine if you are typing. A few correct words will trigger a match!</li>
+            <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play!</li>
         </ul>
         <button class="btn btn-main" onclick="hideRules()" style="margin-top: 10px;">Got it! Let's Play</button>
+        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.1 Master Edition</div>
     </div>
 </div>
 
@@ -229,7 +244,13 @@
             
             <div id="active-player" class="player-tag">Player 1 Turn</div>
             <div id="hint-area" class="hint-box"></div>
-            <div id="timer" class="timer-display">30</div>
+            
+            <div id="visualizer" class="visualizer hidden">
+                <div class="vis-bar"></div>
+                <div class="vis-bar"></div>
+                <div class="vis-bar"></div>
+            </div>
+            <div id="timer" class="timer-display">Load...</div>
             
             <div id="feedback"></div>
             <img id="reveal-art" class="cover-art" src="" alt="Album Art">
@@ -249,8 +270,10 @@
         </div>
 
         <div id="final-screen" class="hidden">
-            <h2 id="congrats-text" style="font-size:1.6rem; color:#fff;">Game Finished!</h2>
-            <p id="winner-text" style="font-size: 1.1rem; margin-bottom: 10px;"></p>
+            <h2 id="congrats-text" style="font-size:1.6rem; color:#fff; margin-bottom: 5px;">Game Finished!</h2>
+            <div style="color:var(--p2); font-size:0.8rem; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">Scores Normalized to 750</div>
+            
+            <p id="winner-text" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 10px;"></p>
             <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:20px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
             
             <button class="btn btn-main" style="margin-bottom:20px;" onclick="shareChallenge()">⚔️ CHALLENGE A FRIEND</button>
@@ -276,7 +299,7 @@
     // --- GLOBAL VARIABLES & SFX ---
     let songs = [], globalPool = [];
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
-    let scores = [], streaks = [], matchHistory = [];
+    let rawScores = [], streaks = [], matchHistory = [];
     let timeLimit = 30, hitLimit = 5, timeTaken = 0;
     let timerId, guessTimerId, timeLeft, startTime;
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text';
@@ -327,7 +350,7 @@
     function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
     function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
 
-    // --- REBUILT FUZZY MATCHING V3.0 ---
+    // --- REBUILT FUZZY MATCHING V3.1 ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -359,7 +382,7 @@
         let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         if (gWords.length === 0) return false;
 
-        // 4. The First Name Rule (Increased Typo Leniency for Long Words like Pocahontas)
+        // 4. The First Name Rule (Typo Leniency for Long Words)
         if (gWords.length === 1) {
             let gW = gWords[0];
             if (aWords.length > 0) {
@@ -385,12 +408,12 @@
         document.getElementById('ui-genre').classList.add('hidden');
         document.getElementById('ui-artist').classList.add('hidden');
         document.getElementById('ui-movie').classList.add('hidden');
-        document.getElementById('ui-density').classList.remove('hidden');
+        document.getElementById('ui-density').classList.add('hidden');
         document.getElementById('custom-input').classList.add('hidden');
         
-        if (currentMode === 'mode-genre') { document.getElementById('ui-genre').classList.remove('hidden'); toggleCustomInput('genre'); }
-        if (currentMode === 'mode-artist') { document.getElementById('ui-artist').classList.remove('hidden'); toggleCustomInput('artist'); }
-        if (currentMode === 'mode-movie') { document.getElementById('ui-movie').classList.remove('hidden'); document.getElementById('ui-density').classList.add('hidden'); toggleCustomInput('movie'); }
+        if (currentMode === 'mode-genre') { document.getElementById('ui-genre').classList.remove('hidden'); document.getElementById('ui-density').classList.remove('hidden'); toggleCustomInput('genre'); }
+        if (currentMode === 'mode-artist') { document.getElementById('ui-artist').classList.remove('hidden'); document.getElementById('ui-density').classList.remove('hidden'); toggleCustomInput('artist'); }
+        if (currentMode === 'mode-movie') { document.getElementById('ui-movie').classList.remove('hidden'); toggleCustomInput('movie'); }
     }
 
     function toggleCustomInput(type) { 
@@ -398,22 +421,28 @@
         document.getElementById('custom-input').classList.toggle('hidden', val !== 'custom'); 
     }
 
+    function getNormalizedScore(rawScore) {
+        const maxRawPossible = (roundsPerPlayer * 60) + (Math.floor(roundsPerPlayer / 3) * 50);
+        return Math.min(750, Math.round((rawScore / maxRawPossible) * 750));
+    }
+
     function updateLeaderboard(activeIdx = 0) {
-        document.getElementById('score-board').innerHTML = scores.map((s, i) => {
+        document.getElementById('score-board').innerHTML = rawScores.map((s, i) => {
             const isActive = (i === activeIdx) || activeIdx === -1;
             const bColor = isActive ? colors[i] : '#333';
             const tColor = isActive ? colors[i] : '#666';
             const ptsColor = isActive ? '#fff' : '#aaa';
+            const displayScore = activeIdx === -1 ? getNormalizedScore(s) : Math.round(s); // Show normalized only at the end
+            
             return `
             <div class="score-pill" style="border-color:${bColor};">
                 <div class="p-name" style="color:${tColor}">${numPlayers === 1 ? 'SCORE' : 'P'+(i+1)}</div>
-                <div class="p-pts" style="color:${ptsColor}">${Math.round(s)}</div>
+                <div class="p-pts" style="color:${ptsColor}">${displayScore}</div>
                 <div class="p-streak" style="color:${tColor}; opacity:${streaks[i] > 0 ? 1 : 0}">🔥 ${streaks[i]}</div>
             </div>`;
         }).join('');
     }
 
-    // --- CLEAR TIMERS SAFETY ---
     function clearAllTimers() {
         if(timerId) clearInterval(timerId);
         if(guessTimerId) clearInterval(guessTimerId);
@@ -429,19 +458,16 @@
         roundsPerPlayer = parseInt(document.getElementById('num-songs').value) || 10;
         maxRounds = roundsPerPlayer * numPlayers;
         
-        scores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
+        rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
         
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('feedback-setup').innerText = "Loading Audio Catalog...";
 
         try {
-            let pool = [];
-            let searchTerm = "";
-            let minYear = 1900, maxYear = 2099;
+            let pool = []; let searchTerm = ""; let minYear = 1900, maxYear = 2099;
             const customVal = document.getElementById('custom-input').value;
-            const seenTracks = new Set(); 
-            const artistCount = {}; 
+            const seenTracks = new Set(); const artistCount = {}; 
 
             if (currentMode === 'mode-genre') {
                 const genre = document.getElementById('genre-select').value;
@@ -450,13 +476,17 @@
                     const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=15`));
                     const res = await Promise.all(fetches);
                     const data = await Promise.all(res.map(r => r.json()));
-                    data.forEach(d => {
+                    data.forEach((d, i) => {
+                        const targetArtist = selected[i].toLowerCase();
                         const filtered = d.results.filter(t => {
                             if (!t.previewUrl) return false;
                             const yr = new Date(t.releaseDate).getFullYear();
                             const cName = t.trackName.toLowerCase().replace(/[^a-z0-9]/g, '');
                             if (yr < 1990 || yr > 1999 || seenTracks.has(cName)) return false;
                             
+                            // STRICT SHWE SPECIAL BOUNCER
+                            if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
+
                             const cArt = (t.artistName || "").toLowerCase();
                             if(artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
                             seenTracks.add(cName); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
@@ -465,7 +495,6 @@
                         pool = pool.concat(filtered);
                     });
                 } else {
-                    // Widened Year limits to fix compilation errors
                     switch(genre) {
                         case 'classic-rock': searchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
                         case 'pre-1980': searchTerm = "70s 60s Hits"; minYear = 1950; maxYear = 1979; break;
@@ -487,7 +516,7 @@
             }
 
             if (searchTerm !== "") {
-                const limit = currentMode === 'mode-movie' ? 300 : 200; // Increased limit
+                const limit = currentMode === 'mode-movie' ? 300 : 150;
                 const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&limit=${limit}&entity=song`);
                 const d = await res.json();
                 pool = d.results.filter(t => {
@@ -499,13 +528,18 @@
                         if (!t.artistName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
                     } else if (currentMode === 'mode-genre') {
                         const yr = new Date(t.releaseDate).getFullYear();
-                        if (yr < minYear - 8 || yr > maxYear + 8) return false;
+                        if (yr < minYear - 8 || yr > maxYear + 8) return false; // Widened buffer
                     } else if (currentMode === 'mode-movie') {
                         if (!t.collectionName) return false;
                         const gName = (t.primaryGenreName || "").toLowerCase();
                         const colName = t.collectionName.toLowerCase();
                         const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
                         if (!isVerifiedMovie) return false;
+
+                        // STRICT BOLLYWOOD POP INTRUDER EXCLUSION
+                        if (searchTerm.toLowerCase().includes('bollywood') || searchTerm.toLowerCase().includes('tamil')) {
+                            if (gName.includes('pop') || gName.includes('alternative') || gName.includes('rock') || gName.includes('hip-hop') || gName.includes('rap')) return false;
+                        }
                     }
                     
                     if (currentMode !== 'mode-artist') {
@@ -533,7 +567,7 @@
     async function startChallenge(trackIds, fmt, mode) {
         numPlayers = 1; timeLimit = 30; answerFormat = fmt || 'text'; currentMode = mode || 'mode-genre';
         isHintMode = document.getElementById('hint-mode').checked;
-        scores = [0]; streaks = [0]; matchHistory = [[]];
+        rawScores = [0]; streaks = [0]; matchHistory = [[]];
         document.getElementById('setup-screen').innerHTML = `<div style="color:var(--p2); font-weight:bold; padding:20px;">Fetching Challenge Data...</div>`;
 
         try {
@@ -560,11 +594,10 @@
         nextTrack();
     }
 
-    // --- GAMEPLAY LOGIC ---
+    // --- GAMEPLAY LOGIC WITH AUDIO SYNC ---
     function nextTrack() {
         if (curIdx >= maxRounds) { endGameSequence(); return; }
-        
-        clearAllTimers(); // Fix jumping timers
+        clearAllTimers();
         
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
@@ -581,14 +614,22 @@
         document.getElementById('submit-btn').style.backgroundColor = currentColor; document.getElementById('submit-btn').style.color = "#000";
         
         document.getElementById('feedback').innerHTML = "";
+        document.getElementById('feedback').classList.remove('fade-in');
         document.getElementById('hint-area').style.display = 'none';
         document.getElementById('reveal-art').style.display = 'none';
+        document.getElementById('reveal-art').classList.remove('fade-in');
+        
+        // Fair-Play Audio Setup
+        document.getElementById('timer').innerText = "Load...";
         document.getElementById('timer').style.color = '#fff';
+        document.getElementById('visualizer').classList.remove('active', 'paused');
+        document.getElementById('visualizer').classList.add('hidden');
         
         if (answerFormat === 'mc') {
             document.getElementById('stop-btn').classList.add('hidden');
             document.getElementById('guess-fields').classList.add('hidden');
             document.getElementById('mc-fields').classList.remove('hidden');
+            document.getElementById('mc-fields').classList.add('fade-in');
             setupMC();
         } else {
             document.getElementById('stop-btn').classList.remove('hidden');
@@ -596,8 +637,22 @@
             document.getElementById('mc-fields').classList.add('hidden');
         }
 
-        audio.src = songs[curIdx].previewUrl; audio.play();
+        audio.src = songs[curIdx].previewUrl; 
+        audio.load();
 
+        // Await audio buffering before starting the clock
+        let playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => { startRoundClock(); }).catch(error => { startRoundClock(); });
+        } else {
+            startRoundClock();
+        }
+    }
+
+    function startRoundClock() {
+        document.getElementById('visualizer').classList.remove('hidden');
+        document.getElementById('visualizer').classList.add('active');
+        
         timeLeft = timeLimit; startTime = Date.now();
         document.getElementById('timer').innerText = timeLeft;
         
@@ -607,6 +662,7 @@
             if (isHintMode && timeLeft === Math.floor(timeLimit / 2)) showHint();
             if (timeLeft <= 0) {
                 clearAllTimers(); audio.pause();
+                document.getElementById('visualizer').classList.add('paused');
                 if (answerFormat === 'mc') { timeTaken = timeLimit; evaluateGuess(false); } 
                 else { handleStop(); }
             }
@@ -622,7 +678,6 @@
         let cleanSong = stripPrefix(s.trackName);
 
         if (currentMode === 'mode-movie') {
-            // Aggressive Cast Scrubber
             cleanArtist = cleanArtist.replace(/-?\s*\bcast\b/ig, '').replace(/\bof\b.*?$/ig, '').replace(/from.*?$/ig, '').replace(/ensemble/ig, '').trim();
             cleanArtist = cleanArtist.replace(/[-\&,\s]+$/, '');
             if(!cleanArtist) cleanArtist = "Various Artists";
@@ -649,15 +704,18 @@
                 <span style="margin-top:6px; font-style:italic; color:#aaa; font-size:0.85rem;">"${funFact}"</span>
             </div>
         `;
+        hintBox.classList.add('fade-in');
         hintBox.style.display = 'block';
     }
 
     function handleStop() { 
         clearAllTimers(); audio.pause(); 
+        document.getElementById('visualizer').classList.add('paused');
         timeTaken = (Date.now() - startTime) / 1000; 
         document.getElementById('stop-btn').classList.add('hidden'); 
         
         document.getElementById('guess-fields').classList.remove('hidden');
+        document.getElementById('guess-fields').classList.add('fade-in');
         setTimeout(() => {
             if(currentMode === 'mode-genre') document.getElementById('guess-artist').focus();
             if(currentMode === 'mode-artist') document.getElementById('guess-song').focus();
@@ -681,13 +739,11 @@
 
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        
         globalPool = globalPool.sort(() => 0.5 - Math.random());
         let sourcePool = globalPool.length > 5 ? globalPool : songs;
         let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr);
         
-        let wrongStrs = new Set();
-        let wrongOptions = [];
+        let wrongStrs = new Set(); let wrongOptions = [];
         for(let s of wrongPool) {
             let str = getMCLabel(s);
             if(!wrongStrs.has(str) && str !== "Unknown") {
@@ -708,11 +764,11 @@
         });
     }
 
-    // --- EVALUATION WITH SPLIT FEEDBACK & LOCKOUT ---
+    // --- EVALUATION & REVEAL ---
     function evaluateGuess(isCorrectMC = null) {
         clearAllTimers(); audio.pause(); 
+        document.getElementById('visualizer').classList.add('paused');
         
-        // LOCKOUT UI Immediately
         document.getElementById('guess-fields').classList.add('hidden');
         document.getElementById('stop-btn').classList.add('hidden');
         
@@ -775,15 +831,19 @@
             streaks[pIdx] = 0; roundPts = 0; 
         }
 
-        scores[pIdx] += roundPts; 
+        rawScores[pIdx] += roundPts; 
         updateLeaderboard(pIdx); 
 
         fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
         if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
 
         document.getElementById('feedback').innerHTML = fbHTML;
+        document.getElementById('feedback').classList.add('fade-in');
+        
         const img = document.getElementById('reveal-art');
-        img.src = songs[curIdx].artworkUrl100.replace('100x100bb', '400x400bb'); img.style.display = 'block';
+        img.src = songs[curIdx].artworkUrl100.replace('100x100bb', '400x400bb'); 
+        img.classList.add('fade-in');
+        img.style.display = 'block';
 
         if(document.getElementById('guess-artist')) document.getElementById('guess-artist').value = ""; 
         if(document.getElementById('guess-song')) document.getElementById('guess-song').value = ""; 
@@ -792,10 +852,33 @@
         curIdx++; setTimeout(nextTrack, 4000); 
     }
 
+    // --- CONFETTI CANNON ---
+    function shootConfetti() {
+        const colors = ['#39ff14', '#00f2ff', '#ff00e1', '#ffff00'];
+        for(let i=0; i<100; i++) {
+            const conf = document.createElement('div');
+            conf.style.position = 'fixed';
+            conf.style.width = '8px'; conf.style.height = '8px';
+            conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.top = '-10px';
+            conf.style.zIndex = '9999';
+            conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            document.body.appendChild(conf);
+            
+            const fallDuration = Math.random() * 2 + 2;
+            conf.animate([
+                { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+            ], { duration: fallDuration * 1000, easing: 'cubic-bezier(.37,0,.63,1)' }).onfinish = () => conf.remove();
+        }
+    }
+
     // --- SHARE LOGIC & FINALE ---
     function shareChallenge() {
-        const maxScore = Math.max(...scores);
-        const winIdx = scores.indexOf(maxScore);
+        const normalizedScores = rawScores.map(s => getNormalizedScore(s));
+        const maxScore = Math.max(...normalizedScores);
+        const winIdx = normalizedScores.indexOf(maxScore);
         
         const grid = matchHistory[winIdx].reduce((res, item, idx) => {
             res += item;
@@ -804,9 +887,9 @@
         }, '');
 
         const trackIds = songs.map(s => s.trackId).join(',');
-        const url = `${window.location.origin}${window.location.pathname}?score=${Math.round(maxScore)}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
+        const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
         
-        const text = `Yardbird's Song Trivia 🎸\nScore: ${Math.round(maxScore)} Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
+        const text = `Yardbird's Song Trivia 🎸\nScore: ${maxScore}/750 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
         
         if (navigator.share) {
             navigator.share({ title: "Beat My Score!", text: text, url: url }).catch(console.error);
@@ -821,15 +904,19 @@
         document.getElementById('final-screen').classList.remove('hidden');
         document.getElementById('main-title').style.color = '#ffffff'; 
         
-        updateLeaderboard(-1); 
+        updateLeaderboard(-1); // -1 triggers the 750-Point Normalization Display
+        shootConfetti(); // FIRE CONFETTI!
         
-        const maxScore = Math.max(...scores); const winIdx = scores.indexOf(maxScore);
-        document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${Math.round(maxScore)} Pts` : `🏆 Total Score: ${Math.round(maxScore)} Pts`;
+        const normalizedScores = rawScores.map(s => getNormalizedScore(s));
+        const maxScore = Math.max(...normalizedScores); 
+        const winIdx = normalizedScores.indexOf(maxScore);
+        
+        document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
         if (maxScore > globalHighScore && maxScore > 0) {
             localStorage.setItem('yardbirdHighScore', maxScore);
-            document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(maxScore)} Pts`;
+            document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${maxScore} Pts`;
             document.getElementById('new-record-msg').style.display = 'block';
         }
         renderPlaylist('apple');
