@@ -18,7 +18,7 @@
             /* Player Gameplay Colors */
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
             
-            /* V4.2 Dedicated App Brand Color (Electric Purple) */
+            /* Dedicated App Brand Color (Electric Purple) */
             --brand: #a855f7; 
             
             --bg: #0a0a0c; --card: #16161a;
@@ -73,7 +73,7 @@
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;}
         .btn-main { background: white; color: black; }
         
-        /* Lobby Remodel V4.2 */
+        /* Lobby Remodel */
         .daily-section { margin-bottom: 10px; }
         .btn-daily { background: var(--brand); color: #fff; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid #c084fc; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
         .btn-daily:hover { box-shadow: 0 0 15px var(--brand); transform: scale(1.02); }
@@ -89,19 +89,19 @@
         .mc-btn:hover { background: #444; color: white; border-color: #666; }
         .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Switches */
+        /* Switches V4.3 - Color Consistency */
         .switch-container { display: flex; justify-content: space-between; align-items: center; background: #25252b; padding: 12px 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #3f3f4a; transition: opacity 0.3s; }
         .switch-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .3s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--p1); }
+        input:checked + .slider { background-color: var(--brand); }
         input:checked + .slider:before { transform: translateX(24px); }
         .switch input:disabled + .slider { cursor: not-allowed; background-color: #333; }
         .switch input:disabled + .slider:before { background-color: #666; }
 
-        /* Playlist Export V4.2 Polished */
+        /* Playlist Export */
         .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
         .playlist-box h4 { margin: 0 0 12px 0; color: #888; font-size: 0.8rem; text-transform: uppercase; text-align: center; }
         .platform-toggles { display: flex; gap: 8px; margin-bottom: 5px; }
@@ -112,7 +112,6 @@
         .playlist-list-container { max-height: 200px; overflow-y: auto; padding-right: 5px; display: none; margin-top: 15px; }
         .playlist-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; }
         
-        /* The Blue Link Fix */
         .playlist-list a { color: #f8f9fa; text-decoration: none; display: flex; gap: 8px; border-bottom: 1px solid #2d2d35; padding: 10px 5px; transition: all 0.2s; font-weight: 500; }
         .playlist-list a:hover { color: var(--brand); background: rgba(168, 85, 247, 0.05); padding-left: 10px; }
 
@@ -156,7 +155,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.2 Master Edition</strong><br>
+            <strong>Yardbird v4.3 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -198,8 +197,15 @@
             <div class="trophy-icon">🎯</div>
             <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds (Career).</p></div>
         </div>
+        <div class="trophy-row" id="trophy-streak">
+            <div class="trophy-icon">🔥</div>
+            <div class="trophy-text"><h4>The Daily Devotee</h4><p>Play Yardbird 5 days in a row.</p></div>
+        </div>
 
-        <button class="btn btn-main" onclick="hideModal('stats-modal')" style="margin-top: 15px;">Close</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <button class="btn btn-main" onclick="hideModal('stats-modal')" style="flex: 1; margin-right: 10px;">Close</button>
+            <button class="btn btn-reset" onclick="resetStats()" style="margin-top: 0; padding: 16px;">Reset Stats</button>
+        </div>
     </div>
 </div>
 
@@ -216,7 +222,7 @@
         <div id="setup-screen">
             
             <div class="daily-section">
-                <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">📅 PLAY TODAY TEN</button>
+                <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">🌍 PLAY TODAY TEN</button>
                 <div style="text-align:center; font-size:0.75rem; color:#ccc; text-transform:uppercase; margin-bottom:10px;">The Daily Global Synced Challenge</div>
             </div>
 
@@ -376,7 +382,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.2 ---
+    // --- GLOBAL VARIABLES & STATS V4.3 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -385,11 +391,12 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || {
-        gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, 
-        hsText: 0, hsMC: 0, sniperHits: 0, 
-        trophies: { perf: false, mara: false, snip: false }
-    };
+    // V4.3 Robust Stats initialization with defaults
+    const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, trophies: { perf: false, mara: false, snip: false, streak: false } };
+    let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
+    if (userStats.currentStreak === undefined) userStats.currentStreak = 0;
+    if (userStats.lastPlayedDate === undefined) userStats.lastPlayedDate = null;
+    if (userStats.trophies.streak === undefined) userStats.trophies.streak = false;
 
     let audio = new Audio();
     const sfxTick = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
@@ -408,7 +415,6 @@
     // --- INITIALIZATION ---
     window.onload = () => {
         populateStats();
-        document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
         
         document.getElementById('answer-format').addEventListener('change', function() {
             const hintToggle = document.getElementById('hint-mode');
@@ -460,11 +466,21 @@
         if(userStats.trophies.perf) document.getElementById('trophy-perf').classList.add('unlocked');
         if(userStats.trophies.mara) document.getElementById('trophy-mara').classList.add('unlocked');
         if(userStats.trophies.snip) document.getElementById('trophy-snip').classList.add('unlocked');
+        if(userStats.trophies.streak) document.getElementById('trophy-streak').classList.add('unlocked');
     }
     
     function saveStats() {
         localStorage.setItem('yardbirdStatsV4', JSON.stringify(userStats));
         populateStats();
+    }
+
+    // V4.3 Reset Stats Function
+    function resetStats() {
+        if(confirm("Are you sure you want to reset all lifetime stats and trophies? This cannot be undone.")) {
+            userStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, trophies: { perf: false, mara: false, snip: false, streak: false } };
+            saveStats();
+            document.querySelectorAll('.trophy-row').forEach(row => row.classList.remove('unlocked'));
+        }
     }
 
     // --- SEEDED SHUFFLE (PRNG) ---
@@ -602,7 +618,9 @@
     async function startDailyChallenge() {
         isDailyMode = true;
         numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
-        timeLimit = 30; hitLimit = 5; answerFormat = 'text'; currentMode = 'mode-genre'; isHintMode = true;
+        // V4.3 - Force Multiple Choice and lock out Hint Mode for Daily
+        timeLimit = 30; hitLimit = 5; answerFormat = 'mc'; currentMode = 'mode-genre'; isHintMode = false;
+        
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('daily-btn-top').style.display = 'none';
         document.getElementById('feedback-setup').innerText = "Loading Today's Global Mix...";
@@ -833,7 +851,7 @@
         document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
         updateLeaderboard(0);
         
-        if(isDailyMode) { document.getElementById('main-title').innerText = "📅 TODAY TEN CHALLENGE"; }
+        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY TEN CHALLENGE"; }
         nextTrack();
     }
 
@@ -916,6 +934,9 @@
     }
 
     function showHint() {
+        // V4.3 HARD BLOCK: Ensure hint NEVER shows on Multiple Choice
+        if (answerFormat === 'mc') return;
+
         const s = songs[curIdx];
         let h1 = "", h2 = "", funFact = "";
         
@@ -1072,7 +1093,6 @@
 
         matchHistory[pIdx].push(correct ? '🟩' : '🟥');
 
-        // Stats Tracking per Guess
         userStats.totalGuesses++;
         if (correct) {
             userStats.correctGuesses++;
@@ -1155,7 +1175,7 @@
             return res;
         }, '');
         
-        let headerText = isDailyMode ? `📅 Yardbird TODAY TEN` : `Yardbird's Song Trivia 🎸`;
+        let headerText = isDailyMode ? `🌍 Yardbird TODAY TEN` : `Yardbird's Song Trivia 🎸`;
 
         const trackIds = songs.map(s => s.trackId).join(',');
         const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
@@ -1173,7 +1193,7 @@
     function endGameSequence() {
         document.getElementById('play-screen').classList.add('hidden');
         document.getElementById('final-screen').classList.remove('hidden');
-        if(isDailyMode) { document.getElementById('main-title').innerText = "📅 TODAY TEN CHALLENGE"; }
+        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY TEN CHALLENGE"; }
         document.getElementById('main-title').style.color = '#ffffff'; 
         
         updateLeaderboard(-1); 
@@ -1186,7 +1206,7 @@
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
-        // Save Stats & Check Trophies
+        // V4.3 Save Stats & Streak Logic
         userStats.gamesPlayed++;
         if (answerFormat === 'text' && maxScore > userStats.hsText) userStats.hsText = maxScore;
         if (answerFormat === 'mc' && maxScore > userStats.hsMC) userStats.hsMC = maxScore;
@@ -1194,6 +1214,21 @@
         if (maxScore > 700) userStats.trophies.perf = true;
         if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
         if (userStats.sniperHits >= 10) userStats.trophies.snip = true;
+        
+        // Streak Tracking
+        const todayStr = new Date().toDateString();
+        if (userStats.lastPlayedDate !== todayStr) {
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (userStats.lastPlayedDate === yesterday.toDateString()) {
+                userStats.currentStreak++;
+            } else {
+                userStats.currentStreak = 1;
+            }
+            userStats.lastPlayedDate = todayStr;
+        }
+        if (userStats.currentStreak >= 5) userStats.trophies.streak = true;
+        
         saveStats();
 
         if (maxScore > globalHighScore && maxScore > 0) {
@@ -1201,13 +1236,9 @@
             document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${maxScore} Pts`;
             document.getElementById('new-record-msg').style.display = 'block';
         }
-        
-        // V4.2 Remove automatic playlist rendering so the list stays completely hidden until clicked
     }
 
-    // V4.2 Updated to reveal the hidden container when clicked
     function renderPlaylist(platform) {
-        // Reveal the hidden container
         document.getElementById('playlist-list-container').style.display = 'block';
         
         document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active-plat'));
