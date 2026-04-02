@@ -23,9 +23,13 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
         .container { background: var(--card); padding: 1.5rem; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; border: 1px solid #2d2d35; width: 100%; max-width: 750px; position: relative; margin-bottom: 20px; }
-        #game-header { position: relative; margin-bottom: 15px; padding: 0 40px; }
-        .info-btn { position: absolute; top: 0; right: 0; width: 32px; height: 32px; border-radius: 50%; background: transparent; border: 2px solid #888; color: #888; font-size: 1.1rem; font-weight: bold; font-family: 'Times New Roman', serif; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
-        .info-btn:hover { border-color: var(--p2); color: var(--p2); transform: scale(1.1); }
+        #game-header { position: relative; margin-bottom: 15px; padding: 0 40px; min-height: 80px; }
+        
+        .header-btn { position: absolute; right: 0; width: 32px; height: 32px; border-radius: 50%; background: #25252b; border: 1px solid #444; color: #aaa; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
+        .header-btn:hover { border-color: var(--p2); color: var(--p2); transform: scale(1.1); }
+        #info-btn { top: 0; }
+        #stats-btn { top: 40px; font-size: 0.9rem; } /* V4.0 Added Real Estate Usage */
+
         #main-title { margin: 0 0 5px 0; color: #fff; font-size: 1.8rem; transition: color 0.4s ease; line-height: 1.2; text-transform: uppercase; }
 
         /* Score UI */
@@ -61,8 +65,10 @@
         /* Forms & Inputs */
         label { display: block; text-align: left; font-size: 0.65rem; color: #888; margin-top: 15px; margin-bottom: 4px; text-transform: uppercase; }
         select, input[type="text"], input[type="number"] { background: #25252b; border: 1px solid #3f3f4a; color: white; padding: 14px; border-radius: 10px; font-size: 1rem; width: 100%; outline: none; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; }
+        .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;}
         .btn-main { background: white; color: black; }
+        .btn-daily { background: var(--p2); color: black; font-size: 1.2rem; }
+        .btn-daily:hover { box-shadow: 0 0 15px var(--p2); transform: scale(1.02); }
         .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; }
         .btn-reset:hover { background: #444; color: #fff; }
 
@@ -80,33 +86,30 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--p1); }
         input:checked + .slider:before { transform: translateX(24px); }
-        
-        /* Disabled Switch State */
         .switch input:disabled + .slider { cursor: not-allowed; background-color: #333; }
         .switch input:disabled + .slider:before { background-color: #666; }
 
-        /* Playlist Export */
-        .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
-        .playlist-box h4 { margin: 0 0 12px 0; color: #888; font-size: 0.8rem; text-transform: uppercase; text-align: center; }
-        .platform-toggles { display: flex; gap: 8px; margin-bottom: 15px; }
-        .plat-btn { flex: 1; background: #25252b; border: 1px solid #3f3f4a; color: #aaa; padding: 10px 5px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        .active-plat { background: var(--p2); color: #000 !important; border-color: var(--p2); }
-        .playlist-list-container { max-height: 200px; overflow-y: auto; padding-right: 5px; }
-        .playlist-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; }
-        .playlist-list a { color: #fff; text-decoration: none; display: flex; gap: 8px; border-bottom: 1px solid #222; padding: 8px 0; }
-
-        /* Modals */
+        /* Modals & Trophies */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card); border: 1px solid #3f3f4a; padding: 25px; border-radius: 20px; max-width: 500px; width: 100%; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); }
+        .modal-content { background: var(--card); border: 1px solid #3f3f4a; padding: 25px; border-radius: 20px; max-width: 500px; width: 100%; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto; }
         .modal-content h2 { color: var(--p2); margin-top: 0; text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;}
-        .modal-content ul { padding-left: 20px; font-size: 0.95rem; line-height: 1.6; color: #ccc;}
-        .modal-content li { margin-bottom: 12px; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #25252b; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #3f3f4a; }
+        .stat-val { font-size: 1.5rem; font-weight: 900; color: #fff; margin-top: 5px; }
+        
+        .trophy-row { display: flex; align-items: center; background: #1a1a24; border: 1px solid #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s; }
+        .trophy-icon { font-size: 2rem; margin-right: 15px; filter: grayscale(100%) opacity(0.3); }
+        .trophy-text h4 { margin: 0 0 4px 0; color: #888; }
+        .trophy-text p { margin: 0; font-size: 0.8rem; color: #666; }
+        .trophy-row.unlocked { border-color: #ffcc00; background: rgba(255,204,0,0.05); }
+        .trophy-row.unlocked .trophy-icon { filter: none; }
+        .trophy-row.unlocked .trophy-text h4 { color: #ffcc00; }
+        .trophy-row.unlocked .trophy-text p { color: #ccc; }
 
         @media (max-width: 768px) {
             #game-header { padding: 0 35px; margin-bottom: 10px; }
             #main-title { font-size: 1.4rem !important; }
-            .info-btn { width: 30px; height: 30px; font-size: 1rem; }
-            .setup-row { flex-direction: column; gap: 0 !important; }
             .container { padding: 1rem; border-radius: 16px; }
         }
         .hidden { display: none !important; }
@@ -117,15 +120,59 @@
 <div id="rules-modal" class="modal-overlay hidden">
     <div class="modal-content">
         <h2>How to Play</h2>
-        <ul>
+        <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.6; color: #ccc;">
             <li><strong>Modes:</strong> Play Classic Genre, Artist-Specific, or Guess the Movie!</li>
-            <li><strong>Formats:</strong> Choose between Multiple Choice or Classic Typing.</li>
+            <li><strong>Today Ten:</strong> A daily synced challenge where everyone in the world plays the exact same 10 songs.</li>
             <li><strong>Custom Filters:</strong> In custom searches, separate keywords by commas (e.g. <i>1980s, Pop, Madonna</i>) to build ultra-specific challenges.</li>
             <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet of the song!</li>
             <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play.</li>
         </ul>
-        <button class="btn btn-main" onclick="hideRules()" style="margin-top: 10px;">Got it! Let's Play</button>
-        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.8 Master Edition</div>
+        <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
+        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
+            <strong>Yardbird v4.0 Master Edition</strong><br>
+            Developed by Karthik Raja, 2026
+        </div>
+    </div>
+</div>
+
+<div id="stats-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2>Lifetime Locker Room</h2>
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">Games Played</div>
+                <div class="stat-val" id="stat-games">0</div>
+            </div>
+            <div class="stat-box">
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">Accuracy</div>
+                <div class="stat-val" id="stat-acc" style="color:var(--p2)">0%</div>
+            </div>
+            <div class="stat-box">
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score (Text)</div>
+                <div class="stat-val" id="stat-hs-text" style="color:var(--p1)">0</div>
+            </div>
+            <div class="stat-box">
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score (MC)</div>
+                <div class="stat-val" id="stat-hs-mc" style="color:var(--p3)">0</div>
+            </div>
+        </div>
+
+        <h3 style="color:#fff; font-size:1rem; border-bottom:1px solid #333; padding-bottom:8px; margin-bottom:15px;">Trophy Cabinet</h3>
+        
+        <div class="trophy-row" id="trophy-perf">
+            <div class="trophy-icon">🏆</div>
+            <div class="trophy-text"><h4>The Perfectionist</h4><p>Score a flawless 750 points.</p></div>
+        </div>
+        <div class="trophy-row" id="trophy-mara">
+            <div class="trophy-icon">🏃</div>
+            <div class="trophy-text"><h4>The Marathoner</h4><p>Complete a grueling 20-Round game.</p></div>
+        </div>
+        <div class="trophy-row" id="trophy-snip">
+            <div class="trophy-icon">🎯</div>
+            <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds.</p></div>
+        </div>
+
+        <button class="btn btn-main" onclick="hideModal('stats-modal')" style="margin-top: 15px;">Close</button>
     </div>
 </div>
 
@@ -133,15 +180,17 @@
     <div class="container">
         
         <div id="game-header">
-            <button onclick="showRules()" class="info-btn">i</button>
+            <button onclick="showModal('rules-modal')" class="header-btn" id="info-btn">i</button>
+            <button onclick="showModal('stats-modal')" class="header-btn" id="stats-btn">📊</button>
             <h1 id="main-title">YARDBIRD'S SONG TRIVIA</h1>
             <p style="color:#888; font-size: 0.85rem; margin-bottom: 5px;">The Ultimate Music Challenge</p>
         </div>
         
         <div id="setup-screen">
-            <div id="high-score-display" class="high-score-box">🏆 All-Time Record: 0 Pts</div>
-            <button class="btn btn-main" id="start-btn-top" style="margin-bottom:20px; font-size: 1.25rem; padding: 18px;" onclick="startGame()">▶ START GAME</button>
             
+            <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">📅 PLAY TODAY TEN</button>
+            <div style="text-align:center; font-size:0.75rem; color:#888; margin-bottom:25px; text-transform:uppercase;">The Daily Global Synced Challenge</div>
+
             <div class="setup-row" style="display: flex; gap: 10px;">
                 <div style="flex:1">
                     <label>PLAYERS</label>
@@ -150,20 +199,20 @@
                     </select>
                 </div>
                 <div style="flex:1">
-                    <label>ROUNDS PER PLAYER</label>
+                    <label>ROUNDS</label>
                     <select id="num-songs">
-                        <option value="3">3 Rounds (Quick)</option>
+                        <option value="3">3 Rounds</option>
                         <option value="5">5 Rounds</option>
-                        <option value="10" selected>10 Rounds (Standard)</option>
+                        <option value="10" selected>10 Rounds</option>
                         <option value="15">15 Rounds</option>
-                        <option value="20">20 Rounds (Marathon)</option>
+                        <option value="20">20 Rounds</option>
                     </select>
                 </div>
                 <div style="flex:1">
-                    <label>LEVEL (DIFFICULTY)</label>
+                    <label>LEVEL</label>
                     <select id="diff-select">
-                        <option value="30" selected>Easy - Standard 30s Snippet</option>
-                        <option value="10">Hard - 10s Epic Intro Cutoff</option>
+                        <option value="30" selected>Easy (30s)</option>
+                        <option value="10">Hard (10s Cutoff)</option>
                     </select>
                 </div>
             </div>
@@ -234,6 +283,7 @@
                 </label>
             </div>
             
+            <button class="btn btn-main" id="start-btn-top" style="margin-top:20px; font-size: 1.1rem; padding: 16px;" onclick="startGame()">▶ CUSTOM GAME</button>
             <div id="feedback-setup" style="margin-top:15px; color:var(--p2); font-weight:bold;"></div>
         </div>
 
@@ -294,15 +344,22 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & SFX ---
-    let songs = [], globalPool = []; // globalPool retains ALL 200+ tracks for MC dummy options
+    // --- GLOBAL VARIABLES & STATS V4.0 ---
+    let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
     let timeLimit = 30, hitLimit = 5, timeTaken = 0;
     let timerId, guessTimerId, timeLeft, startTime;
-    let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text';
-    let isProcessing = false; // V3.8 Edge Case Double-Tap Lock
+    let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
+    let isProcessing = false; 
     
+    // V4.0 Local Storage Stats
+    let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || {
+        gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, 
+        hsText: 0, hsMC: 0, sniperHits: 0, 
+        trophies: { perf: false, mara: false, snip: false }
+    };
+
     let audio = new Audio();
     const sfxTick = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
     const sfxCheer = new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg');
@@ -311,35 +368,27 @@
 
     const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
     
-    const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black eyed Peas", "Meat Loaf", "Mr.BIG", "Michael Jackson", "Cardigans"];
+    // V4.0 Expanded Shwe Special Roster (80+ Artists)
+    const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black Eyed Peas", "Meat Loaf", "Mr. Big", "Michael Jackson", "The Cardigans", "NSYNC", "Destiny's Child", "Ricky Martin", "Jennifer Lopez", "Cher", "Savage Garden", "Boyzone", "En Vogue", "Boyz II Men", "All Saints", "Shania Twain", "Sarah McLachlan", "Jewel", "Faith Hill", "Fiona Apple", "Melissa Etheridge", "Tracy Chapman", "Sophie B. Hawkins", "The Corrs", "Paula Cole", "Weezer", "Third Eye Blind", "Counting Crows", "Smash Mouth", "Spin Doctors", "Smashing Pumpkins", "Foo Fighters", "Blink-182", "Garbage", "The Wallflowers", "Sugar Ray", "Hootie & the Blowfish", "Gin Blossoms", "Barenaked Ladies", "Collective Soul", "Dave Matthews Band", "Fugees", "Lauryn Hill", "Salt-N-Pepa", "Coolio", "Toni Braxton", "Seal"];
     
     const oneHitWondersFull = ["Chumbawamba", "Lou Bega", "Los Del Rio", "Baha Men", "Dexys Midnight Runners", "Gotye", "Vanilla Ice", "A-ha", "Soft Cell", "Sir Mix-A-Lot", "Right Said Fred", "Tommy Tutone", "Survivor", "Carl Douglas", "Los Lobos", "Blind Melon", "Men At Work", "Haddaway", "Eiffel 65", "The Knack", "Deep Blue Something", "Fountains of Wayne", "Wheatus", "Semisonic", "Nena"];
 
-    let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
-
-    // --- INITIALIZATION & UI LISTENERS ---
+    // --- INITIALIZATION ---
     window.onload = () => {
-        document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
-        
-        // V3.8 Disable Hint Switch if Multiple Choice is selected
+        populateStats();
         document.getElementById('answer-format').addEventListener('change', function() {
             const hintToggle = document.getElementById('hint-mode');
             const hintContainer = document.getElementById('hint-container');
             const hintLabel = document.getElementById('hint-label-text');
-            
             if (this.value === 'mc') {
-                hintToggle.checked = false;
-                hintToggle.disabled = true;
-                hintContainer.style.opacity = '0.4';
-                hintLabel.innerText = "Hint Mode (Disabled for MC)";
+                hintToggle.checked = false; hintToggle.disabled = true;
+                hintContainer.style.opacity = '0.4'; hintLabel.innerText = "Hint Mode (Disabled for MC)";
             } else {
-                hintToggle.checked = true;
-                hintToggle.disabled = false;
-                hintContainer.style.opacity = '1';
-                hintLabel.innerText = "Enable Hint Mode & Trivia";
+                hintToggle.checked = true; hintToggle.disabled = false;
+                hintContainer.style.opacity = '1'; hintLabel.innerText = "Enable Hint Mode & Trivia";
             }
         });
-
+        
         const params = new URLSearchParams(window.location.search);
         if(params.has('tracks')) {
             const targetScore = params.get('score');
@@ -364,10 +413,45 @@
         document.getElementById('guess-movie').addEventListener('keypress', triggerSubmit);
     });
 
-    function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
-    function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
+    function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // --- FUZZY MATCHING V3.8 ---
+    function populateStats() {
+        document.getElementById('stat-games').innerText = userStats.gamesPlayed;
+        let acc = userStats.totalGuesses > 0 ? Math.round((userStats.correctGuesses / userStats.totalGuesses) * 100) : 0;
+        document.getElementById('stat-acc').innerText = `${acc}%`;
+        document.getElementById('stat-hs-text').innerText = userStats.hsText;
+        document.getElementById('stat-hs-mc').innerText = userStats.hsMC;
+        
+        if(userStats.trophies.perf) document.getElementById('trophy-perf').classList.add('unlocked');
+        if(userStats.trophies.mara) document.getElementById('trophy-mara').classList.add('unlocked');
+        if(userStats.trophies.snip) document.getElementById('trophy-snip').classList.add('unlocked');
+    }
+    
+    function saveStats() {
+        localStorage.setItem('yardbirdStatsV4', JSON.stringify(userStats));
+        populateStats();
+    }
+
+    // --- V4.0 SEEDED SHUFFLE (PRNG) ---
+    function seededShuffle(array, seed) {
+        let m32 = function() {
+            var t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+        let m = array.length, t, i;
+        while (m) {
+            i = Math.floor(m32() * m--);
+            t = array[m];
+            array[m] = array[i];
+            array[i] = t;
+        }
+        return array;
+    }
+
+    // --- FUZZY MATCHING ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -480,8 +564,19 @@
         if(guessTimerId) clearInterval(guessTimerId);
     }
 
-    // --- FETCHING LOGIC WITH TIMEOUTS AND WILDCARDS ---
-    async function startGame() {
+    // --- V4.0 DAILY CHALLENGE INITIATOR ---
+    function startDailyChallenge() {
+        isDailyMode = true;
+        numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
+        timeLimit = 30; hitLimit = 5; answerFormat = 'text'; currentMode = 'mode-genre'; isHintMode = true;
+        document.getElementById('start-btn-top').style.display = 'none';
+        document.getElementById('daily-btn-top').style.display = 'none';
+        document.getElementById('feedback-setup').innerText = "Loading Today's Global Mix...";
+        executeFetchLogic();
+    }
+    
+    function startGame() {
+        isDailyMode = false;
         numPlayers = parseInt(document.getElementById('player-count').value);
         timeLimit = parseInt(document.getElementById('diff-select').value); 
         hitLimit = parseInt(document.getElementById('hit-density').value);
@@ -490,26 +585,32 @@
         roundsPerPlayer = parseInt(document.getElementById('num-songs').value) || 10;
         maxRounds = roundsPerPlayer * numPlayers;
         
+        document.getElementById('start-btn-top').style.display = 'none';
+        document.getElementById('daily-btn-top').style.display = 'none';
+        document.getElementById('feedback-setup').innerText = "Connecting to iTunes Database...";
+        executeFetchLogic();
+    }
+
+    // --- CORE FETCH LOGIC ---
+    async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
         
-        document.getElementById('start-btn-top').style.display = 'none';
-        document.getElementById('feedback-setup').innerText = "Connecting to iTunes Database...";
-
         try {
             let pool = []; let searchTerm = ""; let minYear = 1900, maxYear = 2099;
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
-            
             let apiSearchTerm = searchTerm;
 
-            if (currentMode === 'mode-genre') {
+            if(isDailyMode) {
+                // V4.0 Grab a massive generic hit list for the daily seed
+                apiSearchTerm = "Billboard Hot 100 Hits";
+            }
+            else if (currentMode === 'mode-genre') {
                 const genre = document.getElementById('genre-select').value;
                 if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
-                    
                     let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
                     const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
-                    
                     let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
 
                     const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
@@ -528,17 +629,15 @@
                             if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
 
                             const cArt = (t.artistName || "").toLowerCase();
-                            // V3.8 Wider Selection disables the Artist Limit 
                             if (localHitLimit < 30 && artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
                             
                             seenTracks.add(cleanTitle); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                             return true;
-                        });
+                        }).slice(0, localHitLimit);
                         pool = pool.concat(filtered);
                     });
                 } else {
                     searchTerm = genre === 'custom' ? customVal : genre;
-                    
                     if (searchTerm === customVal && customVal.includes(',')) {
                         let terms = customVal.split(',').map(s => s.trim().toLowerCase());
                         let cleanTerms = [];
@@ -562,7 +661,6 @@
             } else if (currentMode === 'mode-artist') {
                 const art = document.getElementById('artist-select').value;
                 searchTerm = art === 'custom' ? customVal : art;
-                
                 const artists = searchTerm.split(/[,;]+/).map(a => a.trim()).filter(a => a);
                 const fetches = artists.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&limit=150&entity=song`));
                 const res = await Promise.all(fetches);
@@ -579,17 +677,14 @@
                         if (colName.includes('- single') || colName.includes('- ep')) return false;
                         const flatCol = colName.replace(/[^a-z0-9]/g, '');
                         if (flatCol === cleanTitle || flatCol.includes(cleanTitle)) return false;
-                        
-                        seenTracks.add(cleanTitle);
-                        return true;
-                    });
+                        seenTracks.add(cleanTitle); return true;
+                    }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
                     pool = pool.concat(filtered);
                 });
-                searchTerm = ""; 
+                apiSearchTerm = ""; 
             } else if (currentMode === 'mode-movie') {
                 const mov = document.getElementById('movie-select').value;
                 searchTerm = mov === 'custom' ? customVal : mov;
-                
                 if (searchTerm === customVal && customVal.includes(',')) {
                     let terms = customVal.split(',').map(s => s.trim().toLowerCase());
                     let cleanTerms = [];
@@ -602,22 +697,18 @@
                         else { cleanTerms.push(t); }
                     });
                     apiSearchTerm = cleanTerms.join(' ');
-                } else {
-                    apiSearchTerm = searchTerm;
-                }
+                } else { apiSearchTerm = searchTerm; }
             }
 
             // STANDARD FETCH
-            if (searchTerm !== "") {
+            if (apiSearchTerm !== "") {
                 const limit = currentMode === 'mode-movie' ? 300 : 200;
                 
-                // V3.8 WILDCARD HACK to force iTunes to return completely different 200-track blocks across games
-                if (hitLimit === 30 || currentMode === 'mode-movie') {
+                if (!isDailyMode && (hitLimit === 30 || currentMode === 'mode-movie')) {
                     const wildcards = ['a', 'e', 'i', 'o', 'u'];
                     apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
                 }
 
-                // V3.8 Network Timeout Handler (10 seconds)
                 const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
                 const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
                 
@@ -632,17 +723,15 @@
 
                 pool = d.results.filter(t => {
                     if (!t.previewUrl) return false;
-                    
                     const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
                     if (seenTracks.has(cleanTitle)) return false; 
                     
-                    if (currentMode === 'mode-genre') {
+                    if (currentMode === 'mode-genre' && !isDailyMode) {
                         const yr = new Date(t.releaseDate).getFullYear();
                         if (yr < minYear - 8 || yr > maxYear + 8) return false; 
                     } else if (currentMode === 'mode-movie') {
                         const yr = new Date(t.releaseDate).getFullYear();
                         if (yr < minYear || yr > maxYear) return false; 
-                        
                         if (!t.collectionName) return false;
                         const gName = (t.primaryGenreName || "").toLowerCase();
                         const colName = t.collectionName.toLowerCase();
@@ -652,13 +741,12 @@
                             let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
                             if (!hasMatch) return false; 
                         }
-                        
                         if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
                         
                         const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
                         if (!isVerifiedMovie) return false;
 
-                        if (searchTerm.toLowerCase().includes('bollywood') || searchTerm.toLowerCase().includes('tamil')) {
+                        if (apiSearchTerm.toLowerCase().includes('bollywood') || apiSearchTerm.toLowerCase().includes('tamil')) {
                             if (gName.includes('pop') || gName.includes('alternative') || gName.includes('rock') || gName.includes('hip-hop') || gName.includes('rap')) return false;
                         }
                     }
@@ -673,27 +761,26 @@
                 });
             }
             
-            // V3.8 GLOBAL POOL Fix for Multiple Choice
-            // We save the ENTIRE massive pool to use for generating wrong MC answers
             globalPool = [...pool]; 
             
-            // Now we slice down just the actual songs played for the rounds
-            songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
+            // V4.0 Daily Mode Seeded Shuffle vs Normal Random Shuffle
+            if (isDailyMode) {
+                const today = new Date();
+                const dailySeed = parseInt(`${today.getFullYear()}${today.getMonth()}${today.getDate()}`);
+                songs = seededShuffle(pool, dailySeed).slice(0, maxRounds);
+            } else {
+                songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
+            }
+
             if(songs.length < maxRounds && songs.length > 0) maxRounds = songs.length; 
             else if(songs.length < 1) throw new Error("Not enough songs found for this criteria.");
             
-            // --- V3.8 HIDDEN DEVELOPER TEST MODE ---
             if (window.location.search.includes('test=true')) {
                 console.log(`=== YARDBIRD DEV TEST MODE: Fetched ${globalPool.length} Valid Tracks ===`);
-                console.table(globalPool.map(t => ({
-                    Artist: t.artistName,
-                    Song: t.trackName,
-                    Album: t.collectionName,
-                    Year: new Date(t.releaseDate).getFullYear()
-                })));
-                document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console (F12) for the table.";
+                console.table(globalPool.map(t => ({ Artist: t.artistName, Song: t.trackName, Album: t.collectionName, Year: new Date(t.releaseDate).getFullYear()})));
+                document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console.";
                 document.getElementById('start-btn-top').style.display = 'block';
-                return; // Stop the game from loading UI
+                return; 
             }
 
             launchGameUI();
@@ -701,6 +788,7 @@
             alert(e.message || "Network Error or iTunes timeout. Please try again or use wider search terms!"); 
             document.getElementById('feedback-setup').innerText = "";
             document.getElementById('start-btn-top').style.display = 'block';
+            document.getElementById('daily-btn-top').style.display = 'block';
         }
     }
 
@@ -711,6 +799,8 @@
         document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
         document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
         updateLeaderboard(0);
+        
+        if(isDailyMode) { document.getElementById('main-title').innerText = "📅 TODAY TEN CHALLENGE"; }
         nextTrack();
     }
 
@@ -718,7 +808,7 @@
     function nextTrack() {
         if (curIdx >= maxRounds) { endGameSequence(); return; }
         clearAllTimers();
-        isProcessing = false; // V3.8 Reset Double-Tap Lock
+        isProcessing = false; 
         
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
@@ -726,7 +816,8 @@
         updateLeaderboard(pIdx); 
         document.documentElement.style.setProperty('--active-vis', currentColor);
         
-        document.getElementById('main-title').style.color = currentColor;
+        if(!isDailyMode) document.getElementById('main-title').style.color = currentColor;
+        
         const tag = document.getElementById('active-player');
         const currentRound = Math.floor(curIdx / numPlayers) + 1;
         tag.innerText = numPlayers > 1 ? `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})` : `Round ${currentRound}/${roundsPerPlayer}`;
@@ -838,7 +929,7 @@
     }
 
     function handleStop() { 
-        if(isProcessing) return; // Lockout double-taps
+        if(isProcessing) return; 
         isProcessing = true;
         
         clearAllTimers(); audio.pause(); 
@@ -850,7 +941,7 @@
         document.getElementById('guess-fields').classList.add('fade-in');
         
         setTimeout(() => {
-            isProcessing = false; // Re-open lock for final submission
+            isProcessing = false; 
             if(currentMode === 'mode-genre') document.getElementById('guess-artist').focus();
             if(currentMode === 'mode-artist') document.getElementById('guess-song').focus();
             if(currentMode === 'mode-movie') document.getElementById('guess-movie').focus();
@@ -873,8 +964,6 @@
 
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        
-        // V3.8 - globalPool retains ALL 200 fetched songs, providing massive variety for wrong options
         let shuffPool = [...globalPool].sort(() => 0.5 - Math.random());
         let wrongPool = shuffPool.filter(s => getMCLabel(s) !== correctStr);
         
@@ -899,9 +988,9 @@
         });
     }
 
-    // --- EVALUATION & REVEAL ---
+    // --- EVALUATION & STATS TRACKING ---
     function evaluateGuess(isCorrectMC = null) {
-        if(isProcessing) return; // Prevent double-tap on submit
+        if(isProcessing) return; 
         isProcessing = true;
         
         clearAllTimers(); audio.pause(); 
@@ -916,7 +1005,6 @@
         }
 
         const pIdx = curIdx % numPlayers;
-        
         let roundPts = Math.max(0, timeLimit - timeTaken);
         if (timeLimit === 10) roundPts = roundPts * 3; 
 
@@ -950,6 +1038,13 @@
         }
 
         matchHistory[pIdx].push(correct ? '🟩' : '🟥');
+
+        // V4.0 Stats Tracking per Guess
+        userStats.totalGuesses++;
+        if (correct) {
+            userStats.correctGuesses++;
+            if (timeTaken <= 3 && answerFormat === 'text') userStats.sniperHits++;
+        }
 
         let fbHTML = "";
         const succColor = "var(--success)"; const failColor = "var(--fail)";
@@ -1026,11 +1121,13 @@
             if ((idx + 1) % 5 === 0) res += '\n';
             return res;
         }, '');
+        
+        let headerText = isDailyMode ? `📅 Yardbird TODAY TEN` : `Yardbird's Song Trivia 🎸`;
 
         const trackIds = songs.map(s => s.trackId).join(',');
         const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
         
-        const text = `Yardbird's Song Trivia 🎸\nScore: ${maxScore}/750 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
+        const text = `${headerText}\nScore: ${maxScore}/750 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
         
         if (navigator.share) {
             navigator.share({ title: "Beat My Score!", text: text, url: url }).catch(console.error);
@@ -1054,6 +1151,16 @@
         
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
+
+        // V4.0 Save Stats & Check Trophies
+        userStats.gamesPlayed++;
+        if (answerFormat === 'text' && maxScore > userStats.hsText) userStats.hsText = maxScore;
+        if (answerFormat === 'mc' && maxScore > userStats.hsMC) userStats.hsMC = maxScore;
+        
+        if (maxScore === 750) userStats.trophies.perf = true;
+        if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
+        if (userStats.sniperHits >= 10) userStats.trophies.snip = true;
+        saveStats();
 
         if (maxScore > globalHighScore && maxScore > 0) {
             localStorage.setItem('yardbirdHighScore', maxScore);
