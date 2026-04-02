@@ -15,7 +15,12 @@
 
     <style>
         :root { 
+            /* Player Gameplay Colors */
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
+            
+            /* V4.2 Dedicated App Brand Color (Electric Purple) */
+            --brand: #a855f7; 
+            
             --bg: #0a0a0c; --card: #16161a;
             --success: #2ecc71; --fail: #e74c3c;
             --active-vis: #fff;
@@ -26,9 +31,9 @@
         #game-header { position: relative; margin-bottom: 15px; padding: 0 40px; min-height: 80px; }
         
         .header-btn { position: absolute; right: 0; width: 32px; height: 32px; border-radius: 50%; background: #25252b; border: 1px solid #444; color: #aaa; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
-        .header-btn:hover { border-color: var(--p2); color: var(--p2); transform: scale(1.1); }
+        .header-btn:hover { border-color: var(--brand); color: var(--brand); transform: scale(1.1); }
         #info-btn { top: 0; }
-        #stats-btn { top: 40px; font-size: 0.9rem; } /* V4.0 Added Real Estate Usage */
+        #stats-btn { top: 40px; font-size: 0.9rem; } 
 
         #main-title { margin: 0 0 5px 0; color: #fff; font-size: 1.8rem; transition: color 0.4s ease; line-height: 1.2; text-transform: uppercase; }
 
@@ -67,8 +72,15 @@
         select, input[type="text"], input[type="number"] { background: #25252b; border: 1px solid #3f3f4a; color: white; padding: 14px; border-radius: 10px; font-size: 1rem; width: 100%; outline: none; box-sizing: border-box; }
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;}
         .btn-main { background: white; color: black; }
-        .btn-daily { background: var(--p2); color: black; font-size: 1.2rem; }
-        .btn-daily:hover { box-shadow: 0 0 15px var(--p2); transform: scale(1.02); }
+        
+        /* Lobby Remodel V4.2 */
+        .daily-section { margin-bottom: 10px; }
+        .btn-daily { background: var(--brand); color: #fff; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid #c084fc; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+        .btn-daily:hover { box-shadow: 0 0 15px var(--brand); transform: scale(1.02); }
+        
+        .separator-line { height: 2px; background: var(--brand); border-radius: 2px; margin: 15px 0 10px 0; border: none; box-shadow: 0 0 10px var(--brand); opacity: 0.7; }
+        .btn-custom { margin-bottom: 20px; font-size: 1.15rem;}
+
         .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; }
         .btn-reset:hover { background: #444; color: #fff; }
 
@@ -89,10 +101,25 @@
         .switch input:disabled + .slider { cursor: not-allowed; background-color: #333; }
         .switch input:disabled + .slider:before { background-color: #666; }
 
+        /* Playlist Export V4.2 Polished */
+        .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
+        .playlist-box h4 { margin: 0 0 12px 0; color: #888; font-size: 0.8rem; text-transform: uppercase; text-align: center; }
+        .platform-toggles { display: flex; gap: 8px; margin-bottom: 5px; }
+        .plat-btn { flex: 1; background: #25252b; border: 1px solid #3f3f4a; color: #aaa; padding: 10px 5px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: all 0.2s; }
+        
+        .active-plat { background: var(--brand); color: #fff !important; border-color: #c084fc; box-shadow: 0 0 12px rgba(168,85,247, 0.6); }
+        
+        .playlist-list-container { max-height: 200px; overflow-y: auto; padding-right: 5px; display: none; margin-top: 15px; }
+        .playlist-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; }
+        
+        /* The Blue Link Fix */
+        .playlist-list a { color: #f8f9fa; text-decoration: none; display: flex; gap: 8px; border-bottom: 1px solid #2d2d35; padding: 10px 5px; transition: all 0.2s; font-weight: 500; }
+        .playlist-list a:hover { color: var(--brand); background: rgba(168, 85, 247, 0.05); padding-left: 10px; }
+
         /* Modals & Trophies */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: var(--card); border: 1px solid #3f3f4a; padding: 25px; border-radius: 20px; max-width: 500px; width: 100%; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto; }
-        .modal-content h2 { color: var(--p2); margin-top: 0; text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;}
+        .modal-content h2 { color: var(--brand); margin-top: 0; text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;}
         
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #25252b; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #3f3f4a; }
@@ -123,13 +150,13 @@
         <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.6; color: #ccc;">
             <li><strong>Modes:</strong> Play Classic Genre, Artist-Specific, or Guess the Movie!</li>
             <li><strong>Today Ten:</strong> A daily synced challenge where everyone in the world plays the exact same 10 songs.</li>
-            <li><strong>Custom Filters:</strong> In custom searches, separate keywords by commas (e.g. <i>1980s, Pop, Madonna</i>) to build ultra-specific challenges.</li>
+            <li><strong>Custom Filters:</strong> Separate keywords by commas (e.g. <i>1980s, Pop, Madonna</i>) to build ultra-specific challenges.</li>
             <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet of the song!</li>
             <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play.</li>
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.0 Master Edition</strong><br>
+            <strong>Yardbird v4.2 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -145,7 +172,7 @@
             </div>
             <div class="stat-box">
                 <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">Accuracy</div>
-                <div class="stat-val" id="stat-acc" style="color:var(--p2)">0%</div>
+                <div class="stat-val" id="stat-acc" style="color:var(--brand)">0%</div>
             </div>
             <div class="stat-box">
                 <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score (Text)</div>
@@ -161,7 +188,7 @@
         
         <div class="trophy-row" id="trophy-perf">
             <div class="trophy-icon">🏆</div>
-            <div class="trophy-text"><h4>The Perfectionist</h4><p>Score a flawless 750 points.</p></div>
+            <div class="trophy-text"><h4>The Perfectionist</h4><p id="desc-perf">Score higher than 700/750 points.</p></div>
         </div>
         <div class="trophy-row" id="trophy-mara">
             <div class="trophy-icon">🏃</div>
@@ -169,7 +196,7 @@
         </div>
         <div class="trophy-row" id="trophy-snip">
             <div class="trophy-icon">🎯</div>
-            <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds.</p></div>
+            <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds (Career).</p></div>
         </div>
 
         <button class="btn btn-main" onclick="hideModal('stats-modal')" style="margin-top: 15px;">Close</button>
@@ -188,10 +215,16 @@
         
         <div id="setup-screen">
             
-            <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">📅 PLAY TODAY TEN</button>
-            <div style="text-align:center; font-size:0.75rem; color:#888; margin-bottom:25px; text-transform:uppercase;">The Daily Global Synced Challenge</div>
+            <div class="daily-section">
+                <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">📅 PLAY TODAY TEN</button>
+                <div style="text-align:center; font-size:0.75rem; color:#ccc; text-transform:uppercase; margin-bottom:10px;">The Daily Global Synced Challenge</div>
+            </div>
 
-            <div class="setup-row" style="display: flex; gap: 10px;">
+            <hr class="separator-line">
+            
+            <button class="btn btn-main btn-custom" id="start-btn-top" onclick="startGame()">▶ PLAY CUSTOM GAME</button>
+
+            <div class="setup-row" style="display: flex; gap: 10px; margin-top:5px;">
                 <div style="flex:1">
                     <label>PLAYERS</label>
                     <select id="player-count">
@@ -283,8 +316,7 @@
                 </label>
             </div>
             
-            <button class="btn btn-main" id="start-btn-top" style="margin-top:20px; font-size: 1.1rem; padding: 16px;" onclick="startGame()">▶ CUSTOM GAME</button>
-            <div id="feedback-setup" style="margin-top:15px; color:var(--p2); font-weight:bold;"></div>
+            <div id="feedback-setup" style="margin-top:15px; color:var(--brand); font-weight:bold;"></div>
         </div>
 
         <div id="play-screen" class="hidden">
@@ -319,7 +351,7 @@
 
         <div id="final-screen" class="hidden">
             <h2 id="congrats-text" style="font-size:1.6rem; color:#fff; margin-bottom: 5px;">Game Finished!</h2>
-            <div style="color:var(--p2); font-size:0.8rem; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">Scores Normalized to 750</div>
+            <div style="color:var(--brand); font-size:0.8rem; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">Scores Normalized to 750</div>
             
             <p id="winner-text" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 10px;"></p>
             <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:20px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
@@ -329,11 +361,11 @@
             <div class="playlist-box">
                 <h4>Open Playlist In:</h4>
                 <div class="platform-toggles">
-                    <button id="plat-apple" class="plat-btn active-plat" onclick="renderPlaylist('apple')">Apple Music</button>
+                    <button id="plat-apple" class="plat-btn" onclick="renderPlaylist('apple')">Apple Music</button>
                     <button id="plat-spotify" class="plat-btn" onclick="renderPlaylist('spotify')">Spotify</button>
                     <button id="plat-youtube" class="plat-btn" onclick="renderPlaylist('youtube')">YouTube</button>
                 </div>
-                <div class="playlist-list-container">
+                <div class="playlist-list-container" id="playlist-list-container">
                     <ul id="playlist-list" class="playlist-list"></ul>
                 </div>
             </div>
@@ -344,7 +376,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.0 ---
+    // --- GLOBAL VARIABLES & STATS V4.2 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -353,7 +385,6 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // V4.0 Local Storage Stats
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || {
         gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, 
         hsText: 0, hsMC: 0, sniperHits: 0, 
@@ -368,14 +399,17 @@
 
     const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
     
-    // V4.0 Expanded Shwe Special Roster (80+ Artists)
     const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black Eyed Peas", "Meat Loaf", "Mr. Big", "Michael Jackson", "The Cardigans", "NSYNC", "Destiny's Child", "Ricky Martin", "Jennifer Lopez", "Cher", "Savage Garden", "Boyzone", "En Vogue", "Boyz II Men", "All Saints", "Shania Twain", "Sarah McLachlan", "Jewel", "Faith Hill", "Fiona Apple", "Melissa Etheridge", "Tracy Chapman", "Sophie B. Hawkins", "The Corrs", "Paula Cole", "Weezer", "Third Eye Blind", "Counting Crows", "Smash Mouth", "Spin Doctors", "Smashing Pumpkins", "Foo Fighters", "Blink-182", "Garbage", "The Wallflowers", "Sugar Ray", "Hootie & the Blowfish", "Gin Blossoms", "Barenaked Ladies", "Collective Soul", "Dave Matthews Band", "Fugees", "Lauryn Hill", "Salt-N-Pepa", "Coolio", "Toni Braxton", "Seal"];
     
     const oneHitWondersFull = ["Chumbawamba", "Lou Bega", "Los Del Rio", "Baha Men", "Dexys Midnight Runners", "Gotye", "Vanilla Ice", "A-ha", "Soft Cell", "Sir Mix-A-Lot", "Right Said Fred", "Tommy Tutone", "Survivor", "Carl Douglas", "Los Lobos", "Blind Melon", "Men At Work", "Haddaway", "Eiffel 65", "The Knack", "Deep Blue Something", "Fountains of Wayne", "Wheatus", "Semisonic", "Nena"];
 
+    let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
+
     // --- INITIALIZATION ---
     window.onload = () => {
         populateStats();
+        document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
+        
         document.getElementById('answer-format').addEventListener('change', function() {
             const hintToggle = document.getElementById('hint-mode');
             const hintContainer = document.getElementById('hint-container');
@@ -433,7 +467,7 @@
         populateStats();
     }
 
-    // --- V4.0 SEEDED SHUFFLE (PRNG) ---
+    // --- SEEDED SHUFFLE (PRNG) ---
     function seededShuffle(array, seed) {
         let m32 = function() {
             var t = seed += 0x6D2B79F5;
@@ -564,8 +598,8 @@
         if(guessTimerId) clearInterval(guessTimerId);
     }
 
-    // --- V4.0 DAILY CHALLENGE INITIATOR ---
-    function startDailyChallenge() {
+    // --- FETCHING LOGIC WITH TIMEOUTS AND WILDCARDS ---
+    async function startDailyChallenge() {
         isDailyMode = true;
         numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
         timeLimit = 30; hitLimit = 5; answerFormat = 'text'; currentMode = 'mode-genre'; isHintMode = true;
@@ -603,7 +637,6 @@
             let apiSearchTerm = searchTerm;
 
             if(isDailyMode) {
-                // V4.0 Grab a massive generic hit list for the daily seed
                 apiSearchTerm = "Billboard Hot 100 Hits";
             }
             else if (currentMode === 'mode-genre') {
@@ -763,7 +796,6 @@
             
             globalPool = [...pool]; 
             
-            // V4.0 Daily Mode Seeded Shuffle vs Normal Random Shuffle
             if (isDailyMode) {
                 const today = new Date();
                 const dailySeed = parseInt(`${today.getFullYear()}${today.getMonth()}${today.getDate()}`);
@@ -780,6 +812,7 @@
                 console.table(globalPool.map(t => ({ Artist: t.artistName, Song: t.trackName, Album: t.collectionName, Year: new Date(t.releaseDate).getFullYear()})));
                 document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console.";
                 document.getElementById('start-btn-top').style.display = 'block';
+                document.getElementById('daily-btn-top').style.display = 'block';
                 return; 
             }
 
@@ -1039,7 +1072,7 @@
 
         matchHistory[pIdx].push(correct ? '🟩' : '🟥');
 
-        // V4.0 Stats Tracking per Guess
+        // Stats Tracking per Guess
         userStats.totalGuesses++;
         if (correct) {
             userStats.correctGuesses++;
@@ -1140,6 +1173,7 @@
     function endGameSequence() {
         document.getElementById('play-screen').classList.add('hidden');
         document.getElementById('final-screen').classList.remove('hidden');
+        if(isDailyMode) { document.getElementById('main-title').innerText = "📅 TODAY TEN CHALLENGE"; }
         document.getElementById('main-title').style.color = '#ffffff'; 
         
         updateLeaderboard(-1); 
@@ -1152,12 +1186,12 @@
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
-        // V4.0 Save Stats & Check Trophies
+        // Save Stats & Check Trophies
         userStats.gamesPlayed++;
         if (answerFormat === 'text' && maxScore > userStats.hsText) userStats.hsText = maxScore;
         if (answerFormat === 'mc' && maxScore > userStats.hsMC) userStats.hsMC = maxScore;
         
-        if (maxScore === 750) userStats.trophies.perf = true;
+        if (maxScore > 700) userStats.trophies.perf = true;
         if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
         if (userStats.sniperHits >= 10) userStats.trophies.snip = true;
         saveStats();
@@ -1167,10 +1201,15 @@
             document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${maxScore} Pts`;
             document.getElementById('new-record-msg').style.display = 'block';
         }
-        renderPlaylist('apple');
+        
+        // V4.2 Remove automatic playlist rendering so the list stays completely hidden until clicked
     }
 
+    // V4.2 Updated to reveal the hidden container when clicked
     function renderPlaylist(platform) {
+        // Reveal the hidden container
+        document.getElementById('playlist-list-container').style.display = 'block';
+        
         document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active-plat'));
         document.getElementById(`plat-${platform}`).classList.add('active-plat');
 
