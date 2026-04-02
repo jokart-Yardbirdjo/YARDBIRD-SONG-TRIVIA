@@ -54,7 +54,7 @@
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; }
+        #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; word-wrap: break-word; }
         .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 15px auto; display: none; border: 3px solid white; object-fit: cover; }
         .hint-box { background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; color: #ffcc00; text-align: left; display: none; word-wrap: break-word; }
 
@@ -72,7 +72,7 @@
         .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Switches */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #25252b; padding: 12px 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #3f3f4a; }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #25252b; padding: 12px 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #3f3f4a; transition: opacity 0.3s; }
         .switch-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -80,6 +80,10 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--p1); }
         input:checked + .slider:before { transform: translateX(24px); }
+        
+        /* Disabled Switch State */
+        .switch input:disabled + .slider { cursor: not-allowed; background-color: #333; }
+        .switch input:disabled + .slider:before { background-color: #666; }
 
         /* Playlist Export */
         .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
@@ -121,7 +125,7 @@
             <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play.</li>
         </ul>
         <button class="btn btn-main" onclick="hideRules()" style="margin-top: 10px;">Got it! Let's Play</button>
-        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.7 Master Edition</div>
+        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.8 Master Edition</div>
     </div>
 </div>
 
@@ -222,8 +226,8 @@
                 </select>
             </div>
 
-            <div class="switch-container">
-                <span class="switch-label">Enable Hint Mode & Trivia</span>
+            <div class="switch-container" id="hint-container">
+                <span class="switch-label" id="hint-label-text">Enable Hint Mode & Trivia</span>
                 <label class="switch">
                     <input type="checkbox" id="hint-mode" checked>
                     <span class="slider"></span>
@@ -291,12 +295,13 @@
 
 <script>
     // --- GLOBAL VARIABLES & SFX ---
-    let songs = [], globalPool = [];
+    let songs = [], globalPool = []; // globalPool retains ALL 200+ tracks for MC dummy options
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
     let timeLimit = 30, hitLimit = 5, timeTaken = 0;
     let timerId, guessTimerId, timeLeft, startTime;
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text';
+    let isProcessing = false; // V3.8 Edge Case Double-Tap Lock
     
     let audio = new Audio();
     const sfxTick = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
@@ -312,10 +317,29 @@
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
-    // --- INITIALIZATION ---
+    // --- INITIALIZATION & UI LISTENERS ---
     window.onload = () => {
         document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${Math.round(globalHighScore)} Pts`;
         
+        // V3.8 Disable Hint Switch if Multiple Choice is selected
+        document.getElementById('answer-format').addEventListener('change', function() {
+            const hintToggle = document.getElementById('hint-mode');
+            const hintContainer = document.getElementById('hint-container');
+            const hintLabel = document.getElementById('hint-label-text');
+            
+            if (this.value === 'mc') {
+                hintToggle.checked = false;
+                hintToggle.disabled = true;
+                hintContainer.style.opacity = '0.4';
+                hintLabel.innerText = "Hint Mode (Disabled for MC)";
+            } else {
+                hintToggle.checked = true;
+                hintToggle.disabled = false;
+                hintContainer.style.opacity = '1';
+                hintLabel.innerText = "Enable Hint Mode & Trivia";
+            }
+        });
+
         const params = new URLSearchParams(window.location.search);
         if(params.has('tracks')) {
             const targetScore = params.get('score');
@@ -327,10 +351,6 @@
                 <div class="high-score-box" style="font-size:1.2rem; background:rgba(0,242,255,0.1); border-color:var(--p2); color:var(--p2);">⚔️ CHALLENGE RECEIVED!</div>
                 <p style="color:#fff; font-size:1.1rem; margin:20px 0; line-height:1.5;">You've been challenged to beat a score of <b style="color:var(--p1); font-size:1.3rem;">${targetScore} Pts</b> using the exact same songs!</p>
                 <div style="font-size:0.85rem; color:#888; margin-bottom:20px; text-transform:uppercase;">Format: ${challengeText}</div>
-                <div class="switch-container">
-                    <span class="switch-label">Enable Hint Mode & Trivia</span>
-                    <label class="switch"><input type="checkbox" id="hint-mode" checked><span class="slider"></span></label>
-                </div>
                 <button class="btn btn-main" style="margin-top:25px;" onclick="startChallenge('${params.get('tracks')}', '${fmt}', '${mod}')">ACCEPT CHALLENGE</button>
                 <button class="btn btn-reset" style="margin-top:15px; border:none; background:transparent;" onclick="window.location.href=window.location.pathname">Return to Main Menu</button>
             `;
@@ -347,7 +367,7 @@
     function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
     function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
 
-    // --- REBUILT FUZZY MATCHING V3.7 ---
+    // --- FUZZY MATCHING V3.8 ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -402,11 +422,11 @@
         document.getElementById('ui-movie').classList.add('hidden');
         document.getElementById('custom-input').classList.add('hidden');
         
-        document.getElementById('ui-density').classList.remove('hidden'); // Always show density now
+        document.getElementById('ui-density').classList.remove('hidden'); 
         
         if (currentMode === 'mode-movie') {
-            document.getElementById('hd-100').disabled = true; // Disable Top 100 for movies
-            if(document.getElementById('hit-density').value === "1") document.getElementById('hit-density').value = "5"; // Auto-correct
+            document.getElementById('hd-100').disabled = true; 
+            if(document.getElementById('hit-density').value === "1") document.getElementById('hit-density').value = "5"; 
         } else {
             document.getElementById('hd-100').disabled = false;
         }
@@ -434,7 +454,6 @@
     }
 
     function getNormalizedScore(rawScore) {
-        // Normalizes all game lengths to a perfect 750 points
         const maxRawPossible = (roundsPerPlayer * 60) + (Math.floor(roundsPerPlayer / 3) * 50);
         return Math.min(750, Math.round((rawScore / maxRawPossible) * 750));
     }
@@ -461,10 +480,10 @@
         if(guessTimerId) clearInterval(guessTimerId);
     }
 
-    // --- FETCHING LOGIC ---
+    // --- FETCHING LOGIC WITH TIMEOUTS AND WILDCARDS ---
     async function startGame() {
         numPlayers = parseInt(document.getElementById('player-count').value);
-        timeLimit = parseInt(document.getElementById('diff-select').value); // 30 (Easy) or 10 (Hard Intro)
+        timeLimit = parseInt(document.getElementById('diff-select').value); 
         hitLimit = parseInt(document.getElementById('hit-density').value);
         isHintMode = document.getElementById('hint-mode').checked;
         answerFormat = document.getElementById('answer-format').value;
@@ -475,7 +494,7 @@
         matchHistory = new Array(numPlayers).fill().map(() => []); 
         
         document.getElementById('start-btn-top').style.display = 'none';
-        document.getElementById('feedback-setup').innerText = "Loading Audio Catalog...";
+        document.getElementById('feedback-setup').innerText = "Connecting to iTunes Database...";
 
         try {
             let pool = []; let searchTerm = ""; let minYear = 1900, maxYear = 2099;
@@ -491,7 +510,6 @@
                     let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
                     const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
                     
-                    // Force HitLimit to 1 for One-Hit Wonders so it doesn't accidentally grab a B-Side
                     let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
 
                     const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
@@ -510,17 +528,17 @@
                             if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
 
                             const cArt = (t.artistName || "").toLowerCase();
-                            if(artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
+                            // V3.8 Wider Selection disables the Artist Limit 
+                            if (localHitLimit < 30 && artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
                             
                             seenTracks.add(cleanTitle); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                             return true;
-                        }).slice(0, localHitLimit);
+                        });
                         pool = pool.concat(filtered);
                     });
                 } else {
                     searchTerm = genre === 'custom' ? customVal : genre;
                     
-                    // V3.7: Multi-Constraint Parser for Custom Genres
                     if (searchTerm === customVal && customVal.includes(',')) {
                         let terms = customVal.split(',').map(s => s.trim().toLowerCase());
                         let cleanTerms = [];
@@ -564,7 +582,7 @@
                         
                         seenTracks.add(cleanTitle);
                         return true;
-                    }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
+                    });
                     pool = pool.concat(filtered);
                 });
                 searchTerm = ""; 
@@ -591,17 +609,26 @@
 
             // STANDARD FETCH
             if (searchTerm !== "") {
-                const limit = currentMode === 'mode-movie' ? 300 : 150;
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
+                const limit = currentMode === 'mode-movie' ? 300 : 200;
+                
+                // V3.8 WILDCARD HACK to force iTunes to return completely different 200-track blocks across games
+                if (hitLimit === 30 || currentMode === 'mode-movie') {
+                    const wildcards = ['a', 'e', 'i', 'o', 'u'];
+                    apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
+                }
+
+                // V3.8 Network Timeout Handler (10 seconds)
+                const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                
+                const res = await Promise.race([fetchPromise, timeoutPromise]);
                 const d = await res.json();
                 
                 const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
                 
-                let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2).map(w => w.toLowerCase());
+                let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2 && w !== 'a' && w !== 'e' && w !== 'i' && w !== 'o' && w !== 'u').map(w => w.toLowerCase());
                 if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
                 if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
-
-                let maxPoolSize = (currentMode === 'mode-movie') ? 300 : (hitLimit * 5);
 
                 pool = d.results.filter(t => {
                     if (!t.previewUrl) return false;
@@ -638,43 +665,42 @@
                     
                     if (currentMode !== 'mode-artist') {
                         const cArt = (t.artistName || "").toLowerCase();
-                        if(artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+                        if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
                         artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                     }
                     
                     seenTracks.add(cleanTitle); return true;
-                }).slice(0, maxPoolSize); 
+                });
             }
             
-            globalPool = pool; 
+            // V3.8 GLOBAL POOL Fix for Multiple Choice
+            // We save the ENTIRE massive pool to use for generating wrong MC answers
+            globalPool = [...pool]; 
+            
+            // Now we slice down just the actual songs played for the rounds
             songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
             if(songs.length < maxRounds && songs.length > 0) maxRounds = songs.length; 
-            else if(songs.length < 1) throw new Error();
+            else if(songs.length < 1) throw new Error("Not enough songs found for this criteria.");
             
+            // --- V3.8 HIDDEN DEVELOPER TEST MODE ---
+            if (window.location.search.includes('test=true')) {
+                console.log(`=== YARDBIRD DEV TEST MODE: Fetched ${globalPool.length} Valid Tracks ===`);
+                console.table(globalPool.map(t => ({
+                    Artist: t.artistName,
+                    Song: t.trackName,
+                    Album: t.collectionName,
+                    Year: new Date(t.releaseDate).getFullYear()
+                })));
+                document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console (F12) for the table.";
+                document.getElementById('start-btn-top').style.display = 'block';
+                return; // Stop the game from loading UI
+            }
+
             launchGameUI();
         } catch (e) { 
-            alert("Could not fetch enough distinct songs for this criteria. Try a wider selection!"); 
-            location.reload(); 
-        }
-    }
-
-    async function startChallenge(trackIds, fmt, mode) {
-        numPlayers = 1; timeLimit = 30; answerFormat = fmt || 'text'; currentMode = mode || 'mode-genre';
-        isHintMode = document.getElementById('hint-mode').checked;
-        rawScores = [0]; streaks = [0]; matchHistory = [[]];
-        document.getElementById('setup-screen').innerHTML = `<div style="color:var(--p2); font-weight:bold; padding:20px;">Fetching Challenge Data...</div>`;
-
-        try {
-            const res = await fetch(`https://itunes.apple.com/lookup?id=${trackIds}`);
-            const d = await res.json();
-            const idArray = trackIds.split(',').map(Number);
-            songs = idArray.map(id => d.results.find(t => t.trackId === id)).filter(Boolean);
-            if (songs.length === 0) throw new Error();
-            globalPool = [...songs]; roundsPerPlayer = songs.length; maxRounds = roundsPerPlayer;
-            launchGameUI();
-        } catch(e) {
-            alert("Could not load challenge data. Returning to main menu.");
-            window.location.href = window.location.pathname;
+            alert(e.message || "Network Error or iTunes timeout. Please try again or use wider search terms!"); 
+            document.getElementById('feedback-setup').innerText = "";
+            document.getElementById('start-btn-top').style.display = 'block';
         }
     }
 
@@ -692,6 +718,7 @@
     function nextTrack() {
         if (curIdx >= maxRounds) { endGameSequence(); return; }
         clearAllTimers();
+        isProcessing = false; // V3.8 Reset Double-Tap Lock
         
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
@@ -753,7 +780,6 @@
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
             if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
             
-            // Show hint halfway through based on difficulty
             if (isHintMode && timeLeft === Math.floor(timeLimit / 2)) showHint();
             
             if (timeLeft <= 0) {
@@ -812,6 +838,9 @@
     }
 
     function handleStop() { 
+        if(isProcessing) return; // Lockout double-taps
+        isProcessing = true;
+        
         clearAllTimers(); audio.pause(); 
         document.getElementById('visualizer').classList.add('paused');
         timeTaken = (Date.now() - startTime) / 1000; 
@@ -819,7 +848,9 @@
         
         document.getElementById('guess-fields').classList.remove('hidden');
         document.getElementById('guess-fields').classList.add('fade-in');
+        
         setTimeout(() => {
+            isProcessing = false; // Re-open lock for final submission
             if(currentMode === 'mode-genre') document.getElementById('guess-artist').focus();
             if(currentMode === 'mode-artist') document.getElementById('guess-song').focus();
             if(currentMode === 'mode-movie') document.getElementById('guess-movie').focus();
@@ -842,9 +873,10 @@
 
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        globalPool = globalPool.sort(() => 0.5 - Math.random());
-        let sourcePool = globalPool.length > 5 ? globalPool : songs;
-        let wrongPool = sourcePool.filter(s => getMCLabel(s) !== correctStr);
+        
+        // V3.8 - globalPool retains ALL 200 fetched songs, providing massive variety for wrong options
+        let shuffPool = [...globalPool].sort(() => 0.5 - Math.random());
+        let wrongPool = shuffPool.filter(s => getMCLabel(s) !== correctStr);
         
         let wrongStrs = new Set(); let wrongOptions = [];
         for(let s of wrongPool) {
@@ -869,6 +901,9 @@
 
     // --- EVALUATION & REVEAL ---
     function evaluateGuess(isCorrectMC = null) {
+        if(isProcessing) return; // Prevent double-tap on submit
+        isProcessing = true;
+        
         clearAllTimers(); audio.pause(); 
         document.getElementById('visualizer').classList.add('paused');
         
@@ -882,9 +917,7 @@
 
         const pIdx = curIdx % numPlayers;
         
-        // V3.7: Time score is calculated based on how much time was allowed
         let roundPts = Math.max(0, timeLimit - timeTaken);
-        // If they played on Hard (10s), multiply the base points so it matches the Easy scale of 30 pts
         if (timeLimit === 10) roundPts = roundPts * 3; 
 
         let correct = false;
