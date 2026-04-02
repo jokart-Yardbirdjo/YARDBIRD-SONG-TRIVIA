@@ -18,6 +18,7 @@
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
             --bg: #0a0a0c; --card: #16161a;
             --success: #2ecc71; --fail: #e74c3c;
+            --active-vis: #fff;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
@@ -46,8 +47,8 @@
         .vis-bar:nth-child(3) { animation-delay: 0.3s; }
         @keyframes bounce { from { height: 5px; } to { height: 25px; } }
         .visualizer.active { opacity: 1; }
-        .visualizer.active .vis-bar { background: var(--p1); }
-        .visualizer.paused .vis-bar { animation-play-state: paused; height: 5px; background: #555; }
+        .visualizer.active .vis-bar { background: var(--active-vis); }
+        .visualizer.paused .vis-bar { animation-play-state: paused; height: 5px; background: #555 !important; }
 
         /* Smooth UI Transitions */
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -115,13 +116,12 @@
         <ul>
             <li><strong>Modes:</strong> Play Classic Genre, Artist-Specific, or Guess the Movie!</li>
             <li><strong>Formats:</strong> Choose between Multiple Choice or Classic Typing.</li>
-            <li><strong>Multiple Choice:</strong> Options appear instantly! Click the right answer before time runs out.</li>
-            <li><strong>Typing Mode:</strong> Hit "STOP" to pause the song. You'll get a 20s Hot Seat timer to type your guess.</li>
-            <li><strong>Close Enough:</strong> Misspellings are fine if you are typing. A few correct words will trigger a match!</li>
-            <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play!</li>
+            <li><strong>Custom Filters:</strong> In custom searches, separate keywords by commas (e.g. <i>1980s, Pop, Madonna</i>) to build ultra-specific challenges.</li>
+            <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet of the song!</li>
+            <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play.</li>
         </ul>
         <button class="btn btn-main" onclick="hideRules()" style="margin-top: 10px;">Got it! Let's Play</button>
-        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.1 Master Edition</div>
+        <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; font-weight:bold;">Yardbird v3.7 Master Edition</div>
     </div>
 </div>
 
@@ -156,11 +156,10 @@
                     </select>
                 </div>
                 <div style="flex:1">
-                    <label>LEVEL</label>
+                    <label>LEVEL (DIFFICULTY)</label>
                     <select id="diff-select">
-                        <option value="10">10s - Hard</option>
-                        <option value="20">20s - Medium</option>
-                        <option value="30" selected>30s - Easy</option>
+                        <option value="30" selected>Easy - Standard 30s Snippet</option>
+                        <option value="10">Hard - 10s Epic Intro Cutoff</option>
                     </select>
                 </div>
             </div>
@@ -173,18 +172,13 @@
             </select>
 
             <div id="ui-genre">
-                <label>GENRE / DECADE</label>
+                <label>GENRE / THEME</label>
                 <select id="genre-select" onchange="toggleCustomInput('genre')">
                     <option value="shwe-special" selected>Shwe Special (The 90s Icons)</option>
                     <option value="classic-rock">Classic Rock</option>
-                    <option value="pre-1980">Before 1980</option>
-                    <option value="1980s">1980s</option>
-                    <option value="90s-pop">90s Pop</option>
-                    <option value="90s-rock">90s Rock</option>
-                    <option value="2000s">2000 - 2010</option>
-                    <option value="2010s">2010 - 2020</option>
-                    <option value="2020s">2020 - Current</option>
-                    <option value="custom">-- Custom Search --</option>
+                    <option value="2000s">2000s Hits</option>
+                    <option value="one-hit-wonders">One-Hit Wonders</option>
+                    <option value="custom">-- Custom Constraints --</option>
                 </select>
             </div>
 
@@ -195,7 +189,8 @@
                     <option value="Led Zeppelin">Led Zeppelin</option>
                     <option value="Michael Jackson">Michael Jackson</option>
                     <option value="The Beatles">The Beatles</option>
-                    <option value="custom">-- Custom Artist --</option>
+                    <option value="A.R. Rahman">A.R. Rahman</option>
+                    <option value="custom">-- Custom Artist(s) --</option>
                 </select>
             </div>
 
@@ -219,11 +214,10 @@
             </select>
 
             <div id="ui-density">
-                <label>HIT DENSITY</label>
+                <label>HIT DENSITY (CATALOG DEPTH)</label>
                 <select id="hit-density">
-                    <option value="3">Only Top 100 Billboard</option>
-                    <option value="5" selected>Top 5 (Iconic Smashes)</option>
-                    <option value="10">Top 10 (Big Hits)</option>
+                    <option value="1" id="hd-100">Only Top 100 Billboard (Absolute #1s)</option>
+                    <option value="5" selected>Top Hits (Iconic Smashes)</option>
                     <option value="30">Wider Selection (Include B-Sides)</option>
                 </select>
             </div>
@@ -311,7 +305,10 @@
     sfxTick.volume = 0.5; sfxCheer.volume = 0.7; sfxBuzzer.volume = 0.4;
 
     const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+    
     const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black eyed Peas", "Meat Loaf", "Mr.BIG", "Michael Jackson", "Cardigans"];
+    
+    const oneHitWondersFull = ["Chumbawamba", "Lou Bega", "Los Del Rio", "Baha Men", "Dexys Midnight Runners", "Gotye", "Vanilla Ice", "A-ha", "Soft Cell", "Sir Mix-A-Lot", "Right Said Fred", "Tommy Tutone", "Survivor", "Carl Douglas", "Los Lobos", "Blind Melon", "Men At Work", "Haddaway", "Eiffel 65", "The Knack", "Deep Blue Something", "Fountains of Wayne", "Wheatus", "Semisonic", "Nena"];
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
@@ -350,7 +347,7 @@
     function showRules() { document.getElementById('rules-modal').classList.remove('hidden'); }
     function hideRules() { document.getElementById('rules-modal').classList.add('hidden'); }
 
-    // --- REBUILT FUZZY MATCHING V3.1 ---
+    // --- REBUILT FUZZY MATCHING V3.7 ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -368,21 +365,17 @@
         let cleanA = actual.replace(/\(.*?\)|\[.*?\]/g, '').toLowerCase().trim();
         let cleanG = guess.toLowerCase().trim();
 
-        // 1. Phonetic Reduction
         const reduce = s => s.replace(/[^a-z0-9 ]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
         let phonA = reduce(cleanA); let phonG = reduce(cleanG);
 
-        // 2. Direct Match or Compound String Match
         let flatA = phonA.replace(/\s+/g, ''); let flatG = phonG.replace(/\s+/g, '');
         if (flatG.length >= 5 && flatA.includes(flatG)) return true;
 
-        // 3. Word by Word Evaluation
         const stopWords = ['the','a','an','and','of','to','in','on','i','dont','want','my','is','it'];
         let aWords = phonA.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         if (gWords.length === 0) return false;
 
-        // 4. The First Name Rule (Typo Leniency for Long Words)
         if (gWords.length === 1) {
             let gW = gWords[0];
             if (aWords.length > 0) {
@@ -393,7 +386,6 @@
             return false; 
         }
 
-        // 5. Multi-Word Matching
         let matchCount = 0;
         gWords.forEach(gW => {
             if (aWords.some(aW => aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1)) matchCount++;
@@ -408,12 +400,32 @@
         document.getElementById('ui-genre').classList.add('hidden');
         document.getElementById('ui-artist').classList.add('hidden');
         document.getElementById('ui-movie').classList.add('hidden');
-        document.getElementById('ui-density').classList.add('hidden');
         document.getElementById('custom-input').classList.add('hidden');
         
-        if (currentMode === 'mode-genre') { document.getElementById('ui-genre').classList.remove('hidden'); document.getElementById('ui-density').classList.remove('hidden'); toggleCustomInput('genre'); }
-        if (currentMode === 'mode-artist') { document.getElementById('ui-artist').classList.remove('hidden'); document.getElementById('ui-density').classList.remove('hidden'); toggleCustomInput('artist'); }
-        if (currentMode === 'mode-movie') { document.getElementById('ui-movie').classList.remove('hidden'); toggleCustomInput('movie'); }
+        document.getElementById('ui-density').classList.remove('hidden'); // Always show density now
+        
+        if (currentMode === 'mode-movie') {
+            document.getElementById('hd-100').disabled = true; // Disable Top 100 for movies
+            if(document.getElementById('hit-density').value === "1") document.getElementById('hit-density').value = "5"; // Auto-correct
+        } else {
+            document.getElementById('hd-100').disabled = false;
+        }
+
+        if (currentMode === 'mode-genre') { 
+            document.getElementById('ui-genre').classList.remove('hidden'); 
+            document.getElementById('custom-input').placeholder = "E.g., 1980s, Pop, Madonna...";
+            toggleCustomInput('genre'); 
+        }
+        if (currentMode === 'mode-artist') { 
+            document.getElementById('ui-artist').classList.remove('hidden'); 
+            document.getElementById('custom-input').placeholder = "E.g., Queen, Adele, Prince...";
+            toggleCustomInput('artist'); 
+        }
+        if (currentMode === 'mode-movie') { 
+            document.getElementById('ui-movie').classList.remove('hidden'); 
+            document.getElementById('custom-input').placeholder = "E.g., Hindi, 90s OR A.R. Rahman, Tamil";
+            toggleCustomInput('movie'); 
+        }
     }
 
     function toggleCustomInput(type) { 
@@ -422,6 +434,7 @@
     }
 
     function getNormalizedScore(rawScore) {
+        // Normalizes all game lengths to a perfect 750 points
         const maxRawPossible = (roundsPerPlayer * 60) + (Math.floor(roundsPerPlayer / 3) * 50);
         return Math.min(750, Math.round((rawScore / maxRawPossible) * 750));
     }
@@ -432,7 +445,7 @@
             const bColor = isActive ? colors[i] : '#333';
             const tColor = isActive ? colors[i] : '#666';
             const ptsColor = isActive ? '#fff' : '#aaa';
-            const displayScore = activeIdx === -1 ? getNormalizedScore(s) : Math.round(s); // Show normalized only at the end
+            const displayScore = activeIdx === -1 ? getNormalizedScore(s) : Math.round(s);
             
             return `
             <div class="score-pill" style="border-color:${bColor};">
@@ -451,7 +464,7 @@
     // --- FETCHING LOGIC ---
     async function startGame() {
         numPlayers = parseInt(document.getElementById('player-count').value);
-        timeLimit = parseInt(document.getElementById('diff-select').value);
+        timeLimit = parseInt(document.getElementById('diff-select').value); // 30 (Easy) or 10 (Hard Intro)
         hitLimit = parseInt(document.getElementById('hit-density').value);
         isHintMode = document.getElementById('hint-mode').checked;
         answerFormat = document.getElementById('answer-format').value;
@@ -468,75 +481,156 @@
             let pool = []; let searchTerm = ""; let minYear = 1900, maxYear = 2099;
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
+            
+            let apiSearchTerm = searchTerm;
 
             if (currentMode === 'mode-genre') {
                 const genre = document.getElementById('genre-select').value;
-                if (genre === 'shwe-special') {
-                    const selected = shweArtistsFull.sort(() => 0.5 - Math.random()).slice(0, 15);
-                    const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=15`));
+                if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
+                    
+                    let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
+                    const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
+                    
+                    // Force HitLimit to 1 for One-Hit Wonders so it doesn't accidentally grab a B-Side
+                    let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
+
+                    const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
                     const res = await Promise.all(fetches);
                     const data = await Promise.all(res.map(r => r.json()));
+                    
                     data.forEach((d, i) => {
                         const targetArtist = selected[i].toLowerCase();
                         const filtered = d.results.filter(t => {
                             if (!t.previewUrl) return false;
                             const yr = new Date(t.releaseDate).getFullYear();
-                            const cName = t.trackName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                            if (yr < 1990 || yr > 1999 || seenTracks.has(cName)) return false;
+                            const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
                             
-                            // STRICT SHWE SPECIAL BOUNCER
+                            if (genre === 'shwe-special' && (yr < 1990 || yr > 1999)) return false;
+                            if (seenTracks.has(cleanTitle)) return false;
                             if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
 
                             const cArt = (t.artistName || "").toLowerCase();
-                            if(artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
-                            seenTracks.add(cName); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                            if(artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
+                            
+                            seenTracks.add(cleanTitle); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                             return true;
-                        }).slice(0, hitLimit);
+                        }).slice(0, localHitLimit);
                         pool = pool.concat(filtered);
                     });
                 } else {
-                    switch(genre) {
-                        case 'classic-rock': searchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
-                        case 'pre-1980': searchTerm = "70s 60s Hits"; minYear = 1950; maxYear = 1979; break;
-                        case '1980s': searchTerm = "80s Pop Rock Hits"; minYear = 1980; maxYear = 1989; break;
-                        case '90s-pop': searchTerm = "90s Pop Hits"; minYear = 1990; maxYear = 1999; break;
-                        case '90s-rock': searchTerm = "90s Rock Hits"; minYear = 1990; maxYear = 1999; break;
-                        case '2000s': searchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
-                        case '2010s': searchTerm = "2010s Pop"; minYear = 2008; maxYear = 2022; break;
-                        case '2020s': searchTerm = "2020s Pop Hits"; minYear = 2018; maxYear = new Date().getFullYear(); break;
-                        case 'custom': searchTerm = customVal; break;
+                    searchTerm = genre === 'custom' ? customVal : genre;
+                    
+                    // V3.7: Multi-Constraint Parser for Custom Genres
+                    if (searchTerm === customVal && customVal.includes(',')) {
+                        let terms = customVal.split(',').map(s => s.trim().toLowerCase());
+                        let cleanTerms = [];
+                        terms.forEach(t => {
+                            if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
+                            else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
+                            else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
+                            else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
+                            else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
+                            else { cleanTerms.push(t); }
+                        });
+                        apiSearchTerm = cleanTerms.join(' ');
+                    } else {
+                        switch(genre) {
+                            case 'classic-rock': apiSearchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
+                            case '2000s': apiSearchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
+                            default: apiSearchTerm = searchTerm;
+                        }
                     }
                 }
             } else if (currentMode === 'mode-artist') {
                 const art = document.getElementById('artist-select').value;
                 searchTerm = art === 'custom' ? customVal : art;
+                
+                const artists = searchTerm.split(/[,;]+/).map(a => a.trim()).filter(a => a);
+                const fetches = artists.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&limit=150&entity=song`));
+                const res = await Promise.all(fetches);
+                const data = await Promise.all(res.map(r => r.json()));
+                
+                data.forEach((d, idx) => {
+                    const targetArtist = artists[idx].toLowerCase();
+                    const filtered = d.results.filter(t => {
+                        if (!t.previewUrl) return false;
+                        const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                        if (seenTracks.has(cleanTitle)) return false; 
+                        if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
+                        const colName = (t.collectionName || "").toLowerCase();
+                        if (colName.includes('- single') || colName.includes('- ep')) return false;
+                        const flatCol = colName.replace(/[^a-z0-9]/g, '');
+                        if (flatCol === cleanTitle || flatCol.includes(cleanTitle)) return false;
+                        
+                        seenTracks.add(cleanTitle);
+                        return true;
+                    }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
+                    pool = pool.concat(filtered);
+                });
+                searchTerm = ""; 
             } else if (currentMode === 'mode-movie') {
                 const mov = document.getElementById('movie-select').value;
                 searchTerm = mov === 'custom' ? customVal : mov;
+                
+                if (searchTerm === customVal && customVal.includes(',')) {
+                    let terms = customVal.split(',').map(s => s.trim().toLowerCase());
+                    let cleanTerms = [];
+                    terms.forEach(t => {
+                        if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
+                        else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
+                        else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
+                        else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
+                        else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
+                        else { cleanTerms.push(t); }
+                    });
+                    apiSearchTerm = cleanTerms.join(' ');
+                } else {
+                    apiSearchTerm = searchTerm;
+                }
             }
 
+            // STANDARD FETCH
             if (searchTerm !== "") {
                 const limit = currentMode === 'mode-movie' ? 300 : 150;
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(searchTerm)}&limit=${limit}&entity=song`);
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
                 const d = await res.json();
+                
+                const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
+                
+                let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2).map(w => w.toLowerCase());
+                if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
+                if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
+
+                let maxPoolSize = (currentMode === 'mode-movie') ? 300 : (hitLimit * 5);
+
                 pool = d.results.filter(t => {
                     if (!t.previewUrl) return false;
-                    const cName = t.trackName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    if (seenTracks.has(cName)) return false; 
                     
-                    if (currentMode === 'mode-artist') {
-                        if (!t.artistName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-                    } else if (currentMode === 'mode-genre') {
+                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                    if (seenTracks.has(cleanTitle)) return false; 
+                    
+                    if (currentMode === 'mode-genre') {
                         const yr = new Date(t.releaseDate).getFullYear();
-                        if (yr < minYear - 8 || yr > maxYear + 8) return false; // Widened buffer
+                        if (yr < minYear - 8 || yr > maxYear + 8) return false; 
                     } else if (currentMode === 'mode-movie') {
+                        const yr = new Date(t.releaseDate).getFullYear();
+                        if (yr < minYear || yr > maxYear) return false; 
+                        
                         if (!t.collectionName) return false;
                         const gName = (t.primaryGenreName || "").toLowerCase();
                         const colName = t.collectionName.toLowerCase();
+                        
+                        if (requiredSearchWords.length > 0) {
+                            let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
+                            let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
+                            if (!hasMatch) return false; 
+                        }
+                        
+                        if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
+                        
                         const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
                         if (!isVerifiedMovie) return false;
 
-                        // STRICT BOLLYWOOD POP INTRUDER EXCLUSION
                         if (searchTerm.toLowerCase().includes('bollywood') || searchTerm.toLowerCase().includes('tamil')) {
                             if (gName.includes('pop') || gName.includes('alternative') || gName.includes('rock') || gName.includes('hip-hop') || gName.includes('rap')) return false;
                         }
@@ -548,8 +642,8 @@
                         artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                     }
                     
-                    seenTracks.add(cName); return true;
-                }).slice(0, currentMode === 'mode-genre' && searchTerm !== customVal ? hitLimit * 5 : 60); 
+                    seenTracks.add(cleanTitle); return true;
+                }).slice(0, maxPoolSize); 
             }
             
             globalPool = pool; 
@@ -594,7 +688,7 @@
         nextTrack();
     }
 
-    // --- GAMEPLAY LOGIC WITH AUDIO SYNC ---
+    // --- GAMEPLAY LOGIC ---
     function nextTrack() {
         if (curIdx >= maxRounds) { endGameSequence(); return; }
         clearAllTimers();
@@ -603,6 +697,7 @@
         const currentColor = colors[pIdx];
         
         updateLeaderboard(pIdx); 
+        document.documentElement.style.setProperty('--active-vis', currentColor);
         
         document.getElementById('main-title').style.color = currentColor;
         const tag = document.getElementById('active-player');
@@ -619,7 +714,6 @@
         document.getElementById('reveal-art').style.display = 'none';
         document.getElementById('reveal-art').classList.remove('fade-in');
         
-        // Fair-Play Audio Setup
         document.getElementById('timer').innerText = "Load...";
         document.getElementById('timer').style.color = '#fff';
         document.getElementById('visualizer').classList.remove('active', 'paused');
@@ -640,7 +734,6 @@
         audio.src = songs[curIdx].previewUrl; 
         audio.load();
 
-        // Await audio buffering before starting the clock
         let playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.then(_ => { startRoundClock(); }).catch(error => { startRoundClock(); });
@@ -659,7 +752,10 @@
         timerId = setInterval(() => {
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
             if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
+            
+            // Show hint halfway through based on difficulty
             if (isHintMode && timeLeft === Math.floor(timeLimit / 2)) showHint();
+            
             if (timeLeft <= 0) {
                 clearAllTimers(); audio.pause();
                 document.getElementById('visualizer').classList.add('paused');
@@ -678,12 +774,19 @@
         let cleanSong = stripPrefix(s.trackName);
 
         if (currentMode === 'mode-movie') {
-            cleanArtist = cleanArtist.replace(/-?\s*\bcast\b/ig, '').replace(/\bof\b.*?$/ig, '').replace(/from.*?$/ig, '').replace(/ensemble/ig, '').trim();
+            cleanSong = cleanSong.replace(/\s*[\(\[-]\s*from\b[^)\]]*[\)\]]?/ig, '').trim();
+            cleanSong = cleanSong.replace(/\s*[\(\[-]\s*original motion picture[^)\]]*[\)\]]?/ig, '').trim();
+
+            let artistChunks = cleanArtist.split(/,|&/);
+            let validChunks = artistChunks.filter(chunk => !/cast\b/i.test(chunk) && !/ensemble/i.test(chunk));
+            cleanArtist = validChunks.map(c => c.trim()).filter(c => c).join(', ');
+            
+            cleanArtist = cleanArtist.replace(/\bof\b.*?$/ig, '').replace(/from.*?$/ig, '').trim();
             cleanArtist = cleanArtist.replace(/[-\&,\s]+$/, '');
             if(!cleanArtist) cleanArtist = "Various Artists";
 
             h1 = `🎼 <b>Composer/Artist:</b> ${cleanArtist}`;
-            h2 = `🎵 <b>Song:</b> ${s.trackName}`;
+            h2 = `🎵 <b>Song:</b> ${cleanSong}`;
             funFact = `📅 <b>Year:</b> ${new Date(s.releaseDate).getFullYear()} — Can you name the Movie?`;
         } else if (currentMode === 'mode-artist') {
             let cleanAlbum = s.collectionName ? s.collectionName.replace(/\(.*?\)|\[.*?\]/g, '').trim() : "Unknown Album";
@@ -778,7 +881,12 @@
         }
 
         const pIdx = curIdx % numPlayers;
-        let roundPts = Math.max(0, 30 - timeTaken);
+        
+        // V3.7: Time score is calculated based on how much time was allowed
+        let roundPts = Math.max(0, timeLimit - timeTaken);
+        // If they played on Hard (10s), multiply the base points so it matches the Easy scale of 30 pts
+        if (timeLimit === 10) roundPts = roundPts * 3; 
+
         let correct = false;
         let artOk = false, sonOk = false, movOk = false;
 
@@ -904,8 +1012,8 @@
         document.getElementById('final-screen').classList.remove('hidden');
         document.getElementById('main-title').style.color = '#ffffff'; 
         
-        updateLeaderboard(-1); // -1 triggers the 750-Point Normalization Display
-        shootConfetti(); // FIRE CONFETTI!
+        updateLeaderboard(-1); 
+        shootConfetti(); 
         
         const normalizedScores = rawScores.map(s => getNormalizedScore(s));
         const maxScore = Math.max(...normalizedScores); 
