@@ -147,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.9 Master Edition</strong><br>
+            <strong>Yardbird v5.0 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.9 ---
+    // --- GLOBAL VARIABLES & STATS V5.0 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -382,15 +382,17 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // V4.9 Full 50-100 Item Master Lists for MC Variety
+    // V5.0 Top 20 Movie Arrays
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
     const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
     const top20TamilMovies = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal"];
+    const top20HollywoodMovies = ["The Godfather", "Saturday Night Fever", "Pulp Fiction", "The Graduate", "The Bodyguard", "Purple Rain", "Moulin Rouge!", "Almost Famous", "The Lion King", "Guardians of the Galaxy", "Top Gun", "Trainspotting", "The Wizard of Oz", "West Side Story", "The Sound of Music", "Dirty Dancing", "Once", "The Big Chill", "O Brother, Where Art Thou?", "The Last of the Mohicans"];
 
+    // V5.0 Full List Fallbacks for MC
     const fullDisneyList = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan", "Mary Poppins", "Sleeping Beauty", "Dumbo", "Bambi", "Tarzan", "Hercules", "Pocahontas", "The Emperor's New Groove", "Toy Story 3", "Fantasia", "Lady and the Tramp", "Robin Hood", "The Fox and the Hound", "101 Dalmatians", "The Great Mouse Detective", "Alice in Wonderland", "The Aristocats", "Bedknobs and Broomsticks", "Swiss Family Robinson", "Enchanted", "Pirates of the Caribbean", "Cars", "Bridge to Terabithia", "Remember the Titans", "National Treasure", "The Santa Clause", "Honey, I Shrunk the Kids", "Treasure Planet", "The Rescuers Down Under", "The Rescuers"];
     const fullBollywoodList = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK", "Andaz Apna Apna", "Hera Pheri", "Munna Bhai M.B.B.S.", "Lage Raho Munna Bhai", "Barfi!", "Rockstar", "Queen", "Kahaani", "Drishyam", "A Wednesday", "Special 26", "Tumbbad", "The Lunchbox", "Masaan", "Udaan", "Haider", "Omkara", "Maqbool", "Satya", "Company", "Parinda", "Black Friday", "Dev.D", "Gully Boy", "Article 15", "Newton", "Badhaai Ho", "Stree", "Piku", "Wake Up Sid", "Jab We Met", "Dil Chahta Hai", "Hum Aapke Hain Koun..!", "Silsila", "Kabhi Kabhie", "Amar Akbar Anthony", "Shree 420", "Awara", "Don", "Kaagaz Ke Phool", "Bawarchi", "Chupke Chupke", "Gol Maal", "Jaane Bhi Do Yaaro", "Satte Pe Satta", "Mr. India", "Bobby", "Sahib Bibi Aur Ghulam", "Do Aankhen Barah Haath", "Abhimaan", "Aradhana", "Kati Patang", "Ardh Satya", "Nishant", "Shatranj Ke Khiladi", "Sparsh", "Saaransh", "Pyaasa", "Devdas", "Chhoti Si Baat", "Hum Dono", "Mera Naam Joker", "Raat Akeli Hai", "Ek Tha Tiger", "Singham", "Don 2", "Kal Ho Naa Ho", "Veer-Zaara", "My Name Is Khan", "Rock On!!", "Bhaag Milkha Bhaag", "Saathiya", "Hum Saath-Saath Hain", "Hum Tum", "Om Shanti Om", "Main Hoon Na", "Student of the Year", "Raazi"];
     const fullTamilList = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal", "Subramaniapuram", "Autograph", "Kaakha Kaakha", "Vaaranam Aayiram", "Pariyerum Perumal", "Asuran", "Kaithi", "Vikram", "Soorarai Pottru", "Visaaranai", "Jigarthanda", "Anniyan", "Enthiran", "Ghajini", "Mersal", "Kabali", "Thuppakki", "Dasavathaaram", "Vikram Vedha", "96", "OK Kanmani", "Kandukondain Kandukondain", "Pithamagan", "Aruvi", "Sivaji", "Petta", "Vinnaithaandi Varuvaayaa", "Neram", "Kireedam", "Aayirathil Oruvan", "Sivaranjani", "Pudhupettai", "Aadukalam", "Soodhu Kavvum", "Velaikkaran", "Thani Oruvan", "Ratsasan", "Dhuruvangal Pathinaaru", "Peranbu", "Sangam", "Maya Bazaar", "Kizhakku Cheemayile", "Naan Kadavul", "Kattradhu Thamizh", "Aayutha Ezhuthu", "Sivakasi", "Papanasam", "Kanchivaram", "Vettaiyaadu Vilaiyaadu", "Kumki", "Sillunu Oru Kaadhal", "Thupparivaalan", "Sathuranga Vettai", "Kadal", "Sathya", "Kadalora Kavithaigal", "Naanum Rowdy Dhaan", "Remo", "Kaala", "Sivappu", "Kanchana", "Maya", "Aranmanai", "Kakka Muttai", "Sethupathi", "Master", "Bigil", "Jilla", "Raatchasi"];
-    const fallbackHollywood = ["Inception", "Top Gun: Maverick", "The Lion King", "Interstellar", "Gladiator", "The Dark Knight", "Titanic", "Jurassic Park", "Avatar", "The Matrix", "Spider-Man: Into the Spider-Verse", "Black Panther", "Guardians of the Galaxy", "Dune"];
+    const fullHollywoodList = ["The Godfather", "Saturday Night Fever", "Pulp Fiction", "The Graduate", "The Bodyguard", "Purple Rain", "Moulin Rouge!", "Almost Famous", "The Lion King", "Guardians of the Galaxy", "Top Gun", "Trainspotting", "The Wizard of Oz", "West Side Story", "The Sound of Music", "Dirty Dancing", "Once", "The Big Chill", "O Brother Where Art Thou", "The Last of the Mohicans", "Blade Runner", "The Mission", "The Crow", "Romeo and Juliet", "The Matrix", "The Big Lebowski", "The Blues Brothers", "La La Land", "The Breakfast Club", "Top Hat", "The Rocky Horror Picture Show", "The English Patient", "The Deer Hunter", "The Social Network", "The Thin Red Line", "The Last Waltz", "Goodfellas", "The Great Gatsby", "The Last Emperor", "The Princess Bride", "Singin' in the Rain", "Once Upon a Time in America", "The Nightmare Before Christmas", "Black Panther", "Wakanda Forever", "Top Gun Maverick", "A Star Is Born", "Goldfinger", "From Russia With Love", "Dr No", "Thunderball", "You Only Live Twice", "Diamonds Are Forever", "Live and Let Die", "The Spy Who Loved Me", "For Your Eyes Only", "A View to a Kill", "The Living Daylights", "Licence to Kill", "GoldenEye", "Tomorrow Never Dies", "The World Is Not Enough", "Die Another Day", "Casino Royale", "Quantum of Solace", "Skyfall", "Spectre", "No Time to Die", "Back to the Future", "Once Upon a Time in the West", "The Magnificent Seven", "Butch Cassidy and the Sundance Kid", "Rocky", "Rocky IV", "A Hard Day's Night", "Across the Universe", "The Commitments", "Titanic", "Forrest Gump", "Footloose", "Flashdance", "Ghostbusters", "Wayne's World", "Shrek", "Grease", "Fame", "Ferris Bueller's Day Off", "Stand By Me", "Armageddon", "Kill Bill", "Drive", "Baby Driver", "Space Jam", "Men in Black", "8 Mile", "The Greatest Showman", "A Walk to Remember", "Twilight", "The Hunger Games", "Fifty Shades of Grey", "Furious 7", "Barbie", "Pitch Perfect", "High School Musical", "Mamma Mia!", "Les Misérables", "Chicago", "Spider-Man", "Batman", "Jurassic Park", "E.T. the Extra-Terrestrial", "Star Wars", "The Lord of the Rings", "Harry Potter", "Requiem for a Dream", "Amélie", "Terminator 2"];
 
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
@@ -666,6 +668,7 @@
         executeFetchLogic();
     }
 
+    // --- V5.0 CORE FETCH LOGIC (CONSOLIDATED JSON VAULTS) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -675,111 +678,122 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Disney Movie Soundtrack') {
-                document.getElementById('feedback-setup').innerText = "Loading Curated Disney Vault...";
-                
-                const dbRes = await fetch('db_disney.json');
-                if (!dbRes.ok) throw new Error("Could not find db_disney.json. Ensure it is uploaded to your repository.");
-                const allIds = await dbRes.json();
-
-                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
-
-                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
-                
-                const res = await Promise.race([fetchPromise, timeoutPromise]);
-                const d = await res.json();
-
-                pool = d.results.filter(t => {
-                    if (!t.previewUrl) return false;
-                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
-                    if (seenTracks.has(cleanTitle)) return false; 
+            // V5.0 MASTER INTERCEPTOR
+            if (currentMode === 'mode-movie') {
+                let selectedMovieGenre = document.getElementById('movie-select').value;
+                if (selectedMovieGenre === 'Disney Movie Soundtrack' || selectedMovieGenre === 'Bollywood Movie Soundtrack' || selectedMovieGenre === 'Tamil Movie Soundtrack' || selectedMovieGenre === 'Hollywood Movie Soundtrack') {
                     
-                    const movName = getMovieName(t);
+                    let jsonFile = '';
+                    let top20Array = [];
+                    let vaultName = '';
                     
-                    if (hitLimit <= 5) {
-                        const isTop20 = top20DisneyMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
-                        if (!isTop20) return false;
+                    if (selectedMovieGenre === 'Disney Movie Soundtrack') { jsonFile = 'db_disney.json'; top20Array = top20DisneyMovies; vaultName = 'Disney'; }
+                    else if (selectedMovieGenre === 'Bollywood Movie Soundtrack') { jsonFile = 'db_bollywood.json'; top20Array = top20BollywoodMovies; vaultName = 'Bollywood'; }
+                    else if (selectedMovieGenre === 'Tamil Movie Soundtrack') { jsonFile = 'db_tamil.json'; top20Array = top20TamilMovies; vaultName = 'Tamil'; }
+                    else if (selectedMovieGenre === 'Hollywood Movie Soundtrack') { jsonFile = 'db_hollywood.json'; top20Array = top20HollywoodMovies; vaultName = 'Hollywood'; }
+
+                    document.getElementById('feedback-setup').innerText = `Loading Curated ${vaultName} Vault...`;
+                    
+                    const dbRes = await fetch(jsonFile);
+                    if (!dbRes.ok) throw new Error(`Could not find ${jsonFile}. Ensure it is uploaded to your repository.`);
+                    const allIds = await dbRes.json();
+
+                    const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
+
+                    const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    
+                    const res = await Promise.race([fetchPromise, timeoutPromise]);
+                    const d = await res.json();
+
+                    pool = d.results.filter(t => {
+                        if (!t.previewUrl) return false;
+                        const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                        if (seenTracks.has(cleanTitle)) return false; 
+                        
+                        const movName = getMovieName(t);
+                        
+                        if (hitLimit <= 5) {
+                            const isTop20 = top20Array.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
+                            if (!isTop20) return false;
+                        }
+                        
+                        const cArt = (t.artistName || "").toLowerCase();
+                        const artLimit = (vaultName === 'Bollywood' || vaultName === 'Tamil') ? 4 : 3;
+                        if (hitLimit < 30 && artistCount[cArt] >= artLimit) return false; 
+                        artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                        
+                        seenTracks.add(cleanTitle); return true;
+                    });
+                } else {
+                    // CUSTOM MOVIE SEARCH (Legacy Fallback)
+                    searchTerm = selectedMovieGenre === 'custom' ? customVal : selectedMovieGenre;
+                    if (searchTerm === customVal && customVal.includes(',')) {
+                        let terms = customVal.split(',').map(s => s.trim().toLowerCase());
+                        let cleanTerms = [];
+                        terms.forEach(t => {
+                            if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
+                            else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
+                            else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
+                            else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
+                            else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
+                            else { cleanTerms.push(t); }
+                        });
+                        searchTerm = cleanTerms.join(' ');
                     }
                     
-                    const cArt = (t.artistName || "").toLowerCase();
-                    if (hitLimit < 30 && artistCount[cArt] >= 3) return false; 
-                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                    
-                    seenTracks.add(cleanTitle); return true;
-                });
+                    const wildcards = ['a', 'e', 'i', 'o', 'u'];
+                    let apiSearchTerm = searchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
 
-            } 
-            else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Bollywood Movie Soundtrack') {
-                document.getElementById('feedback-setup').innerText = "Loading Curated Bollywood Vault...";
-                
-                const dbRes = await fetch('db_bollywood.json');
-                if (!dbRes.ok) throw new Error("Could not find db_bollywood.json. Ensure it is uploaded to your repository.");
-                const allIds = await dbRes.json();
+                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=300&entity=song`);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    
+                    const res = await Promise.race([fetchPromise, timeoutPromise]);
+                    const d = await res.json();
+                    
+                    const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
+                    let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2 && w !== 'a' && w !== 'e' && w !== 'i' && w !== 'o' && w !== 'u').map(w => w.toLowerCase());
+                    if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
+                    if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
 
-                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
+                    pool = d.results.filter(t => {
+                        if (!t.previewUrl) return false;
+                        const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                        if (seenTracks.has(cleanTitle)) return false; 
+                        
+                        const yr = new Date(t.releaseDate).getFullYear();
+                        if (yr < minYear || yr > maxYear) return false; 
+                        
+                        const colName = getMovieName(t).toLowerCase();
+                        const gName = (t.primaryGenreName || "").toLowerCase();
+                        
+                        let searchLower = apiSearchTerm.toLowerCase();
+                        let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
+                        
+                        if (searchLower.includes('tamil')) {
+                            if (!metaString.includes('tamil')) return false;
+                        } else if (searchLower.includes('bollywood') || searchLower.includes('hindi')) {
+                            if (!metaString.includes('bollywood') && !metaString.includes('hindi')) return false;
+                        } else {
+                            if (metaString.includes('bollywood') || metaString.includes('tamil') || metaString.includes('hindi') || metaString.includes('telugu')) return false;
+                        }
 
-                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
-                
-                const res = await Promise.race([fetchPromise, timeoutPromise]);
-                const d = await res.json();
-
-                pool = d.results.filter(t => {
-                    if (!t.previewUrl) return false;
-                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
-                    if (seenTracks.has(cleanTitle)) return false; 
-                    
-                    const movName = getMovieName(t);
-                    
-                    if (hitLimit <= 5) {
-                        const isTop20 = top20BollywoodMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
-                        if (!isTop20) return false;
-                    }
-                    
-                    const cArt = (t.artistName || "").toLowerCase();
-                    if (hitLimit < 30 && artistCount[cArt] >= 4) return false; 
-                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                    
-                    seenTracks.add(cleanTitle); return true;
-                });
-            } 
-            else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Tamil Movie Soundtrack') {
-                document.getElementById('feedback-setup').innerText = "Loading Curated Tamil Vault...";
-                
-                const dbRes = await fetch('db_tamil.json');
-                if (!dbRes.ok) throw new Error("Could not find db_tamil.json. Ensure it is uploaded to your repository.");
-                const allIds = await dbRes.json();
-
-                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
-
-                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
-                
-                const res = await Promise.race([fetchPromise, timeoutPromise]);
-                const d = await res.json();
-
-                pool = d.results.filter(t => {
-                    if (!t.previewUrl) return false;
-                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
-                    if (seenTracks.has(cleanTitle)) return false; 
-                    
-                    const movName = getMovieName(t);
-                    
-                    if (hitLimit <= 5) {
-                        const isTop20 = top20TamilMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
-                        if (!isTop20) return false;
-                    }
-                    
-                    const cArt = (t.artistName || "").toLowerCase();
-                    if (hitLimit < 30 && artistCount[cArt] >= 4) return false; 
-                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                    
-                    seenTracks.add(cleanTitle); return true;
-                });
-            } else {
-                let apiSearchTerm = searchTerm;
-
+                        if (requiredSearchWords.length > 0) {
+                            let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
+                            if (!hasMatch) return false; 
+                        }
+                        if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
+                        
+                        const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
+                        if (!isVerifiedMovie) return false;
+                        
+                        seenTracks.add(cleanTitle); return true;
+                    });
+                }
+            }
+            // GENRE & ARTIST MODES
+            else {
+                let apiSearchTerm = "";
                 if(isDailyMode) {
                     apiSearchTerm = "Billboard Hot 100 Hits";
                 }
@@ -858,44 +872,19 @@
                         }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
                         pool = pool.concat(filtered);
                     });
-                    apiSearchTerm = ""; 
-                } else if (currentMode === 'mode-movie') {
-                    const mov = document.getElementById('movie-select').value;
-                    searchTerm = mov === 'custom' ? customVal : mov;
-                    if (searchTerm === customVal && customVal.includes(',')) {
-                        let terms = customVal.split(',').map(s => s.trim().toLowerCase());
-                        let cleanTerms = [];
-                        terms.forEach(t => {
-                            if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
-                            else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
-                            else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
-                            else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
-                            else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
-                            else { cleanTerms.push(t); }
-                        });
-                        apiSearchTerm = cleanTerms.join(' ');
-                    } else { apiSearchTerm = searchTerm; }
                 }
 
                 if (apiSearchTerm !== "") {
-                    const limit = currentMode === 'mode-movie' ? 300 : 200;
-                    
-                    if (!isDailyMode && (hitLimit === 30 || currentMode === 'mode-movie')) {
+                    if (!isDailyMode && hitLimit === 30) {
                         const wildcards = ['a', 'e', 'i', 'o', 'u'];
                         apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
                     }
 
-                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
+                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=200&entity=song`);
                     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
                     
                     const res = await Promise.race([fetchPromise, timeoutPromise]);
                     const d = await res.json();
-                    
-                    const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
-                    
-                    let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2 && w !== 'a' && w !== 'e' && w !== 'i' && w !== 'o' && w !== 'u').map(w => w.toLowerCase());
-                    if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
-                    if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
 
                     pool = d.results.filter(t => {
                         if (!t.previewUrl) return false;
@@ -905,57 +894,28 @@
                         if (currentMode === 'mode-genre' && !isDailyMode) {
                             const yr = new Date(t.releaseDate).getFullYear();
                             if (yr < minYear - 8 || yr > maxYear + 8) return false; 
-                        } else if (currentMode === 'mode-movie') {
-                            const yr = new Date(t.releaseDate).getFullYear();
-                            if (yr < minYear || yr > maxYear) return false; 
-                            
-                            const colName = getMovieName(t).toLowerCase();
-                            const gName = (t.primaryGenreName || "").toLowerCase();
-                            
-                            let searchLower = apiSearchTerm.toLowerCase();
-                            let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
-                            
-                            if (searchLower.includes('tamil')) {
-                                if (!metaString.includes('tamil')) return false;
-                            } else if (searchLower.includes('bollywood') || searchLower.includes('hindi')) {
-                                if (!metaString.includes('bollywood') && !metaString.includes('hindi')) return false;
-                            } else {
-                                if (metaString.includes('bollywood') || metaString.includes('tamil') || metaString.includes('hindi') || metaString.includes('telugu')) return false;
-                            }
-
-                            if (requiredSearchWords.length > 0) {
-                                let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
-                                if (!hasMatch) return false; 
-                            }
-                            if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
-                            
-                            const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
-                            if (!isVerifiedMovie) return false;
-                        }
+                        } 
                         
-                        if (currentMode !== 'mode-artist') {
-                            const cArt = (t.artistName || "").toLowerCase();
-                            if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
-                            artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                        }
+                        const cArt = (t.artistName || "").toLowerCase();
+                        if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+                        artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                         
                         seenTracks.add(cleanTitle); return true;
                     });
                 }
-            } // END OF DB VS STANDARD FETCH
+            } // END OF STANDARD FETCH
             
             globalPool = [...pool]; 
             songs = [];
             let seenGameMovies = new Set();
             let shuffledPool = isDailyMode ? seededShuffle(pool, parseInt(`${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDate()}`)) : pool.sort(() => 0.5 - Math.random());
 
-            // V4.9 "1 Song Per Movie" Strict Lock
             for (let t of shuffledPool) {
                 if (songs.length >= maxRounds) break;
                 
                 if (currentMode === 'mode-movie') {
                     let mName = getMovieName(t).toLowerCase();
-                    if (seenGameMovies.has(mName)) continue; // Skip if we already have a song from this movie!
+                    if (seenGameMovies.has(mName)) continue; 
                     seenGameMovies.add(mName);
                 }
                 songs.push(t);
@@ -1156,12 +1116,10 @@
         else return `${s.artistName} - ${s.trackName}`;
     }
 
-    // V4.9 True Random Non-Repetitive MC Generator
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
         let wrongOptionsPool = [];
         
-        // 1. Pour every unique string from the API fetch into the blender
         globalPool.forEach(s => {
             let str = getMCLabel(s);
             if (str !== correctStr && str !== "Unknown Movie" && str !== "Unknown") {
@@ -1169,22 +1127,19 @@
             }
         });
 
-        // 2. Pour the massive 100-item Master Lists into the blender
         let fallbacks = [];
         if (currentMode === 'mode-movie') {
             let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
             if (searchContext.includes('tamil')) fallbacks = [...fullTamilList];
             else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fullBollywoodList];
             else if (searchContext.includes('disney')) fallbacks = [...fullDisneyList]; 
-            else fallbacks = [...fallbackHollywood];
+            else fallbacks = [...fullHollywoodList];
         } else if (currentMode === 'mode-artist') {
-            // Keep artist/genre lists simple for now
             fallbacks = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Oo Antava", "Hukum", "Kavala"];
         } else {
             fallbacks = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Ed Sheeran", "Taylor Swift", "The Weeknd"];
         }
         
-        // Combine, Shuffle, and Extract 2 Unique Answers
         wrongOptionsPool = [...wrongOptionsPool, ...fallbacks].sort(() => 0.5 - Math.random());
         
         let finalWrongStrs = new Set();
@@ -1192,7 +1147,7 @@
             if (str !== correctStr && !finalWrongStrs.has(str)) {
                 finalWrongStrs.add(str);
             }
-            if (finalWrongStrs.size === 2) break; // Stop once we have exactly 2 wrong answers
+            if (finalWrongStrs.size === 2) break; 
         }
 
         let options = [{song: songs[curIdx], str: correctStr, correct: true}];
@@ -1200,7 +1155,7 @@
             options.push({song: null, str: str, correct: false});
         });
 
-        options = options.sort(() => 0.5 - Math.random()); // Final shuffle of the 3 buttons
+        options = options.sort(() => 0.5 - Math.random()); 
         
         const container = document.getElementById('mc-fields');
         container.innerHTML = '';
