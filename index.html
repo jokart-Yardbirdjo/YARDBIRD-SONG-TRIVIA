@@ -147,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.7 Master Edition</strong><br>
+            <strong>Yardbird v4.8 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.7 ---
+    // --- GLOBAL VARIABLES & STATS V4.8 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -382,9 +382,10 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // V4.7 The Top 20 Bollywood Movies
+    // Top 20 Movie Arrays
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
     const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
+    const top20TamilMovies = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal"];
 
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
@@ -660,7 +661,7 @@
         executeFetchLogic();
     }
 
-    // --- V4.7 CORE FETCH LOGIC (JSON INTEGRATIONS) ---
+    // --- V4.8 CORE FETCH LOGIC (ALL JSON INTEGRATIONS) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -670,7 +671,7 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            // V4.7 DISNEY VAULT
+            // V4.8 DISNEY VAULT
             if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Disney Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Disney Vault...";
                 
@@ -706,7 +707,7 @@
                 });
 
             } 
-            // V4.7 BOLLYWOOD VAULT
+            // V4.8 BOLLYWOOD VAULT
             else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Bollywood Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Bollywood Vault...";
                 
@@ -729,13 +730,46 @@
                     
                     const movName = getMovieName(t);
                     
-                    // Top Hits filter enforces the Top 20 array
                     if (hitLimit <= 5) {
                         const isTop20 = top20BollywoodMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
                         if (!isTop20) return false;
                     }
                     
-                    // Loosened duplicate artist limit for Bollywood (allows up to 4 Arijit Singh etc.)
+                    const cArt = (t.artistName || "").toLowerCase();
+                    if (hitLimit < 30 && artistCount[cArt] >= 4) return false; 
+                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                    
+                    seenTracks.add(cleanTitle); return true;
+                });
+            } 
+            // V4.8 TAMIL VAULT
+            else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Tamil Movie Soundtrack') {
+                document.getElementById('feedback-setup').innerText = "Loading Curated Tamil Vault...";
+                
+                const dbRes = await fetch('db_tamil.json');
+                if (!dbRes.ok) throw new Error("Could not find db_tamil.json. Ensure it is uploaded to your repository.");
+                const allIds = await dbRes.json();
+
+                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
+
+                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                
+                const res = await Promise.race([fetchPromise, timeoutPromise]);
+                const d = await res.json();
+
+                pool = d.results.filter(t => {
+                    if (!t.previewUrl) return false;
+                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                    if (seenTracks.has(cleanTitle)) return false; 
+                    
+                    const movName = getMovieName(t);
+                    
+                    if (hitLimit <= 5) {
+                        const isTop20 = top20TamilMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
+                        if (!isTop20) return false;
+                    }
+                    
                     const cArt = (t.artistName || "").toLowerCase();
                     if (hitLimit < 30 && artistCount[cArt] >= 4) return false; 
                     artistCount[cArt] = (artistCount[cArt] || 0) + 1;
