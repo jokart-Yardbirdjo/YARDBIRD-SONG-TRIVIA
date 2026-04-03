@@ -15,12 +15,8 @@
 
     <style>
         :root { 
-            /* Player Gameplay Colors */
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
-            
-            /* Dedicated App Brand Color (Electric Purple) */
             --brand: #a855f7; 
-            
             --bg: #0a0a0c; --card: #16161a;
             --success: #2ecc71; --fail: #e74c3c;
             --active-vis: #fff;
@@ -73,9 +69,8 @@
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;}
         .btn-main { background: white; color: black; }
         
-        /* Lobby Remodel */
         .daily-section { margin-bottom: 10px; }
-        .btn-daily { background: var(--brand); color: #fff; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid #c084fc; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+        .btn-daily { background: var(--brand); color: #fff; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid #c084fc; text-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: all 0.3s;}
         .btn-daily:hover { box-shadow: 0 0 15px var(--brand); transform: scale(1.02); }
         
         .separator-line { height: 2px; background: var(--brand); border-radius: 2px; margin: 15px 0 10px 0; border: none; box-shadow: 0 0 10px var(--brand); opacity: 0.7; }
@@ -89,7 +84,7 @@
         .mc-btn:hover { background: #444; color: white; border-color: #666; }
         .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Switches V4.3 - Color Consistency */
+        /* Switches */
         .switch-container { display: flex; justify-content: space-between; align-items: center; background: #25252b; padding: 12px 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #3f3f4a; transition: opacity 0.3s; }
         .switch-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
@@ -106,12 +101,9 @@
         .playlist-box h4 { margin: 0 0 12px 0; color: #888; font-size: 0.8rem; text-transform: uppercase; text-align: center; }
         .platform-toggles { display: flex; gap: 8px; margin-bottom: 5px; }
         .plat-btn { flex: 1; background: #25252b; border: 1px solid #3f3f4a; color: #aaa; padding: 10px 5px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: all 0.2s; }
-        
         .active-plat { background: var(--brand); color: #fff !important; border-color: #c084fc; box-shadow: 0 0 12px rgba(168,85,247, 0.6); }
-        
         .playlist-list-container { max-height: 200px; overflow-y: auto; padding-right: 5px; display: none; margin-top: 15px; }
         .playlist-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; }
-        
         .playlist-list a { color: #f8f9fa; text-decoration: none; display: flex; gap: 8px; border-bottom: 1px solid #2d2d35; padding: 10px 5px; transition: all 0.2s; font-weight: 500; }
         .playlist-list a:hover { color: var(--brand); background: rgba(168, 85, 247, 0.05); padding-left: 10px; }
 
@@ -155,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.3 Master Edition</strong><br>
+            <strong>Yardbird v4.5 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -216,7 +208,6 @@
             <button onclick="showModal('rules-modal')" class="header-btn" id="info-btn">i</button>
             <button onclick="showModal('stats-modal')" class="header-btn" id="stats-btn">📊</button>
             <h1 id="main-title">YARDBIRD'S SONG TRIVIA</h1>
-            <p style="color:#888; font-size: 0.85rem; margin-bottom: 5px;">The Ultimate Music Challenge</p>
         </div>
         
         <div id="setup-screen">
@@ -382,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.3 ---
+    // --- GLOBAL VARIABLES & STATS V4.5 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -391,11 +382,11 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // V4.3 Robust Stats initialization with defaults
-    const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, trophies: { perf: false, mara: false, snip: false, streak: false } };
+    const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
     if (userStats.currentStreak === undefined) userStats.currentStreak = 0;
     if (userStats.lastPlayedDate === undefined) userStats.lastPlayedDate = null;
+    if (userStats.playedDailyToday === undefined) userStats.playedDailyToday = false;
     if (userStats.trophies.streak === undefined) userStats.trophies.streak = false;
 
     let audio = new Audio();
@@ -407,14 +398,20 @@
     const colors = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
     
     const shweArtistsFull = ["Nirvana", "Mariah Carey", "Oasis", "Britney Spears", "Red Hot Chili Peppers", "No Doubt", "Pearl Jam", "Alanis Morissette", "Green Day", "Madonna", "Bryan Adams", "Backstreet Boys", "Bon Jovi", "Spice Girls", "Guns N' Roses", "Celine Dion", "Roxette", "TLC", "Aerosmith", "Sheryl Crow", "U2", "The Cranberries", "R.E.M.", "Janet Jackson", "Dire Straits", "Whitney Houston", "Christina Aguilera", "Hanson", "Matchbox Twenty", "Ace of Base", "Goo Goo Dolls", "Aqua", "Natalie Imbruglia", "Black Eyed Peas", "Meat Loaf", "Mr. Big", "Michael Jackson", "The Cardigans", "NSYNC", "Destiny's Child", "Ricky Martin", "Jennifer Lopez", "Cher", "Savage Garden", "Boyzone", "En Vogue", "Boyz II Men", "All Saints", "Shania Twain", "Sarah McLachlan", "Jewel", "Faith Hill", "Fiona Apple", "Melissa Etheridge", "Tracy Chapman", "Sophie B. Hawkins", "The Corrs", "Paula Cole", "Weezer", "Third Eye Blind", "Counting Crows", "Smash Mouth", "Spin Doctors", "Smashing Pumpkins", "Foo Fighters", "Blink-182", "Garbage", "The Wallflowers", "Sugar Ray", "Hootie & the Blowfish", "Gin Blossoms", "Barenaked Ladies", "Collective Soul", "Dave Matthews Band", "Fugees", "Lauryn Hill", "Salt-N-Pepa", "Coolio", "Toni Braxton", "Seal"];
-    
     const oneHitWondersFull = ["Chumbawamba", "Lou Bega", "Los Del Rio", "Baha Men", "Dexys Midnight Runners", "Gotye", "Vanilla Ice", "A-ha", "Soft Cell", "Sir Mix-A-Lot", "Right Said Fred", "Tommy Tutone", "Survivor", "Carl Douglas", "Los Lobos", "Blind Melon", "Men At Work", "Haddaway", "Eiffel 65", "The Knack", "Deep Blue Something", "Fountains of Wayne", "Wheatus", "Semisonic", "Nena"];
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
     // --- INITIALIZATION ---
     window.onload = () => {
+        const todayStr = new Date().toDateString();
+        if (userStats.lastPlayedDate !== todayStr && userStats.lastPlayedDate !== null) {
+            userStats.playedDailyToday = false;
+            saveStats(); 
+        }
+
         populateStats();
+        setupDailyButton();
         
         document.getElementById('answer-format').addEventListener('change', function() {
             const hintToggle = document.getElementById('hint-mode');
@@ -448,15 +445,31 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const triggerSubmit = (e) => { if (e.key === 'Enter') document.getElementById('submit-btn').click(); };
-        document.getElementById('guess-artist').addEventListener('keypress', triggerSubmit);
-        document.getElementById('guess-song').addEventListener('keypress', triggerSubmit);
-        document.getElementById('guess-movie').addEventListener('keypress', triggerSubmit);
+        if(document.getElementById('guess-artist')) document.getElementById('guess-artist').addEventListener('keypress', triggerSubmit);
+        if(document.getElementById('guess-song')) document.getElementById('guess-song').addEventListener('keypress', triggerSubmit);
+        if(document.getElementById('guess-movie')) document.getElementById('guess-movie').addEventListener('keypress', triggerSubmit);
     });
 
     function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
 
+    function setupDailyButton() {
+        const dailyBtn = document.getElementById('daily-btn-top');
+        if(!dailyBtn) return;
+        if (userStats.playedDailyToday) {
+            dailyBtn.innerText = "🌍 TODAY TEN (PLAYED)";
+            dailyBtn.style.opacity = "0.5";
+            dailyBtn.style.cursor = "not-allowed";
+            dailyBtn.onclick = (e) => { e.preventDefault(); alert("You already crushed today's challenge! Come back tomorrow for a new mix."); };
+        } else {
+            dailyBtn.innerText = "🌍 PLAY TODAY TEN";
+            dailyBtn.style.opacity = "1";
+            dailyBtn.onclick = startDailyChallenge;
+        }
+    }
+
     function populateStats() {
+        if(!document.getElementById('stat-games')) return;
         document.getElementById('stat-games').innerText = userStats.gamesPlayed;
         let acc = userStats.totalGuesses > 0 ? Math.round((userStats.correctGuesses / userStats.totalGuesses) * 100) : 0;
         document.getElementById('stat-acc').innerText = `${acc}%`;
@@ -474,16 +487,24 @@
         populateStats();
     }
 
-    // V4.3 Reset Stats Function
     function resetStats() {
         if(confirm("Are you sure you want to reset all lifetime stats and trophies? This cannot be undone.")) {
-            userStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, trophies: { perf: false, mara: false, snip: false, streak: false } };
+            userStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
             saveStats();
             document.querySelectorAll('.trophy-row').forEach(row => row.classList.remove('unlocked'));
+            setupDailyButton();
         }
     }
 
-    // --- SEEDED SHUFFLE (PRNG) ---
+    function getMovieName(track) {
+        const fromMatch = track.trackName.match(/\bFrom\s+["']?([^"'\)]+)["']?\)/i);
+        if (fromMatch && fromMatch[1]) return fromMatch[1].trim();
+
+        let col = track.collectionName || "Unknown Movie";
+        col = col.replace(/\(Original Motion Picture Soundtrack\)/ig, '').replace(/\(Original Score\)/ig, '').replace(/- Single/ig, '').replace(/- EP/ig, '').trim();
+        return col || "Unknown Movie";
+    }
+
     function seededShuffle(array, seed) {
         let m32 = function() {
             var t = seed += 0x6D2B79F5;
@@ -501,7 +522,7 @@
         return array;
     }
 
-    // --- FUZZY MATCHING ---
+    // --- V4.5 STRICT FUZZY MATCHING (2-Word Minimum) ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -522,30 +543,42 @@
         const reduce = s => s.replace(/[^a-z0-9 ]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
         let phonA = reduce(cleanA); let phonG = reduce(cleanG);
 
-        let flatA = phonA.replace(/\s+/g, ''); let flatG = phonG.replace(/\s+/g, '');
-        if (flatG.length >= 5 && flatA.includes(flatG)) return true;
-
-        const stopWords = ['the','a','an','and','of','to','in','on','i','dont','want','my','is','it'];
+        // V4.5 Expanded Stop Words
+        const stopWords = ['the','a','an','and','of','to','in','on','i','dont','want','my','is','it','for','with','you','me','feat','ft','version','remix','mix','edit','radio','live','studio'];
+        
+        // V4.5 Size Filter (> 2 chars)
         let aWords = phonA.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
+        
         if (gWords.length === 0) return false;
 
-        if (gWords.length === 1) {
+        // V4.5 The 1-Word Exception
+        if (aWords.length <= 1) {
             let gW = gWords[0];
-            if (aWords.length > 0) {
-                let allowedTypos = gW.length >= 8 ? 3 : (gW.length > 5 ? 2 : 1); 
-                if (levenshtein(gW, aWords[0]) <= allowedTypos || gW.includes(aWords[0]) || aWords[0].includes(gW)) return true;
-                if (aWords[1] && (levenshtein(gW, aWords[1]) <= allowedTypos || gW.includes(aWords[1]) || aWords[1].includes(gW))) return true;
+            if (aWords.length === 1) {
+                let allowedTypos = gW.length >= 8 ? 3 : (gW.length > 5 ? 2 : 1);
+                return levenshtein(gW, aWords[0]) <= allowedTypos || gW.includes(aWords[0]) || aWords[0].includes(gW);
             }
-            return false; 
+            return false;
         }
 
+        // V4.5 The 2-Word Minimum for Multi-Word Titles
         let matchCount = 0;
+        let matchedIndices = new Set();
         gWords.forEach(gW => {
-            if (aWords.some(aW => aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1)) matchCount++;
+            for (let i = 0; i < aWords.length; i++) {
+                if (!matchedIndices.has(i)) {
+                    let aW = aWords[i];
+                    if (aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= 1) {
+                        matchCount++;
+                        matchedIndices.add(i);
+                        break;
+                    }
+                }
+            }
         });
 
-        return (matchCount / Math.max(gWords.length, 1)) >= 0.8 || (matchCount >= 2 && matchCount / Math.max(aWords.length, 1) >= 0.5); 
+        return matchCount >= 2; 
     }
 
     // --- UI DYNAMICS ---
@@ -618,7 +651,6 @@
     async function startDailyChallenge() {
         isDailyMode = true;
         numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
-        // V4.3 - Force Multiple Choice and lock out Hint Mode for Daily
         timeLimit = 30; hitLimit = 5; answerFormat = 'mc'; currentMode = 'mode-genre'; isHintMode = false;
         
         document.getElementById('start-btn-top').style.display = 'none';
@@ -783,12 +815,24 @@
                     } else if (currentMode === 'mode-movie') {
                         const yr = new Date(t.releaseDate).getFullYear();
                         if (yr < minYear || yr > maxYear) return false; 
-                        if (!t.collectionName) return false;
-                        const gName = (t.primaryGenreName || "").toLowerCase();
-                        const colName = t.collectionName.toLowerCase();
                         
+                        const colName = getMovieName(t).toLowerCase();
+                        const gName = (t.primaryGenreName || "").toLowerCase();
+                        
+                        // V4.5 STRICT REGIONAL "AND" BOUNCER
+                        let searchLower = apiSearchTerm.toLowerCase();
+                        let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
+                        
+                        if (searchLower.includes('tamil')) {
+                            if (!metaString.includes('tamil')) return false;
+                        } else if (searchLower.includes('bollywood') || searchLower.includes('hindi')) {
+                            if (!metaString.includes('bollywood') && !metaString.includes('hindi')) return false;
+                        } else {
+                             // Reverse check: Block Indian tags if searching Hollywood
+                             if (metaString.includes('bollywood') || metaString.includes('tamil') || metaString.includes('hindi') || metaString.includes('telugu')) return false;
+                        }
+
                         if (requiredSearchWords.length > 0) {
-                            let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
                             let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
                             if (!hasMatch) return false; 
                         }
@@ -796,10 +840,6 @@
                         
                         const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
                         if (!isVerifiedMovie) return false;
-
-                        if (apiSearchTerm.toLowerCase().includes('bollywood') || apiSearchTerm.toLowerCase().includes('tamil')) {
-                            if (gName.includes('pop') || gName.includes('alternative') || gName.includes('rock') || gName.includes('hip-hop') || gName.includes('rap')) return false;
-                        }
                     }
                     
                     if (currentMode !== 'mode-artist') {
@@ -822,12 +862,15 @@
                 songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
             }
 
-            if(songs.length < maxRounds && songs.length > 0) maxRounds = songs.length; 
-            else if(songs.length < 1) throw new Error("Not enough songs found for this criteria.");
+            if(songs.length < 3) {
+                throw new Error("Not enough tracks found for a good game! Try broadening your search or ensuring correct spelling.");
+            } else if(songs.length < maxRounds) {
+                maxRounds = songs.length;
+            }
             
             if (window.location.search.includes('test=true')) {
                 console.log(`=== YARDBIRD DEV TEST MODE: Fetched ${globalPool.length} Valid Tracks ===`);
-                console.table(globalPool.map(t => ({ Artist: t.artistName, Song: t.trackName, Album: t.collectionName, Year: new Date(t.releaseDate).getFullYear()})));
+                console.table(globalPool.map(t => ({ Artist: t.artistName, Song: t.trackName, ExtractedMovie: getMovieName(t), Year: new Date(t.releaseDate).getFullYear()})));
                 document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console.";
                 document.getElementById('start-btn-top').style.display = 'block';
                 document.getElementById('daily-btn-top').style.display = 'block';
@@ -922,7 +965,7 @@
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
             if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
             
-            if (isHintMode && timeLeft === Math.floor(timeLimit / 2)) showHint();
+            if (isHintMode && answerFormat !== 'mc' && timeLeft === Math.floor(timeLimit / 2)) showHint();
             
             if (timeLeft <= 0) {
                 clearAllTimers(); audio.pause();
@@ -934,8 +977,7 @@
     }
 
     function showHint() {
-        // V4.3 HARD BLOCK: Ensure hint NEVER shows on Multiple Choice
-        if (answerFormat === 'mc') return;
+        if (answerFormat === 'mc') return; 
 
         const s = songs[curIdx];
         let h1 = "", h2 = "", funFact = "";
@@ -1011,7 +1053,7 @@
     }
 
     function getMCLabel(s) {
-        if (currentMode === 'mode-movie') return (s.collectionName || 'Unknown').replace(/\(.*?\)|\[.*?\]/g, '').trim();
+        if (currentMode === 'mode-movie') return getMovieName(s); 
         else if (currentMode === 'mode-artist') return s.trackName;
         else return `${s.artistName} - ${s.trackName}`;
     }
@@ -1022,12 +1064,52 @@
         let wrongPool = shuffPool.filter(s => getMCLabel(s) !== correctStr);
         
         let wrongStrs = new Set(); let wrongOptions = [];
+        
         for(let s of wrongPool) {
             let str = getMCLabel(s);
-            if(!wrongStrs.has(str) && str !== "Unknown") {
+            if(!wrongStrs.has(str) && str !== "Unknown Movie" && str !== "Unknown") {
                 wrongStrs.add(str); wrongOptions.push({song: s, str: str, correct: false});
             }
             if(wrongOptions.length === 2) break;
+        }
+
+        // V4.5 CONTEXT-AWARE FALLBACK ARRAYS
+        const fallbackHollywood = ["Inception", "Top Gun: Maverick", "The Lion King", "Interstellar", "Gladiator", "The Dark Knight", "Titanic", "Jurassic Park", "Avatar", "The Matrix", "Spider-Man: Into the Spider-Verse", "Black Panther", "Guardians of the Galaxy", "Dune"];
+        const fallbackBollywood = ["Lagaan", "Dangal", "Kabir Singh", "Pathaan", "Jawan", "Dilwale Dulhania Le Jayenge", "Sholay", "3 Idiots", "Yeh Jawaani Hai Deewani", "Kal Ho Naa Ho", "Zindagi Na Milegi Dobara", "Gully Boy", "Brahmastra", "Animal"];
+        const fallbackTamil = ["Roja", "Bombay", "Alaipayuthey", "Ghilli", "Mankatha", "Vikram", "Master", "Mersal", "Theri", "Kaithi", "Nayagan", "Sivaji", "Baasha", "Thalapathi", "Ponniyin Selvan", "Jailer", "Leo", "O Kadhal Kanmani"];
+        const fallbackSongs = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Why This Kolaveri Di", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Enjoy Enjaami", "Oo Antava", "Srivalli", "Hukum", "Kavala", "Vathi Coming"];
+        const fallbackArtists = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Harris Jayaraj", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Sonu Nigam", "Kishore Kumar", "Ed Sheeran", "The Weeknd", "Dua Lipa", "Drake", "Taylor Swift"];
+        
+        let fallbacks = [];
+        if (currentMode === 'mode-movie') {
+            let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
+            if (searchContext.includes('tamil')) fallbacks = [...fallbackTamil];
+            else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fallbackBollywood];
+            else fallbacks = [...fallbackHollywood];
+        } else if (currentMode === 'mode-artist') {
+            fallbacks = [...fallbackSongs];
+        } else {
+            fallbacks = [...fallbackArtists];
+        }
+        
+        fallbacks = fallbacks.sort(() => 0.5 - Math.random());
+
+        if (wrongOptions.length < 2 || Math.random() > 0.7) {
+            let fStr = fallbacks.pop();
+            while((fStr === correctStr || wrongStrs.has(fStr)) && fallbacks.length > 0) { fStr = fallbacks.pop(); }
+            if (fStr) {
+                if (wrongOptions.length === 2) wrongOptions.pop(); 
+                wrongStrs.add(fStr);
+                wrongOptions.push({song: null, str: fStr, correct: false});
+            }
+        }
+        
+        while(wrongOptions.length < 2 && fallbacks.length > 0) {
+            let fStr = fallbacks.pop();
+            if (fStr !== correctStr && !wrongStrs.has(fStr)) {
+                wrongStrs.add(fStr);
+                wrongOptions.push({song: null, str: fStr, correct: false});
+            }
         }
 
         let options = [{song: songs[curIdx], str: correctStr, correct: true}, ...wrongOptions].sort(() => 0.5 - Math.random());
@@ -1067,7 +1149,7 @@
 
         const realA = songs[curIdx].artistName;
         const realS = songs[curIdx].trackName;
-        const realM = songs[curIdx].collectionName || ""; 
+        const realM = getMovieName(songs[curIdx]); 
 
         if (answerFormat === 'mc') {
             correct = (isCorrectMC === true);
@@ -1124,7 +1206,7 @@
         updateLeaderboard(pIdx); 
 
         fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
-        if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM.replace(/\(.*?\)/g, '')}</div>`;
+        if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM}</div>`;
 
         document.getElementById('feedback').innerHTML = fbHTML;
         document.getElementById('feedback').classList.add('fade-in');
@@ -1141,7 +1223,6 @@
         curIdx++; setTimeout(nextTrack, 4000); 
     }
 
-    // --- CONFETTI CANNON ---
     function shootConfetti() {
         const colors = ['#39ff14', '#00f2ff', '#ff00e1', '#ffff00'];
         for(let i=0; i<100; i++) {
@@ -1163,7 +1244,6 @@
         }
     }
 
-    // --- SHARE LOGIC & FINALE ---
     function shareChallenge() {
         const normalizedScores = rawScores.map(s => getNormalizedScore(s));
         const maxScore = Math.max(...normalizedScores);
@@ -1206,7 +1286,6 @@
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
-        // V4.3 Save Stats & Streak Logic
         userStats.gamesPlayed++;
         if (answerFormat === 'text' && maxScore > userStats.hsText) userStats.hsText = maxScore;
         if (answerFormat === 'mc' && maxScore > userStats.hsMC) userStats.hsMC = maxScore;
@@ -1215,7 +1294,8 @@
         if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
         if (userStats.sniperHits >= 10) userStats.trophies.snip = true;
         
-        // Streak Tracking
+        if (isDailyMode) userStats.playedDailyToday = true;
+
         const todayStr = new Date().toDateString();
         if (userStats.lastPlayedDate !== todayStr) {
             let yesterday = new Date();
