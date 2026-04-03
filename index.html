@@ -147,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.5 Master Edition</strong><br>
+            <strong>Yardbird v4.6 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.5 ---
+    // --- GLOBAL VARIABLES & STATS V4.6 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -382,6 +382,9 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
+    // V4.6 The Top 20 Disney Movies 
+    const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
+
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
     if (userStats.currentStreak === undefined) userStats.currentStreak = 0;
@@ -402,7 +405,6 @@
 
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
-    // --- INITIALIZATION ---
     window.onload = () => {
         const todayStr = new Date().toDateString();
         if (userStats.lastPlayedDate !== todayStr && userStats.lastPlayedDate !== null) {
@@ -425,22 +427,6 @@
                 hintContainer.style.opacity = '1'; hintLabel.innerText = "Enable Hint Mode & Trivia";
             }
         });
-        
-        const params = new URLSearchParams(window.location.search);
-        if(params.has('tracks')) {
-            const targetScore = params.get('score');
-            const fmt = params.get('fmt');
-            const mod = params.get('mode');
-            let challengeText = fmt === 'mc' ? 'Multiple Choice' : 'Classic Typing';
-            
-            document.getElementById('setup-screen').innerHTML = `
-                <div class="high-score-box" style="font-size:1.2rem; background:rgba(0,242,255,0.1); border-color:var(--p2); color:var(--p2);">⚔️ CHALLENGE RECEIVED!</div>
-                <p style="color:#fff; font-size:1.1rem; margin:20px 0; line-height:1.5;">You've been challenged to beat a score of <b style="color:var(--p1); font-size:1.3rem;">${targetScore} Pts</b> using the exact same songs!</p>
-                <div style="font-size:0.85rem; color:#888; margin-bottom:20px; text-transform:uppercase;">Format: ${challengeText}</div>
-                <button class="btn btn-main" style="margin-top:25px;" onclick="startChallenge('${params.get('tracks')}', '${fmt}', '${mod}')">ACCEPT CHALLENGE</button>
-                <button class="btn btn-reset" style="margin-top:15px; border:none; background:transparent;" onclick="window.location.href=window.location.pathname">Return to Main Menu</button>
-            `;
-        }
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -496,12 +482,18 @@
         }
     }
 
+    // V4.6 Tighter Movie Name Extractor
     function getMovieName(track) {
         const fromMatch = track.trackName.match(/\bFrom\s+["']?([^"'\)]+)["']?\)/i);
         if (fromMatch && fromMatch[1]) return fromMatch[1].trim();
 
         let col = track.collectionName || "Unknown Movie";
-        col = col.replace(/\(Original Motion Picture Soundtrack\)/ig, '').replace(/\(Original Score\)/ig, '').replace(/- Single/ig, '').replace(/- EP/ig, '').trim();
+        col = col.replace(/\(Original Motion Picture Soundtrack\)/ig, '')
+                 .replace(/Original Motion Picture Soundtrack/ig, '')
+                 .replace(/\(Original Score\)/ig, '')
+                 .replace(/\(Original Disney Soundtrack\)/ig, '') 
+                 .replace(/- Single/ig, '')
+                 .replace(/- EP/ig, '').trim();
         return col || "Unknown Movie";
     }
 
@@ -543,16 +535,13 @@
         const reduce = s => s.replace(/[^a-z0-9 ]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
         let phonA = reduce(cleanA); let phonG = reduce(cleanG);
 
-        // V4.5 Expanded Stop Words
         const stopWords = ['the','a','an','and','of','to','in','on','i','dont','want','my','is','it','for','with','you','me','feat','ft','version','remix','mix','edit','radio','live','studio'];
         
-        // V4.5 Size Filter (> 2 chars)
         let aWords = phonA.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         
         if (gWords.length === 0) return false;
 
-        // V4.5 The 1-Word Exception
         if (aWords.length <= 1) {
             let gW = gWords[0];
             if (aWords.length === 1) {
@@ -562,7 +551,6 @@
             return false;
         }
 
-        // V4.5 The 2-Word Minimum for Multi-Word Titles
         let matchCount = 0;
         let matchedIndices = new Set();
         gWords.forEach(gW => {
@@ -647,7 +635,6 @@
         if(guessTimerId) clearInterval(guessTimerId);
     }
 
-    // --- FETCHING LOGIC WITH TIMEOUTS AND WILDCARDS ---
     async function startDailyChallenge() {
         isDailyMode = true;
         numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
@@ -675,7 +662,7 @@
         executeFetchLogic();
     }
 
-    // --- CORE FETCH LOGIC ---
+    // --- V4.6 CORE FETCH LOGIC (JSON INTEGRATION) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -684,43 +671,131 @@
             let pool = []; let searchTerm = ""; let minYear = 1900, maxYear = 2099;
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
-            let apiSearchTerm = searchTerm;
+            
+            // V4.6 DISNEY CURATED DATABASE INTERCEPTOR
+            if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Disney Movie Soundtrack') {
+                document.getElementById('feedback-setup').innerText = "Loading Curated Disney Vault...";
+                
+                const dbRes = await fetch('db_disney.json');
+                if (!dbRes.ok) throw new Error("Could not find db_disney.json. Ensure it is uploaded to your repository.");
+                const allIds = await dbRes.json();
 
-            if(isDailyMode) {
-                apiSearchTerm = "Billboard Hot 100 Hits";
-            }
-            else if (currentMode === 'mode-genre') {
-                const genre = document.getElementById('genre-select').value;
-                if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
-                    let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
-                    const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
-                    let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
+                // Shuffle and grab 200 max for lookup
+                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
 
-                    const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
+                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                
+                const res = await Promise.race([fetchPromise, timeoutPromise]);
+                const d = await res.json();
+
+                pool = d.results.filter(t => {
+                    if (!t.previewUrl) return false;
+                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                    if (seenTracks.has(cleanTitle)) return false; 
+                    
+                    const movName = getMovieName(t);
+                    
+                    // If Top Hits selected, enforce Top 20 filter
+                    if (hitLimit <= 5) {
+                        const isTop20 = top20DisneyMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
+                        if (!isTop20) return false;
+                    }
+                    
+                    // Disney soundtracks often have the same artist (e.g. Various Artists, or the Composer). Loosen diversity slightly.
+                    const cArt = (t.artistName || "").toLowerCase();
+                    if (hitLimit < 30 && artistCount[cArt] >= 3) return false; 
+                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                    
+                    seenTracks.add(cleanTitle); return true;
+                });
+
+            } else {
+                // STANDARD FETCH ROUTE
+                let apiSearchTerm = searchTerm;
+
+                if(isDailyMode) {
+                    apiSearchTerm = "Billboard Hot 100 Hits";
+                }
+                else if (currentMode === 'mode-genre') {
+                    const genre = document.getElementById('genre-select').value;
+                    if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
+                        let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
+                        const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
+                        let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
+
+                        const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
+                        const res = await Promise.all(fetches);
+                        const data = await Promise.all(res.map(r => r.json()));
+                        
+                        data.forEach((d, i) => {
+                            const targetArtist = selected[i].toLowerCase();
+                            const filtered = d.results.filter(t => {
+                                if (!t.previewUrl) return false;
+                                const yr = new Date(t.releaseDate).getFullYear();
+                                const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                                
+                                if (genre === 'shwe-special' && (yr < 1990 || yr > 1999)) return false;
+                                if (seenTracks.has(cleanTitle)) return false;
+                                if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
+
+                                const cArt = (t.artistName || "").toLowerCase();
+                                if (localHitLimit < 30 && artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
+                                
+                                seenTracks.add(cleanTitle); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                                return true;
+                            }).slice(0, localHitLimit);
+                            pool = pool.concat(filtered);
+                        });
+                    } else {
+                        searchTerm = genre === 'custom' ? customVal : genre;
+                        if (searchTerm === customVal && customVal.includes(',')) {
+                            let terms = customVal.split(',').map(s => s.trim().toLowerCase());
+                            let cleanTerms = [];
+                            terms.forEach(t => {
+                                if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
+                                else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
+                                else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
+                                else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
+                                else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
+                                else { cleanTerms.push(t); }
+                            });
+                            apiSearchTerm = cleanTerms.join(' ');
+                        } else {
+                            switch(genre) {
+                                case 'classic-rock': apiSearchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
+                                case '2000s': apiSearchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
+                                default: apiSearchTerm = searchTerm;
+                            }
+                        }
+                    }
+                } else if (currentMode === 'mode-artist') {
+                    const art = document.getElementById('artist-select').value;
+                    searchTerm = art === 'custom' ? customVal : art;
+                    const artists = searchTerm.split(/[,;]+/).map(a => a.trim()).filter(a => a);
+                    const fetches = artists.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&limit=150&entity=song`));
                     const res = await Promise.all(fetches);
                     const data = await Promise.all(res.map(r => r.json()));
                     
-                    data.forEach((d, i) => {
-                        const targetArtist = selected[i].toLowerCase();
+                    data.forEach((d, idx) => {
+                        const targetArtist = artists[idx].toLowerCase();
                         const filtered = d.results.filter(t => {
                             if (!t.previewUrl) return false;
-                            const yr = new Date(t.releaseDate).getFullYear();
                             const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
-                            
-                            if (genre === 'shwe-special' && (yr < 1990 || yr > 1999)) return false;
-                            if (seenTracks.has(cleanTitle)) return false;
+                            if (seenTracks.has(cleanTitle)) return false; 
                             if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
-
-                            const cArt = (t.artistName || "").toLowerCase();
-                            if (localHitLimit < 30 && artistCount[cArt] >= (localHitLimit <= 5 ? 1 : 2)) return false;
-                            
-                            seenTracks.add(cleanTitle); artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                            return true;
-                        }).slice(0, localHitLimit);
+                            const colName = (t.collectionName || "").toLowerCase();
+                            if (colName.includes('- single') || colName.includes('- ep')) return false;
+                            const flatCol = colName.replace(/[^a-z0-9]/g, '');
+                            if (flatCol === cleanTitle || flatCol.includes(cleanTitle)) return false;
+                            seenTracks.add(cleanTitle); return true;
+                        }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
                         pool = pool.concat(filtered);
                     });
-                } else {
-                    searchTerm = genre === 'custom' ? customVal : genre;
+                    apiSearchTerm = ""; 
+                } else if (currentMode === 'mode-movie') {
+                    const mov = document.getElementById('movie-select').value;
+                    searchTerm = mov === 'custom' ? customVal : mov;
                     if (searchTerm === customVal && customVal.includes(',')) {
                         let terms = customVal.split(',').map(s => s.trim().toLowerCase());
                         let cleanTerms = [];
@@ -733,124 +808,75 @@
                             else { cleanTerms.push(t); }
                         });
                         apiSearchTerm = cleanTerms.join(' ');
-                    } else {
-                        switch(genre) {
-                            case 'classic-rock': apiSearchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
-                            case '2000s': apiSearchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
-                            default: apiSearchTerm = searchTerm;
-                        }
-                    }
+                    } else { apiSearchTerm = searchTerm; }
                 }
-            } else if (currentMode === 'mode-artist') {
-                const art = document.getElementById('artist-select').value;
-                searchTerm = art === 'custom' ? customVal : art;
-                const artists = searchTerm.split(/[,;]+/).map(a => a.trim()).filter(a => a);
-                const fetches = artists.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&limit=150&entity=song`));
-                const res = await Promise.all(fetches);
-                const data = await Promise.all(res.map(r => r.json()));
-                
-                data.forEach((d, idx) => {
-                    const targetArtist = artists[idx].toLowerCase();
-                    const filtered = d.results.filter(t => {
+
+                if (apiSearchTerm !== "") {
+                    const limit = currentMode === 'mode-movie' ? 300 : 200;
+                    
+                    if (!isDailyMode && (hitLimit === 30 || currentMode === 'mode-movie')) {
+                        const wildcards = ['a', 'e', 'i', 'o', 'u'];
+                        apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
+                    }
+
+                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    
+                    const res = await Promise.race([fetchPromise, timeoutPromise]);
+                    const d = await res.json();
+                    
+                    const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
+                    
+                    let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2 && w !== 'a' && w !== 'e' && w !== 'i' && w !== 'o' && w !== 'u').map(w => w.toLowerCase());
+                    if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
+                    if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
+
+                    pool = d.results.filter(t => {
                         if (!t.previewUrl) return false;
                         const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
                         if (seenTracks.has(cleanTitle)) return false; 
-                        if (!t.artistName.toLowerCase().includes(targetArtist)) return false;
-                        const colName = (t.collectionName || "").toLowerCase();
-                        if (colName.includes('- single') || colName.includes('- ep')) return false;
-                        const flatCol = colName.replace(/[^a-z0-9]/g, '');
-                        if (flatCol === cleanTitle || flatCol.includes(cleanTitle)) return false;
+                        
+                        if (currentMode === 'mode-genre' && !isDailyMode) {
+                            const yr = new Date(t.releaseDate).getFullYear();
+                            if (yr < minYear - 8 || yr > maxYear + 8) return false; 
+                        } else if (currentMode === 'mode-movie') {
+                            const yr = new Date(t.releaseDate).getFullYear();
+                            if (yr < minYear || yr > maxYear) return false; 
+                            
+                            const colName = getMovieName(t).toLowerCase();
+                            const gName = (t.primaryGenreName || "").toLowerCase();
+                            
+                            let searchLower = apiSearchTerm.toLowerCase();
+                            let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
+                            
+                            if (searchLower.includes('tamil')) {
+                                if (!metaString.includes('tamil')) return false;
+                            } else if (searchLower.includes('bollywood') || searchLower.includes('hindi')) {
+                                if (!metaString.includes('bollywood') && !metaString.includes('hindi')) return false;
+                            } else {
+                                if (metaString.includes('bollywood') || metaString.includes('tamil') || metaString.includes('hindi') || metaString.includes('telugu')) return false;
+                            }
+
+                            if (requiredSearchWords.length > 0) {
+                                let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
+                                if (!hasMatch) return false; 
+                            }
+                            if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
+                            
+                            const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
+                            if (!isVerifiedMovie) return false;
+                        }
+                        
+                        if (currentMode !== 'mode-artist') {
+                            const cArt = (t.artistName || "").toLowerCase();
+                            if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+                            artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                        }
+                        
                         seenTracks.add(cleanTitle); return true;
-                    }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
-                    pool = pool.concat(filtered);
-                });
-                apiSearchTerm = ""; 
-            } else if (currentMode === 'mode-movie') {
-                const mov = document.getElementById('movie-select').value;
-                searchTerm = mov === 'custom' ? customVal : mov;
-                if (searchTerm === customVal && customVal.includes(',')) {
-                    let terms = customVal.split(',').map(s => s.trim().toLowerCase());
-                    let cleanTerms = [];
-                    terms.forEach(t => {
-                        if (t === '90s' || t === '1990s') { minYear = 1990; maxYear = 1999; }
-                        else if (t === '80s' || t === '1980s') { minYear = 1980; maxYear = 1989; }
-                        else if (t === '70s' || t === '1970s') { minYear = 1970; maxYear = 1979; }
-                        else if (t === '2000s') { minYear = 2000; maxYear = 2009; }
-                        else if (t === '2010s') { minYear = 2010; maxYear = 2019; }
-                        else { cleanTerms.push(t); }
                     });
-                    apiSearchTerm = cleanTerms.join(' ');
-                } else { apiSearchTerm = searchTerm; }
-            }
-
-            // STANDARD FETCH
-            if (apiSearchTerm !== "") {
-                const limit = currentMode === 'mode-movie' ? 300 : 200;
-                
-                if (!isDailyMode && (hitLimit === 30 || currentMode === 'mode-movie')) {
-                    const wildcards = ['a', 'e', 'i', 'o', 'u'];
-                    apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
                 }
-
-                const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${limit}&entity=song`);
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
-                
-                const res = await Promise.race([fetchPromise, timeoutPromise]);
-                const d = await res.json();
-                
-                const compRegex = /\b(hits|best of|compilation|essential|top \d+|collection|mashup|remix|greatest|tunes|anthems|classics|favorites|rewind|mixtape|playlist|vol\.|volume|party|dance|covers|karaoke|instrumental|unwind|lofi)\b/i;
-                
-                let requiredSearchWords = apiSearchTerm.split(' ').filter(w => w.length > 2 && w !== 'a' && w !== 'e' && w !== 'i' && w !== 'o' && w !== 'u').map(w => w.toLowerCase());
-                if (requiredSearchWords.includes('bollywood')) requiredSearchWords.push('hindi');
-                if (requiredSearchWords.includes('hindi')) requiredSearchWords.push('bollywood');
-
-                pool = d.results.filter(t => {
-                    if (!t.previewUrl) return false;
-                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
-                    if (seenTracks.has(cleanTitle)) return false; 
-                    
-                    if (currentMode === 'mode-genre' && !isDailyMode) {
-                        const yr = new Date(t.releaseDate).getFullYear();
-                        if (yr < minYear - 8 || yr > maxYear + 8) return false; 
-                    } else if (currentMode === 'mode-movie') {
-                        const yr = new Date(t.releaseDate).getFullYear();
-                        if (yr < minYear || yr > maxYear) return false; 
-                        
-                        const colName = getMovieName(t).toLowerCase();
-                        const gName = (t.primaryGenreName || "").toLowerCase();
-                        
-                        // V4.5 STRICT REGIONAL "AND" BOUNCER
-                        let searchLower = apiSearchTerm.toLowerCase();
-                        let metaString = (t.artistName + " " + colName + " " + t.trackName + " " + gName).toLowerCase();
-                        
-                        if (searchLower.includes('tamil')) {
-                            if (!metaString.includes('tamil')) return false;
-                        } else if (searchLower.includes('bollywood') || searchLower.includes('hindi')) {
-                            if (!metaString.includes('bollywood') && !metaString.includes('hindi')) return false;
-                        } else {
-                             // Reverse check: Block Indian tags if searching Hollywood
-                             if (metaString.includes('bollywood') || metaString.includes('tamil') || metaString.includes('hindi') || metaString.includes('telugu')) return false;
-                        }
-
-                        if (requiredSearchWords.length > 0) {
-                            let hasMatch = requiredSearchWords.some(w => metaString.includes(w));
-                            if (!hasMatch) return false; 
-                        }
-                        if (compRegex.test(colName) || compRegex.test(t.trackName)) return false;
-                        
-                        const isVerifiedMovie = gName.includes('soundtrack') || gName.includes('bollywood') || gName.includes('tamil') || colName.includes('soundtrack') || colName.includes('motion picture') || colName.includes('ost') || colName.includes('o.s.t') || colName.includes('original score') || colName.includes('film');
-                        if (!isVerifiedMovie) return false;
-                    }
-                    
-                    if (currentMode !== 'mode-artist') {
-                        const cArt = (t.artistName || "").toLowerCase();
-                        if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
-                        artistCount[cArt] = (artistCount[cArt] || 0) + 1;
-                    }
-                    
-                    seenTracks.add(cleanTitle); return true;
-                });
-            }
+            } // END OF DB VS STANDARD FETCH
             
             globalPool = [...pool]; 
             
@@ -1073,18 +1099,21 @@
             if(wrongOptions.length === 2) break;
         }
 
-        // V4.5 CONTEXT-AWARE FALLBACK ARRAYS
         const fallbackHollywood = ["Inception", "Top Gun: Maverick", "The Lion King", "Interstellar", "Gladiator", "The Dark Knight", "Titanic", "Jurassic Park", "Avatar", "The Matrix", "Spider-Man: Into the Spider-Verse", "Black Panther", "Guardians of the Galaxy", "Dune"];
         const fallbackBollywood = ["Lagaan", "Dangal", "Kabir Singh", "Pathaan", "Jawan", "Dilwale Dulhania Le Jayenge", "Sholay", "3 Idiots", "Yeh Jawaani Hai Deewani", "Kal Ho Naa Ho", "Zindagi Na Milegi Dobara", "Gully Boy", "Brahmastra", "Animal"];
         const fallbackTamil = ["Roja", "Bombay", "Alaipayuthey", "Ghilli", "Mankatha", "Vikram", "Master", "Mersal", "Theri", "Kaithi", "Nayagan", "Sivaji", "Baasha", "Thalapathi", "Ponniyin Selvan", "Jailer", "Leo", "O Kadhal Kanmani"];
         const fallbackSongs = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Why This Kolaveri Di", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Enjoy Enjaami", "Oo Antava", "Srivalli", "Hukum", "Kavala", "Vathi Coming"];
         const fallbackArtists = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Harris Jayaraj", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Sonu Nigam", "Kishore Kumar", "Ed Sheeran", "The Weeknd", "Dua Lipa", "Drake", "Taylor Swift"];
         
+        // V4.6 The Fallback Disney Array
+        const fallbackDisney = ["The Lion King", "Aladdin", "Frozen", "Moana", "Beauty and the Beast", "The Little Mermaid", "Mulan", "Tangled", "Encanto", "Tarzan", "Pocahontas", "Hercules", "Zootopia", "Coco", "Toy Story", "Cinderella", "The Jungle Book", "Peter Pan", "101 Dalmatians", "Bambi"];
+
         let fallbacks = [];
         if (currentMode === 'mode-movie') {
             let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
             if (searchContext.includes('tamil')) fallbacks = [...fallbackTamil];
             else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fallbackBollywood];
+            else if (searchContext.includes('disney')) fallbacks = [...fallbackDisney]; // V4.6 Inject Disney
             else fallbacks = [...fallbackHollywood];
         } else if (currentMode === 'mode-artist') {
             fallbacks = [...fallbackSongs];
