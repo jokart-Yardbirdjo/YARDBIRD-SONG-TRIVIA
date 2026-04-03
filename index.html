@@ -147,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.6 Master Edition</strong><br>
+            <strong>Yardbird v4.7 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.6 ---
+    // --- GLOBAL VARIABLES & STATS V4.7 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -382,8 +382,9 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // V4.6 The Top 20 Disney Movies 
+    // V4.7 The Top 20 Bollywood Movies
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
+    const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
 
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
@@ -482,7 +483,6 @@
         }
     }
 
-    // V4.6 Tighter Movie Name Extractor
     function getMovieName(track) {
         const fromMatch = track.trackName.match(/\bFrom\s+["']?([^"'\)]+)["']?\)/i);
         if (fromMatch && fromMatch[1]) return fromMatch[1].trim();
@@ -514,7 +514,6 @@
         return array;
     }
 
-    // --- V4.5 STRICT FUZZY MATCHING (2-Word Minimum) ---
     function levenshtein(a, b) {
         const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);
         for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
@@ -569,7 +568,6 @@
         return matchCount >= 2; 
     }
 
-    // --- UI DYNAMICS ---
     function updateModeUI() {
         currentMode = document.getElementById('game-mode').value;
         document.getElementById('ui-genre').classList.add('hidden');
@@ -662,7 +660,7 @@
         executeFetchLogic();
     }
 
-    // --- V4.6 CORE FETCH LOGIC (JSON INTEGRATION) ---
+    // --- V4.7 CORE FETCH LOGIC (JSON INTEGRATIONS) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -672,7 +670,7 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            // V4.6 DISNEY CURATED DATABASE INTERCEPTOR
+            // V4.7 DISNEY VAULT
             if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Disney Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Disney Vault...";
                 
@@ -680,7 +678,6 @@
                 if (!dbRes.ok) throw new Error("Could not find db_disney.json. Ensure it is uploaded to your repository.");
                 const allIds = await dbRes.json();
 
-                // Shuffle and grab 200 max for lookup
                 const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
 
                 const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
@@ -696,13 +693,11 @@
                     
                     const movName = getMovieName(t);
                     
-                    // If Top Hits selected, enforce Top 20 filter
                     if (hitLimit <= 5) {
                         const isTop20 = top20DisneyMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
                         if (!isTop20) return false;
                     }
                     
-                    // Disney soundtracks often have the same artist (e.g. Various Artists, or the Composer). Loosen diversity slightly.
                     const cArt = (t.artistName || "").toLowerCase();
                     if (hitLimit < 30 && artistCount[cArt] >= 3) return false; 
                     artistCount[cArt] = (artistCount[cArt] || 0) + 1;
@@ -710,8 +705,45 @@
                     seenTracks.add(cleanTitle); return true;
                 });
 
+            } 
+            // V4.7 BOLLYWOOD VAULT
+            else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Bollywood Movie Soundtrack') {
+                document.getElementById('feedback-setup').innerText = "Loading Curated Bollywood Vault...";
+                
+                const dbRes = await fetch('db_bollywood.json');
+                if (!dbRes.ok) throw new Error("Could not find db_bollywood.json. Ensure it is uploaded to your repository.");
+                const allIds = await dbRes.json();
+
+                const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
+
+                const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                
+                const res = await Promise.race([fetchPromise, timeoutPromise]);
+                const d = await res.json();
+
+                pool = d.results.filter(t => {
+                    if (!t.previewUrl) return false;
+                    const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
+                    if (seenTracks.has(cleanTitle)) return false; 
+                    
+                    const movName = getMovieName(t);
+                    
+                    // Top Hits filter enforces the Top 20 array
+                    if (hitLimit <= 5) {
+                        const isTop20 = top20BollywoodMovies.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
+                        if (!isTop20) return false;
+                    }
+                    
+                    // Loosened duplicate artist limit for Bollywood (allows up to 4 Arijit Singh etc.)
+                    const cArt = (t.artistName || "").toLowerCase();
+                    if (hitLimit < 30 && artistCount[cArt] >= 4) return false; 
+                    artistCount[cArt] = (artistCount[cArt] || 0) + 1;
+                    
+                    seenTracks.add(cleanTitle); return true;
+                });
             } else {
-                // STANDARD FETCH ROUTE
+                // STANDARD API FETCH ROUTE
                 let apiSearchTerm = searchTerm;
 
                 if(isDailyMode) {
@@ -1104,8 +1136,6 @@
         const fallbackTamil = ["Roja", "Bombay", "Alaipayuthey", "Ghilli", "Mankatha", "Vikram", "Master", "Mersal", "Theri", "Kaithi", "Nayagan", "Sivaji", "Baasha", "Thalapathi", "Ponniyin Selvan", "Jailer", "Leo", "O Kadhal Kanmani"];
         const fallbackSongs = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Why This Kolaveri Di", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Enjoy Enjaami", "Oo Antava", "Srivalli", "Hukum", "Kavala", "Vathi Coming"];
         const fallbackArtists = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Harris Jayaraj", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Sonu Nigam", "Kishore Kumar", "Ed Sheeran", "The Weeknd", "Dua Lipa", "Drake", "Taylor Swift"];
-        
-        // V4.6 The Fallback Disney Array
         const fallbackDisney = ["The Lion King", "Aladdin", "Frozen", "Moana", "Beauty and the Beast", "The Little Mermaid", "Mulan", "Tangled", "Encanto", "Tarzan", "Pocahontas", "Hercules", "Zootopia", "Coco", "Toy Story", "Cinderella", "The Jungle Book", "Peter Pan", "101 Dalmatians", "Bambi"];
 
         let fallbacks = [];
@@ -1113,7 +1143,7 @@
             let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
             if (searchContext.includes('tamil')) fallbacks = [...fallbackTamil];
             else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fallbackBollywood];
-            else if (searchContext.includes('disney')) fallbacks = [...fallbackDisney]; // V4.6 Inject Disney
+            else if (searchContext.includes('disney')) fallbacks = [...fallbackDisney]; 
             else fallbacks = [...fallbackHollywood];
         } else if (currentMode === 'mode-artist') {
             fallbacks = [...fallbackSongs];
