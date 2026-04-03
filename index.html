@@ -16,36 +16,67 @@
     <style>
         :root { 
             --p1: #39ff14; --p2: #00f2ff; --p3: #ff00e1; --p4: #ffff00;
-            --brand: #a855f7; 
-            --bg: #0a0a0c; --card: #16161a;
-            --success: #2ecc71; --fail: #e74c3c;
-            --active-vis: #fff;
+            --brand: #a855f7; --brand-glow: rgba(168, 85, 247, 0.4);
+            --bg: #0a0a0c; --card: #16161a; --surface: #25252b;
+            --border: #3f3f4a; --text-muted: #888; --highlight: #ffffff;
+            --success: #2ecc71; --fail: #e74c3c; --active-vis: #fff;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 10px; }
-        .container { background: var(--card); padding: 1.5rem; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; border: 1px solid #2d2d35; width: 100%; max-width: 750px; position: relative; margin-bottom: 20px; }
-        #game-header { position: relative; margin-bottom: 15px; padding: 0 40px; min-height: 80px; }
         
-        .header-btn { position: absolute; right: 0; width: 32px; height: 32px; border-radius: 50%; background: #25252b; border: 1px solid #444; color: #aaa; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
-        .header-btn:hover { border-color: var(--brand); color: var(--brand); transform: scale(1.1); }
-        #info-btn { top: 0; }
-        #stats-btn { top: 40px; font-size: 0.9rem; } 
+        .container { background: var(--card); padding: 1.5rem; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); text-align: center; border: 1px solid var(--border); width: 100%; max-width: 600px; margin-bottom: 20px; align-self: flex-start; }
 
-        #main-title { margin: 0 0 5px 0; color: #fff; font-size: 1.8rem; transition: color 0.4s ease; line-height: 1.2; text-transform: uppercase; }
+        /* HEADER */
+        #game-header { position: relative; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; min-height: 40px; }
+        .header-btn { position: absolute; width: 32px; height: 32px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); color: #aaa; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding-bottom: 2px; }
+        .header-btn:hover { border-color: var(--highlight); color: var(--highlight); transform: scale(1.1); }
+        #info-btn { right: 40px; }
+        #stats-btn { right: 0; font-size: 0.9rem; } 
+        #main-title { margin: 0; color: #fff; font-size: 1.6rem; line-height: 1.2; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
 
-        /* Score UI */
-        .high-score-box { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 20px; color: #ffcc00; font-weight: bold; font-size: 0.85rem; text-align: center; }
+        .section-label { display: block; text-align: left; font-size: 0.75rem; color: var(--text-muted); margin: 25px 0 10px 0; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+
+        /* BUTTONS */
+        .btn { cursor: pointer; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase; transition: 0.2s; padding: 18px; width: 100%; font-size: 1.1rem; }
+        .btn-daily { background: var(--brand); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4); margin-bottom: 5px; }
+        .btn-daily:hover { box-shadow: 0 0 15px var(--brand-glow); transform: scale(1.02); }
+        .btn-main { background: var(--highlight); color: black; font-size: 1.2rem; }
+        .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        
+        .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; width: auto; min-width: 120px; }
+        .btn-reset:hover { background: #444; color: #fff; }
+        
+        .separator-line { height: 2px; background: var(--brand); border-radius: 2px; margin: 25px 0; border: none; box-shadow: 0 0 10px var(--brand-glow); opacity: 0.7; }
+
+        /* TOUCH PILLS & CARDS */
+        .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        
+        .pill { flex: 1; min-width: 60px; background: var(--surface); border: 2px solid var(--border); color: #ccc; padding: 12px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; user-select: none; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .pill.active { background: var(--highlight); border-color: var(--highlight); color: black; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .pill-wide { min-width: 140px; font-size: 0.9rem; padding: 12px 10px; }
+
+        .card-group { display: flex; flex-direction: column; gap: 10px; }
+        .select-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 15px; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; overflow: hidden; }
+        .select-card.active { border-color: var(--highlight); background: rgba(255, 255, 255, 0.05); }
+        .select-card.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--highlight); }
+        .card-title { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .card-desc { font-size: 0.8rem; color: #aaa; line-height: 1.3; }
+
+        input[type="text"] { background: var(--surface); border: 2px solid var(--border); color: white; padding: 15px; border-radius: 12px; font-size: 1rem; width: 100%; outline: none; margin-top: 10px; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: var(--highlight); }
+        input[type="text"]::placeholder { color: #666; }
+
+        /* PLAY SCREEN */
+        .player-tag { font-size: 1.2rem; font-weight: 800; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; border: 2px solid transparent; transition: all 0.4s ease; }
+        .timer-display { font-size: 3.5rem; font-weight: 900; margin: 5px 0; font-family: 'Courier New', monospace; transition: color 0.3s; color: var(--highlight); }
+        
         .score-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
         .score-pill { flex: 1; min-width: 65px; background: #1a1a24; border: 2px solid; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; }
         .score-pill .p-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .score-pill .p-pts { font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; margin: 4px 0; transition: color 0.3s;}
         .score-pill .p-streak { font-size: 0.65rem; font-weight: bold; }
 
-        /* Game UI */
-        .player-tag { font-size: 1.2rem; font-weight: 800; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; border: 2px solid transparent; transition: all 0.4s ease; }
-        .timer-display { font-size: 3.5rem; font-weight: 900; margin: 5px 0; font-family: 'Courier New', monospace; transition: color 0.3s; }
-        
-        /* Audio Visualizer */
         .visualizer { display: flex; gap: 5px; justify-content: center; height: 25px; align-items: flex-end; margin-bottom: 5px; opacity: 0; transition: opacity 0.3s; }
         .vis-bar { width: 8px; background: #fff; border-radius: 4px 4px 0 0; animation: bounce 0.5s infinite alternate; }
         .vis-bar:nth-child(2) { animation-delay: 0.15s; }
@@ -55,65 +86,34 @@
         .visualizer.active .vis-bar { background: var(--active-vis); }
         .visualizer.paused .vis-bar { animation-play-state: paused; height: 5px; background: #555 !important; }
 
-        /* Smooth UI Transitions */
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         #feedback { margin: 15px 0; min-height: 60px; font-weight: 600; font-size: 1rem; line-height: 1.4; word-wrap: break-word; }
         .cover-art { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 15px auto; display: none; border: 3px solid white; object-fit: cover; }
-        .hint-box { background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; color: #ffcc00; text-align: left; display: none; word-wrap: break-word; }
-
-        /* Forms & Inputs */
-        label { display: block; text-align: left; font-size: 0.65rem; color: #888; margin-top: 15px; margin-bottom: 4px; text-transform: uppercase; }
-        select, input[type="text"], input[type="number"] { background: #25252b; border: 1px solid #3f3f4a; color: white; padding: 14px; border-radius: 10px; font-size: 1rem; width: 100%; outline: none; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; transition: 0.2s; padding: 16px; width: 100%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .btn-main { background: white; color: black; }
         
-        .daily-section { margin-bottom: 10px; }
-        .btn-daily { background: var(--brand); color: #fff; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid #c084fc; text-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: all 0.3s;}
-        .btn-daily:hover { box-shadow: 0 0 15px var(--brand); transform: scale(1.02); }
-        
-        .separator-line { height: 2px; background: var(--brand); border-radius: 2px; margin: 15px 0 10px 0; border: none; box-shadow: 0 0 10px var(--brand); opacity: 0.7; }
-        .btn-custom { margin-bottom: 20px; font-size: 1.15rem;}
-
-        .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; }
-        .btn-reset:hover { background: #444; color: #fff; }
-
-        /* Multiple Choice Buttons */
-        .mc-btn { background: #25252b; border: 2px solid #3f3f4a; color: white; padding: 16px; border-radius: 10px; font-size: 1.05rem; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
-        .mc-btn:hover { background: #444; color: white; border-color: #666; }
+        .mc-btn { background: var(--surface); border: 2px solid var(--border); color: white; padding: 16px; border-radius: 10px; font-size: 1.05rem; font-weight: bold; width: 100%; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .mc-btn:hover { background: #444; border-color: #666; }
         .mc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Switches */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; background: #25252b; padding: 12px 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #3f3f4a; transition: opacity 0.3s; }
-        .switch-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--brand); }
-        input:checked + .slider:before { transform: translateX(24px); }
-        .switch input:disabled + .slider { cursor: not-allowed; background-color: #333; }
-        .switch input:disabled + .slider:before { background-color: #666; }
-
-        /* Playlist Export */
+        /* PLAYLIST EXPORT */
         .playlist-box { background: #0f0f13; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px; }
         .playlist-box h4 { margin: 0 0 12px 0; color: #888; font-size: 0.8rem; text-transform: uppercase; text-align: center; }
         .platform-toggles { display: flex; gap: 8px; margin-bottom: 5px; }
-        .plat-btn { flex: 1; background: #25252b; border: 1px solid #3f3f4a; color: #aaa; padding: 10px 5px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: all 0.2s; }
-        .active-plat { background: var(--brand); color: #fff !important; border-color: #c084fc; box-shadow: 0 0 12px rgba(168,85,247, 0.6); }
+        .plat-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: #aaa; padding: 10px 5px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: all 0.2s; }
+        .active-plat { background: var(--brand); color: #fff !important; border-color: #c084fc; box-shadow: 0 0 12px var(--brand-glow); }
         .playlist-list-container { max-height: 200px; overflow-y: auto; padding-right: 5px; display: none; margin-top: 15px; }
         .playlist-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; }
         .playlist-list a { color: #f8f9fa; text-decoration: none; display: flex; gap: 8px; border-bottom: 1px solid #2d2d35; padding: 10px 5px; transition: all 0.2s; font-weight: 500; }
         .playlist-list a:hover { color: var(--brand); background: rgba(168, 85, 247, 0.05); padding-left: 10px; }
 
-        /* Modals & Trophies */
+        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card); border: 1px solid #3f3f4a; padding: 25px; border-radius: 20px; max-width: 500px; width: 100%; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 20px; max-width: 500px; width: 100%; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto; }
         .modal-content h2 { color: var(--brand); margin-top: 0; text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px;}
         
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: #25252b; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #3f3f4a; }
+        .stat-box { background: var(--surface); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
         .stat-val { font-size: 1.5rem; font-weight: 900; color: #fff; margin-top: 5px; }
         
         .trophy-row { display: flex; align-items: center; background: #1a1a24; border: 1px solid #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; transition: all 0.3s; }
@@ -126,9 +126,9 @@
         .trophy-row.unlocked .trophy-text p { color: #ccc; }
 
         @media (max-width: 768px) {
-            #game-header { padding: 0 35px; margin-bottom: 10px; }
-            #main-title { font-size: 1.4rem !important; }
-            .container { padding: 1rem; border-radius: 16px; }
+            #game-header { padding: 0; justify-content: flex-start; }
+            #main-title { font-size: 1.35rem; }
+            #info-btn { right: 40px; }
         }
         .hidden { display: none !important; }
     </style>
@@ -140,14 +140,14 @@
         <h2>How to Play</h2>
         <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.6; color: #ccc;">
             <li><strong>Modes:</strong> Play Classic Genre, Artist-Specific, or Guess the Movie!</li>
-            <li><strong>Today Ten:</strong> A daily synced challenge where everyone in the world plays the exact same 10 songs.</li>
-            <li><strong>Custom Filters:</strong> Separate keywords by commas (e.g. <i>1980s, Pop, Madonna</i>) to build ultra-specific challenges.</li>
-            <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet of the song!</li>
-            <li><strong>750 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 750, no matter how many rounds you play.</li>
+            <li><strong>Today Three:</strong> A daily synced 3-round challenge spanning the 80s, 90s, and 2000s.</li>
+            <li><strong>The Lifeline (Easy/Medium):</strong> If you don't guess before the timer hits 10 seconds, Multiple Choice options will automatically appear to save you.</li>
+            <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet (No lifeline!).</li>
+            <li><strong>Scoring:</strong> Scores are driven by the timer. The faster you guess, the more points you get. If you wait for the Lifeline, your max points are capped at 10. Normalizes to 750 max!</li>
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v5.0 Master Edition</strong><br>
+            <strong>Yardbird v6.0 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -166,12 +166,12 @@
                 <div class="stat-val" id="stat-acc" style="color:var(--brand)">0%</div>
             </div>
             <div class="stat-box">
-                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score (Text)</div>
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score</div>
                 <div class="stat-val" id="stat-hs-text" style="color:var(--p1)">0</div>
             </div>
             <div class="stat-box">
-                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">High Score (MC)</div>
-                <div class="stat-val" id="stat-hs-mc" style="color:var(--p3)">0</div>
+                <div style="font-size:0.7rem; color:#888; text-transform:uppercase;">Sniper Hits</div>
+                <div class="stat-val" id="stat-snip" style="color:var(--p3)">0</div>
             </div>
         </div>
 
@@ -179,7 +179,7 @@
         
         <div class="trophy-row" id="trophy-perf">
             <div class="trophy-icon">🏆</div>
-            <div class="trophy-text"><h4>The Perfectionist</h4><p id="desc-perf">Score higher than 700/750 points.</p></div>
+            <div class="trophy-text"><h4>The Perfectionist</h4><p>Score higher than 700/750 points.</p></div>
         </div>
         <div class="trophy-row" id="trophy-mara">
             <div class="trophy-icon">🏃</div>
@@ -187,11 +187,15 @@
         </div>
         <div class="trophy-row" id="trophy-snip">
             <div class="trophy-icon">🎯</div>
-            <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds (Career).</p></div>
+            <div class="trophy-text"><h4>The Sniper</h4><p>Guess 10 songs correctly in under 3 seconds.</p></div>
         </div>
         <div class="trophy-row" id="trophy-streak">
             <div class="trophy-icon">🔥</div>
             <div class="trophy-text"><h4>The Daily Devotee</h4><p>Play Yardbird 5 days in a row.</p></div>
+        </div>
+        <div class="trophy-row" id="trophy-expl">
+            <div class="trophy-icon">🗺️</div>
+            <div class="trophy-text"><h4>The Explorer</h4><p>Play all 3 game modes (Genre, Artist, Movie).</p></div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
@@ -205,112 +209,79 @@
     <div class="container">
         
         <div id="game-header">
+            <h1 id="main-title">YARDBIRD'S SONG TRIVIA</h1>
             <button onclick="showModal('rules-modal')" class="header-btn" id="info-btn">i</button>
             <button onclick="showModal('stats-modal')" class="header-btn" id="stats-btn">📊</button>
-            <h1 id="main-title">YARDBIRD'S SONG TRIVIA</h1>
         </div>
         
         <div id="setup-screen">
-            
-            <div class="daily-section">
-                <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">🌍 PLAY TODAY TEN</button>
-                <div style="text-align:center; font-size:0.75rem; color:#ccc; text-transform:uppercase; margin-bottom:10px;">The Daily Global Synced Challenge</div>
+            <div>
+                <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">🌍 PLAY TODAY THREE</button>
+                <div style="font-size:0.75rem; color:#aaa; text-transform:uppercase; margin-top:5px; font-weight: bold;">The Daily Global Synced Challenge</div>
             </div>
 
             <hr class="separator-line">
             
-            <button class="btn btn-main btn-custom" id="start-btn-top" onclick="startGame()">▶ PLAY CUSTOM GAME</button>
+            <button class="btn btn-main" id="start-btn-top" style="margin-bottom: 10px;" onclick="startGame()">▶ PLAY CUSTOM GAME</button>
 
-            <div class="setup-row" style="display: flex; gap: 10px; margin-top:5px;">
-                <div style="flex:1">
-                    <label>PLAYERS</label>
-                    <select id="player-count">
-                        <option value="1">1 Player</option><option value="2">2 Players</option><option value="3">3 Players</option><option value="4">4 Players</option>
-                    </select>
+            <label class="section-label">1. Select Game Mode</label>
+            <div class="card-group" id="mode-group">
+                <div class="select-card active" onclick="setMode('genre', this)">
+                    <div class="card-title">🎵 Guess the Artist & Song</div>
+                    <div class="card-desc">Play by Era, Decade, or specific Genre.</div>
                 </div>
-                <div style="flex:1">
-                    <label>ROUNDS</label>
-                    <select id="num-songs">
-                        <option value="3">3 Rounds</option>
-                        <option value="5">5 Rounds</option>
-                        <option value="10" selected>10 Rounds</option>
-                        <option value="15">15 Rounds</option>
-                        <option value="20">20 Rounds</option>
-                    </select>
+                <div class="select-card" onclick="setMode('artist', this)">
+                    <div class="card-title">🎤 Guess the Song</div>
+                    <div class="card-desc">Focus strictly on a single Artist's catalog.</div>
                 </div>
-                <div style="flex:1">
-                    <label>LEVEL</label>
-                    <select id="diff-select">
-                        <option value="30" selected>Easy (30s)</option>
-                        <option value="10">Hard (10s Cutoff)</option>
-                    </select>
+                <div class="select-card" onclick="setMode('movie', this)">
+                    <div class="card-title">🎬 Guess the Movie</div>
+                    <div class="card-desc">Identify the film from its original soundtrack.</div>
                 </div>
             </div>
 
-            <label>GAME MODE</label>
-            <select id="game-mode" onchange="updateModeUI()">
-                <option value="mode-genre">Mode 1: Guess Artist & Song (Decades/Genre)</option>
-                <option value="mode-artist">Mode 2: Guess the Song (Specific Artist)</option>
-                <option value="mode-movie">Mode 3: Guess the Movie (Soundtracks)</option>
-            </select>
+            <div id="sub-selection-area">
+                <label class="section-label" id="sub-label">Select Era / Genre</label>
+                <div class="pill-group" id="sub-pills"></div>
+            </div>
+            
+            <input type="text" id="custom-input" class="hidden" placeholder="Type your custom filter here...">
 
-            <div id="ui-genre">
-                <label>GENRE / THEME</label>
-                <select id="genre-select" onchange="toggleCustomInput('genre')">
-                    <option value="shwe-special" selected>Shwe Special (The 90s Icons)</option>
-                    <option value="classic-rock">Classic Rock</option>
-                    <option value="2000s">2000s Hits</option>
-                    <option value="one-hit-wonders">One-Hit Wonders</option>
-                    <option value="custom">-- Custom Constraints --</option>
-                </select>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+                <div style="flex:1;">
+                    <label class="section-label">Players</label>
+                    <div class="pill-grid" id="players-group">
+                        <div class="pill active" onclick="setPill('players-group', this, 1)">1</div>
+                        <div class="pill" onclick="setPill('players-group', this, 2)">2</div>
+                        <div class="pill" onclick="setPill('players-group', this, 3)">3</div>
+                        <div class="pill" onclick="setPill('players-group', this, 4)">4</div>
+                    </div>
+                </div>
+                <div style="flex:1;">
+                    <label class="section-label">Rounds</label>
+                    <div class="pill-grid" id="rounds-group">
+                        <div class="pill" onclick="setPill('rounds-group', this, 5)">5</div>
+                        <div class="pill active" onclick="setPill('rounds-group', this, 10)">10</div>
+                        <div class="pill" onclick="setPill('rounds-group', this, 15)">15</div>
+                        <div class="pill" onclick="setPill('rounds-group', this, 20)">20</div>
+                    </div>
+                </div>
             </div>
 
-            <div id="ui-artist" class="hidden">
-                <label>SELECT ARTIST</label>
-                <select id="artist-select" onchange="toggleCustomInput('artist')">
-                    <option value="Taylor Swift" selected>Taylor Swift</option>
-                    <option value="Led Zeppelin">Led Zeppelin</option>
-                    <option value="Michael Jackson">Michael Jackson</option>
-                    <option value="The Beatles">The Beatles</option>
-                    <option value="A.R. Rahman">A.R. Rahman</option>
-                    <option value="custom">-- Custom Artist(s) --</option>
-                </select>
-            </div>
-
-            <div id="ui-movie" class="hidden">
-                <label>SELECT CINEMA REGION</label>
-                <select id="movie-select" onchange="toggleCustomInput('movie')">
-                    <option value="Disney Movie Soundtrack" selected>Disney Classics</option>
-                    <option value="Hollywood Movie Soundtrack">Hollywood Blockbusters</option>
-                    <option value="Bollywood Movie Soundtrack">Bollywood Hits</option>
-                    <option value="Tamil Movie Soundtrack">Tamil Movies</option>
-                    <option value="custom">-- Custom Region/Movie --</option>
-                </select>
-            </div>
-
-            <input type="text" id="custom-input" placeholder="Enter custom search..." class="hidden" style="margin-top:10px;">
-
-            <label>ANSWER FORMAT</label>
-            <select id="answer-format">
-                <option value="text" selected>Type Answers (Classic)</option>
-                <option value="mc">Multiple Choice (3 Options)</option>
-            </select>
-
-            <div id="ui-density">
-                <label>HIT DENSITY (CATALOG DEPTH)</label>
-                <select id="hit-density">
-                    <option value="1" id="hd-100">Only Top 100 Billboard (Absolute #1s)</option>
-                    <option value="5" selected>Top Hits (Iconic Smashes)</option>
-                    <option value="30">Wider Selection (Include B-Sides)</option>
-                </select>
-            </div>
-
-            <div class="switch-container" id="hint-container">
-                <span class="switch-label" id="hint-label-text">Enable Hint Mode & Trivia</span>
-                <label class="switch">
-                    <input type="checkbox" id="hint-mode" checked>
-                    <span class="slider"></span>
-                </label>
+            <label class="section-label">2. Select Difficulty</label>
+            <div class="card-group" id="level-group" style="margin-bottom: 20px;">
+                <div class="select-card active" onclick="setLevel('easy', this)">
+                    <div class="card-title">🟢 Easy (Top Hits)</div>
+                    <div class="card-desc">30 seconds. Plays the biggest iconic hits. The MCQ Lifeline drops in at 10s.</div>
+                </div>
+                <div class="select-card" onclick="setLevel('medium', this)">
+                    <div class="card-title">🟡 Medium (Deep Catalog)</div>
+                    <div class="card-desc">30 seconds. Pulls from all available songs, including B-sides. Lifeline enabled.</div>
+                </div>
+                <div class="select-card" onclick="setLevel('hard', this)">
+                    <div class="card-title">🔴 Hard (The 10s Sprint)</div>
+                    <div class="card-desc">Brutal 10-second audio cutoff. Full catalog. Pure recall typing. <strong>No Lifeline.</strong></div>
+                </div>
             </div>
             
             <div id="feedback-setup" style="margin-top:15px; color:var(--brand); font-weight:bold;"></div>
@@ -320,7 +291,6 @@
             <div id="score-board" class="score-bar"></div>
             
             <div id="active-player" class="player-tag">Player 1 Turn</div>
-            <div id="hint-area" class="hint-box"></div>
             
             <div id="visualizer" class="visualizer hidden">
                 <div class="vis-bar"></div>
@@ -335,9 +305,9 @@
             <button id="stop-btn" class="btn btn-main" style="margin-bottom:10px;" onclick="handleStop()">STOP & GUESS</button>
             
             <div id="guess-fields" class="hidden">
-                <input type="text" id="guess-artist" placeholder="Artist" style="margin-bottom:10px;">
-                <input type="text" id="guess-song" placeholder="Song Title" style="margin-bottom:10px;">
-                <input type="text" id="guess-movie" placeholder="Movie Name" style="margin-bottom:10px;" class="hidden">
+                <input type="text" id="guess-artist" placeholder="Artist Name..." autocomplete="off">
+                <input type="text" id="guess-song" placeholder="Song Title..." autocomplete="off">
+                <input type="text" id="guess-movie" placeholder="Movie Name..." class="hidden" autocomplete="off">
                 <button class="btn btn-main" id="submit-btn" style="margin-top:0;" onclick="evaluateGuess()">Submit Answers</button>
             </div>
 
@@ -373,33 +343,100 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V5.0 ---
+    // --- STATE LOGIC (Replaces Dropdowns) ---
+    let gameState = {
+        mode: 'genre',
+        sub: 'shwe-special',
+        players: 1,
+        rounds: 10,
+        level: 'easy'
+    };
+
+    const subOptions = {
+        genre: ['shwe-special', 'classic-rock', '2000s', 'one-hit-wonders', 'custom'],
+        artist: ['Taylor Swift', 'Led Zeppelin', 'Michael Jackson', 'A.R. Rahman', 'custom'],
+        movie: ['Disney Classics', 'Hollywood Blockbusters', 'Bollywood Hits', 'Tamil Cinema', 'custom']
+    };
+
+    function setMode(mode, element) {
+        document.querySelectorAll('#mode-group .select-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        gameState.mode = mode;
+        gameState.sub = subOptions[mode][0]; // Reset sub to first option
+        
+        document.getElementById('sub-label').innerText = mode === 'movie' ? 'Select Cinema Region' : (mode === 'artist' ? 'Select Artist' : 'Select Era / Genre');
+        document.getElementById('custom-input').classList.add('hidden');
+        renderSubPills();
+    }
+
+    function renderSubPills() {
+        const container = document.getElementById('sub-pills');
+        container.innerHTML = '';
+        subOptions[gameState.mode].forEach(opt => {
+            const pill = document.createElement('div');
+            pill.className = `pill pill-wide ${gameState.sub === opt ? 'active' : ''}`;
+            pill.innerText = opt === 'shwe-special' ? 'Shwe Special (90s)' : (opt.charAt(0).toUpperCase() + opt.slice(1).replace(/-/g, ' '));
+            pill.onclick = () => setSub(opt, pill);
+            container.appendChild(pill);
+        });
+    }
+
+    function setSub(val, element) {
+        document.querySelectorAll('#sub-pills .pill').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        gameState.sub = val;
+
+        const customInput = document.getElementById('custom-input');
+        if (val === 'custom') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+        }
+    }
+
+    function setPill(groupId, element, val) {
+        document.querySelectorAll(`#${groupId} .pill`).forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        if(groupId === 'players-group') gameState.players = val;
+        if(groupId === 'rounds-group') gameState.rounds = val;
+    }
+
+    function setLevel(level, element) {
+        document.querySelectorAll('#level-group .select-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        gameState.level = level;
+    }
+
+    // --- GLOBAL VARIABLES & STATS V6.0 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
-    let timeLimit = 30, hitLimit = 5, timeTaken = 0;
-    let timerId, guessTimerId, timeLeft, startTime;
-    let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
-    let isProcessing = false; 
+    let timeLimit = 30, timeTaken = 0;
+    let timerId, timeLeft, startTime;
+    let isDailyMode = false, isProcessing = false; 
+    let hasUsedLifeline = false;
     
-    // V5.0 Top 20 Movie Arrays
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
     const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
     const top20TamilMovies = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal"];
     const top20HollywoodMovies = ["The Godfather", "Saturday Night Fever", "Pulp Fiction", "The Graduate", "The Bodyguard", "Purple Rain", "Moulin Rouge!", "Almost Famous", "The Lion King", "Guardians of the Galaxy", "Top Gun", "Trainspotting", "The Wizard of Oz", "West Side Story", "The Sound of Music", "Dirty Dancing", "Once", "The Big Chill", "O Brother, Where Art Thou?", "The Last of the Mohicans"];
 
-    // V5.0 Full List Fallbacks for MC
     const fullDisneyList = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan", "Mary Poppins", "Sleeping Beauty", "Dumbo", "Bambi", "Tarzan", "Hercules", "Pocahontas", "The Emperor's New Groove", "Toy Story 3", "Fantasia", "Lady and the Tramp", "Robin Hood", "The Fox and the Hound", "101 Dalmatians", "The Great Mouse Detective", "Alice in Wonderland", "The Aristocats", "Bedknobs and Broomsticks", "Swiss Family Robinson", "Enchanted", "Pirates of the Caribbean", "Cars", "Bridge to Terabithia", "Remember the Titans", "National Treasure", "The Santa Clause", "Honey, I Shrunk the Kids", "Treasure Planet", "The Rescuers Down Under", "The Rescuers"];
     const fullBollywoodList = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK", "Andaz Apna Apna", "Hera Pheri", "Munna Bhai M.B.B.S.", "Lage Raho Munna Bhai", "Barfi!", "Rockstar", "Queen", "Kahaani", "Drishyam", "A Wednesday", "Special 26", "Tumbbad", "The Lunchbox", "Masaan", "Udaan", "Haider", "Omkara", "Maqbool", "Satya", "Company", "Parinda", "Black Friday", "Dev.D", "Gully Boy", "Article 15", "Newton", "Badhaai Ho", "Stree", "Piku", "Wake Up Sid", "Jab We Met", "Dil Chahta Hai", "Hum Aapke Hain Koun..!", "Silsila", "Kabhi Kabhie", "Amar Akbar Anthony", "Shree 420", "Awara", "Don", "Kaagaz Ke Phool", "Bawarchi", "Chupke Chupke", "Gol Maal", "Jaane Bhi Do Yaaro", "Satte Pe Satta", "Mr. India", "Bobby", "Sahib Bibi Aur Ghulam", "Do Aankhen Barah Haath", "Abhimaan", "Aradhana", "Kati Patang", "Ardh Satya", "Nishant", "Shatranj Ke Khiladi", "Sparsh", "Saaransh", "Pyaasa", "Devdas", "Chhoti Si Baat", "Hum Dono", "Mera Naam Joker", "Raat Akeli Hai", "Ek Tha Tiger", "Singham", "Don 2", "Kal Ho Naa Ho", "Veer-Zaara", "My Name Is Khan", "Rock On!!", "Bhaag Milkha Bhaag", "Saathiya", "Hum Saath-Saath Hain", "Hum Tum", "Om Shanti Om", "Main Hoon Na", "Student of the Year", "Raazi"];
     const fullTamilList = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal", "Subramaniapuram", "Autograph", "Kaakha Kaakha", "Vaaranam Aayiram", "Pariyerum Perumal", "Asuran", "Kaithi", "Vikram", "Soorarai Pottru", "Visaaranai", "Jigarthanda", "Anniyan", "Enthiran", "Ghajini", "Mersal", "Kabali", "Thuppakki", "Dasavathaaram", "Vikram Vedha", "96", "OK Kanmani", "Kandukondain Kandukondain", "Pithamagan", "Aruvi", "Sivaji", "Petta", "Vinnaithaandi Varuvaayaa", "Neram", "Kireedam", "Aayirathil Oruvan", "Sivaranjani", "Pudhupettai", "Aadukalam", "Soodhu Kavvum", "Velaikkaran", "Thani Oruvan", "Ratsasan", "Dhuruvangal Pathinaaru", "Peranbu", "Sangam", "Maya Bazaar", "Kizhakku Cheemayile", "Naan Kadavul", "Kattradhu Thamizh", "Aayutha Ezhuthu", "Sivakasi", "Papanasam", "Kanchivaram", "Vettaiyaadu Vilaiyaadu", "Kumki", "Sillunu Oru Kaadhal", "Thupparivaalan", "Sathuranga Vettai", "Kadal", "Sathya", "Kadalora Kavithaigal", "Naanum Rowdy Dhaan", "Remo", "Kaala", "Sivappu", "Kanchana", "Maya", "Aranmanai", "Kakka Muttai", "Sethupathi", "Master", "Bigil", "Jilla", "Raatchasi"];
     const fullHollywoodList = ["The Godfather", "Saturday Night Fever", "Pulp Fiction", "The Graduate", "The Bodyguard", "Purple Rain", "Moulin Rouge!", "Almost Famous", "The Lion King", "Guardians of the Galaxy", "Top Gun", "Trainspotting", "The Wizard of Oz", "West Side Story", "The Sound of Music", "Dirty Dancing", "Once", "The Big Chill", "O Brother Where Art Thou", "The Last of the Mohicans", "Blade Runner", "The Mission", "The Crow", "Romeo and Juliet", "The Matrix", "The Big Lebowski", "The Blues Brothers", "La La Land", "The Breakfast Club", "Top Hat", "The Rocky Horror Picture Show", "The English Patient", "The Deer Hunter", "The Social Network", "The Thin Red Line", "The Last Waltz", "Goodfellas", "The Great Gatsby", "The Last Emperor", "The Princess Bride", "Singin' in the Rain", "Once Upon a Time in America", "The Nightmare Before Christmas", "Black Panther", "Wakanda Forever", "Top Gun Maverick", "A Star Is Born", "Goldfinger", "From Russia With Love", "Dr No", "Thunderball", "You Only Live Twice", "Diamonds Are Forever", "Live and Let Die", "The Spy Who Loved Me", "For Your Eyes Only", "A View to a Kill", "The Living Daylights", "Licence to Kill", "GoldenEye", "Tomorrow Never Dies", "The World Is Not Enough", "Die Another Day", "Casino Royale", "Quantum of Solace", "Skyfall", "Spectre", "No Time to Die", "Back to the Future", "Once Upon a Time in the West", "The Magnificent Seven", "Butch Cassidy and the Sundance Kid", "Rocky", "Rocky IV", "A Hard Day's Night", "Across the Universe", "The Commitments", "Titanic", "Forrest Gump", "Footloose", "Flashdance", "Ghostbusters", "Wayne's World", "Shrek", "Grease", "Fame", "Ferris Bueller's Day Off", "Stand By Me", "Armageddon", "Kill Bill", "Drive", "Baby Driver", "Space Jam", "Men in Black", "8 Mile", "The Greatest Showman", "A Walk to Remember", "Twilight", "The Hunger Games", "Fifty Shades of Grey", "Furious 7", "Barbie", "Pitch Perfect", "High School Musical", "Mamma Mia!", "Les Misérables", "Chicago", "Spider-Man", "Batman", "Jurassic Park", "E.T. the Extra-Terrestrial", "Star Wars", "The Lord of the Rings", "Harry Potter", "Requiem for a Dream", "Amélie", "Terminator 2"];
 
-    const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
-    let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
+    const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, modesPlayed: { genre: false, artist: false, movie: false }, trophies: { perf: false, mara: false, snip: false, streak: false, expl: false } };
+    let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV6')) || defaultStats;
+    
+    // Safety checks for V6 variables
     if (userStats.currentStreak === undefined) userStats.currentStreak = 0;
     if (userStats.lastPlayedDate === undefined) userStats.lastPlayedDate = null;
     if (userStats.playedDailyToday === undefined) userStats.playedDailyToday = false;
+    if (userStats.modesPlayed === undefined) userStats.modesPlayed = { genre: false, artist: false, movie: false };
     if (userStats.trophies.streak === undefined) userStats.trophies.streak = false;
+    if (userStats.trophies.expl === undefined) userStats.trophies.expl = false;
 
     let audio = new Audio();
     const sfxTick = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
@@ -415,27 +452,14 @@
     let globalHighScore = localStorage.getItem('yardbirdHighScore') || 0;
 
     window.onload = () => {
+        renderSubPills();
         const todayStr = new Date().toDateString();
         if (userStats.lastPlayedDate !== todayStr && userStats.lastPlayedDate !== null) {
             userStats.playedDailyToday = false;
             saveStats(); 
         }
-
         populateStats();
         setupDailyButton();
-        
-        document.getElementById('answer-format').addEventListener('change', function() {
-            const hintToggle = document.getElementById('hint-mode');
-            const hintContainer = document.getElementById('hint-container');
-            const hintLabel = document.getElementById('hint-label-text');
-            if (this.value === 'mc') {
-                hintToggle.checked = false; hintToggle.disabled = true;
-                hintContainer.style.opacity = '0.4'; hintLabel.innerText = "Hint Mode (Disabled for MC)";
-            } else {
-                hintToggle.checked = true; hintToggle.disabled = false;
-                hintContainer.style.opacity = '1'; hintLabel.innerText = "Enable Hint Mode & Trivia";
-            }
-        });
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -452,12 +476,12 @@
         const dailyBtn = document.getElementById('daily-btn-top');
         if(!dailyBtn) return;
         if (userStats.playedDailyToday) {
-            dailyBtn.innerText = "🌍 TODAY TEN (PLAYED)";
+            dailyBtn.innerText = "🌍 TODAY THREE (PLAYED)";
             dailyBtn.style.opacity = "0.5";
             dailyBtn.style.cursor = "not-allowed";
             dailyBtn.onclick = (e) => { e.preventDefault(); alert("You already crushed today's challenge! Come back tomorrow for a new mix."); };
         } else {
-            dailyBtn.innerText = "🌍 PLAY TODAY TEN";
+            dailyBtn.innerText = "🌍 PLAY TODAY THREE";
             dailyBtn.style.opacity = "1";
             dailyBtn.onclick = startDailyChallenge;
         }
@@ -469,22 +493,23 @@
         let acc = userStats.totalGuesses > 0 ? Math.round((userStats.correctGuesses / userStats.totalGuesses) * 100) : 0;
         document.getElementById('stat-acc').innerText = `${acc}%`;
         document.getElementById('stat-hs-text').innerText = userStats.hsText;
-        document.getElementById('stat-hs-mc').innerText = userStats.hsMC;
+        document.getElementById('stat-snip').innerText = userStats.sniperHits;
         
         if(userStats.trophies.perf) document.getElementById('trophy-perf').classList.add('unlocked');
         if(userStats.trophies.mara) document.getElementById('trophy-mara').classList.add('unlocked');
         if(userStats.trophies.snip) document.getElementById('trophy-snip').classList.add('unlocked');
         if(userStats.trophies.streak) document.getElementById('trophy-streak').classList.add('unlocked');
+        if(userStats.trophies.expl) document.getElementById('trophy-expl').classList.add('unlocked');
     }
     
     function saveStats() {
-        localStorage.setItem('yardbirdStatsV4', JSON.stringify(userStats));
+        localStorage.setItem('yardbirdStatsV6', JSON.stringify(userStats));
         populateStats();
     }
 
     function resetStats() {
         if(confirm("Are you sure you want to reset all lifetime stats and trophies? This cannot be undone.")) {
-            userStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
+            userStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, modesPlayed: { genre: false, artist: false, movie: false }, trophies: { perf: false, mara: false, snip: false, streak: false, expl: false } };
             saveStats();
             document.querySelectorAll('.trophy-row').forEach(row => row.classList.remove('unlocked'));
             setupDailyButton();
@@ -534,7 +559,7 @@
         return matrix[b.length][a.length];
     }
 
-    function isCloseEnough(guess, actual) {
+    function isCloseEnough(guess, actual, isArtist = false) {
         if (!guess || !actual) return false;
         let cleanA = actual.replace(/\(.*?\)|\[.*?\]/g, '').toLowerCase().trim();
         let cleanG = guess.toLowerCase().trim();
@@ -548,6 +573,17 @@
         let gWords = phonG.split(' ').filter(w => w.length > 2 && !stopWords.includes(w));
         
         if (gWords.length === 0) return false;
+
+        // First/Last Name Forgiveness
+        if (isArtist && gWords.length === 1) {
+            let gW = gWords[0];
+            let allowedTypos = gW.length >= 8 ? 2 : (gW.length > 5 ? 1 : 0);
+            for (let aW of aWords) {
+                if (aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= allowedTypos) {
+                    return true; 
+                }
+            }
+        }
 
         if (aWords.length <= 1) {
             let gW = gWords[0];
@@ -576,44 +612,6 @@
         return matchCount >= 2; 
     }
 
-    function updateModeUI() {
-        currentMode = document.getElementById('game-mode').value;
-        document.getElementById('ui-genre').classList.add('hidden');
-        document.getElementById('ui-artist').classList.add('hidden');
-        document.getElementById('ui-movie').classList.add('hidden');
-        document.getElementById('custom-input').classList.add('hidden');
-        
-        document.getElementById('ui-density').classList.remove('hidden'); 
-        
-        if (currentMode === 'mode-movie') {
-            document.getElementById('hd-100').disabled = true; 
-            if(document.getElementById('hit-density').value === "1") document.getElementById('hit-density').value = "5"; 
-        } else {
-            document.getElementById('hd-100').disabled = false;
-        }
-
-        if (currentMode === 'mode-genre') { 
-            document.getElementById('ui-genre').classList.remove('hidden'); 
-            document.getElementById('custom-input').placeholder = "E.g., 1980s, Pop, Madonna...";
-            toggleCustomInput('genre'); 
-        }
-        if (currentMode === 'mode-artist') { 
-            document.getElementById('ui-artist').classList.remove('hidden'); 
-            document.getElementById('custom-input').placeholder = "E.g., Queen, Adele, Prince...";
-            toggleCustomInput('artist'); 
-        }
-        if (currentMode === 'mode-movie') { 
-            document.getElementById('ui-movie').classList.remove('hidden'); 
-            document.getElementById('custom-input').placeholder = "E.g., Hindi, 90s OR A.R. Rahman, Tamil";
-            toggleCustomInput('movie'); 
-        }
-    }
-
-    function toggleCustomInput(type) { 
-        const val = document.getElementById(`${type}-select`).value;
-        document.getElementById('custom-input').classList.toggle('hidden', val !== 'custom'); 
-    }
-
     function getNormalizedScore(rawScore) {
         const maxRawPossible = (roundsPerPlayer * 60) + (Math.floor(roundsPerPlayer / 3) * 50);
         return Math.min(750, Math.round((rawScore / maxRawPossible) * 750));
@@ -638,28 +636,52 @@
 
     function clearAllTimers() {
         if(timerId) clearInterval(timerId);
-        if(guessTimerId) clearInterval(guessTimerId);
     }
 
     async function startDailyChallenge() {
         isDailyMode = true;
-        numPlayers = 1; roundsPerPlayer = 10; maxRounds = 10; 
-        timeLimit = 30; hitLimit = 5; answerFormat = 'mc'; currentMode = 'mode-genre'; isHintMode = false;
+        numPlayers = 1; roundsPerPlayer = 3; maxRounds = 3; 
+        timeLimit = 30; gameState.level = 'easy'; // Automatically set easy/medium logic for 30s timer
         
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('daily-btn-top').style.display = 'none';
         document.getElementById('feedback-setup').innerText = "Loading Today's Global Mix...";
-        executeFetchLogic();
+        
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const dayOfYear = Math.floor((now - start) / 86400000);
+
+        try {
+            const res = await fetch('db_daily.json');
+            if(!res.ok) throw new Error("Could not find db_daily.json");
+            const vault = await res.json();
+            const dailyIds = vault[dayOfYear % vault.length];
+            
+            const apiRes = await fetch(`https://itunes.apple.com/lookup?id=${dailyIds.join(',')}`);
+            const data = await apiRes.json();
+            
+            globalPool = data.results;
+            songs = globalPool;
+            
+            rawScores = [0]; streaks = [0]; matchHistory = [[]];
+            launchGameUI();
+        } catch (e) {
+            alert(e.message || "Daily Vault requires db_daily.json to be hosted. Playing random proxy instead...");
+            // Fallback for local testing
+            const fallbackRes = await fetch(`https://itunes.apple.com/search?term=pop+rock+hits&limit=20&entity=song`);
+            const fallbackData = await fallbackRes.json();
+            globalPool = fallbackData.results.filter(t => t.previewUrl);
+            songs = globalPool.sort(() => 0.5 - Math.random()).slice(0, 3);
+            rawScores = [0]; streaks = [0]; matchHistory = [[]];
+            launchGameUI();
+        }
     }
     
     function startGame() {
         isDailyMode = false;
-        numPlayers = parseInt(document.getElementById('player-count').value);
-        timeLimit = parseInt(document.getElementById('diff-select').value); 
-        hitLimit = parseInt(document.getElementById('hit-density').value);
-        isHintMode = document.getElementById('hint-mode').checked;
-        answerFormat = document.getElementById('answer-format').value;
-        roundsPerPlayer = parseInt(document.getElementById('num-songs').value) || 10;
+        numPlayers = gameState.players;
+        timeLimit = gameState.level === 'hard' ? 10 : 30; 
+        roundsPerPlayer = gameState.rounds;
         maxRounds = roundsPerPlayer * numPlayers;
         
         document.getElementById('start-btn-top').style.display = 'none';
@@ -668,7 +690,6 @@
         executeFetchLogic();
     }
 
-    // --- V5.0 CORE FETCH LOGIC (CONSOLIDATED JSON VAULTS) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -678,19 +699,21 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            // V5.0 MASTER INTERCEPTOR
-            if (currentMode === 'mode-movie') {
-                let selectedMovieGenre = document.getElementById('movie-select').value;
-                if (selectedMovieGenre === 'Disney Movie Soundtrack' || selectedMovieGenre === 'Bollywood Movie Soundtrack' || selectedMovieGenre === 'Tamil Movie Soundtrack' || selectedMovieGenre === 'Hollywood Movie Soundtrack') {
+            // MAP DIFFICULTY TO HIT DENSITY
+            let hitLimit = gameState.level === 'easy' ? 15 : 150; 
+            
+            if (gameState.mode === 'movie') {
+                let selectedMovieGenre = gameState.sub;
+                if (selectedMovieGenre === 'Disney Classics' || selectedMovieGenre === 'Bollywood Hits' || selectedMovieGenre === 'Tamil Cinema' || selectedMovieGenre === 'Hollywood Blockbusters') {
                     
                     let jsonFile = '';
                     let top20Array = [];
                     let vaultName = '';
                     
-                    if (selectedMovieGenre === 'Disney Movie Soundtrack') { jsonFile = 'db_disney.json'; top20Array = top20DisneyMovies; vaultName = 'Disney'; }
-                    else if (selectedMovieGenre === 'Bollywood Movie Soundtrack') { jsonFile = 'db_bollywood.json'; top20Array = top20BollywoodMovies; vaultName = 'Bollywood'; }
-                    else if (selectedMovieGenre === 'Tamil Movie Soundtrack') { jsonFile = 'db_tamil.json'; top20Array = top20TamilMovies; vaultName = 'Tamil'; }
-                    else if (selectedMovieGenre === 'Hollywood Movie Soundtrack') { jsonFile = 'db_hollywood.json'; top20Array = top20HollywoodMovies; vaultName = 'Hollywood'; }
+                    if (selectedMovieGenre === 'Disney Classics') { jsonFile = 'db_disney.json'; top20Array = top20DisneyMovies; vaultName = 'Disney'; }
+                    else if (selectedMovieGenre === 'Bollywood Hits') { jsonFile = 'db_bollywood.json'; top20Array = top20BollywoodMovies; vaultName = 'Bollywood'; }
+                    else if (selectedMovieGenre === 'Tamil Cinema') { jsonFile = 'db_tamil.json'; top20Array = top20TamilMovies; vaultName = 'Tamil'; }
+                    else if (selectedMovieGenre === 'Hollywood Blockbusters') { jsonFile = 'db_hollywood.json'; top20Array = top20HollywoodMovies; vaultName = 'Hollywood'; }
 
                     document.getElementById('feedback-setup').innerText = `Loading Curated ${vaultName} Vault...`;
                     
@@ -701,7 +724,7 @@
                     const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
 
                     const fetchPromise = fetch(`https://itunes.apple.com/lookup?id=${shuffledIds.join(',')}`);
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout.")), 10000));
                     
                     const res = await Promise.race([fetchPromise, timeoutPromise]);
                     const d = await res.json();
@@ -712,22 +735,16 @@
                         if (seenTracks.has(cleanTitle)) return false; 
                         
                         const movName = getMovieName(t);
-                        
-                        if (hitLimit <= 5) {
-                            const isTop20 = top20Array.some(topMov => movName.toLowerCase().includes(topMov.toLowerCase()));
-                            if (!isTop20) return false;
-                        }
-                        
                         const cArt = (t.artistName || "").toLowerCase();
                         const artLimit = (vaultName === 'Bollywood' || vaultName === 'Tamil') ? 4 : 3;
-                        if (hitLimit < 30 && artistCount[cArt] >= artLimit) return false; 
+                        if (artistCount[cArt] >= artLimit) return false; 
                         artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                         
                         seenTracks.add(cleanTitle); return true;
                     });
                 } else {
                     // CUSTOM MOVIE SEARCH (Legacy Fallback)
-                    searchTerm = selectedMovieGenre === 'custom' ? customVal : selectedMovieGenre;
+                    searchTerm = customVal;
                     if (searchTerm === customVal && customVal.includes(',')) {
                         let terms = customVal.split(',').map(s => s.trim().toLowerCase());
                         let cleanTerms = [];
@@ -746,7 +763,7 @@
                     let apiSearchTerm = searchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
 
                     const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=300&entity=song`);
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout.")), 10000));
                     
                     const res = await Promise.race([fetchPromise, timeoutPromise]);
                     const d = await res.json();
@@ -794,15 +811,13 @@
             // GENRE & ARTIST MODES
             else {
                 let apiSearchTerm = "";
-                if(isDailyMode) {
-                    apiSearchTerm = "Billboard Hot 100 Hits";
-                }
-                else if (currentMode === 'mode-genre') {
-                    const genre = document.getElementById('genre-select').value;
+                if (gameState.mode === 'genre') {
+                    const genre = gameState.sub;
                     if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
                         let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
                         const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
-                        let localHitLimit = genre === 'one-hit-wonders' ? 1 : hitLimit;
+                        let localHitLimit = gameState.level === 'easy' ? 5 : 15; // Tighter hits for easy
+                        if(genre === 'one-hit-wonders') localHitLimit = 1;
 
                         const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
                         const res = await Promise.all(fetches);
@@ -844,13 +859,13 @@
                         } else {
                             switch(genre) {
                                 case 'classic-rock': apiSearchTerm = "Classic Rock Hits"; minYear = 1960; maxYear = 1989; break;
-                                case '2000s': apiSearchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
+                                case '2000s-hits': apiSearchTerm = "2000s Pop"; minYear = 1995; maxYear = 2012; break;
                                 default: apiSearchTerm = searchTerm;
                             }
                         }
                     }
-                } else if (currentMode === 'mode-artist') {
-                    const art = document.getElementById('artist-select').value;
+                } else if (gameState.mode === 'artist') {
+                    const art = gameState.sub;
                     searchTerm = art === 'custom' ? customVal : art;
                     const artists = searchTerm.split(/[,;]+/).map(a => a.trim()).filter(a => a);
                     const fetches = artists.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&limit=150&entity=song`));
@@ -869,19 +884,20 @@
                             const flatCol = colName.replace(/[^a-z0-9]/g, '');
                             if (flatCol === cleanTitle || flatCol.includes(cleanTitle)) return false;
                             seenTracks.add(cleanTitle); return true;
-                        }).slice(0, Math.ceil((hitLimit * 5) / artists.length)); 
+                        }).slice(0, Math.ceil(hitLimit / artists.length)); 
                         pool = pool.concat(filtered);
                     });
                 }
 
                 if (apiSearchTerm !== "") {
-                    if (!isDailyMode && hitLimit === 30) {
-                        const wildcards = ['a', 'e', 'i', 'o', 'u'];
-                        apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
-                    }
+                    const wildcards = ['a', 'e', 'i', 'o', 'u'];
+                    apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
 
-                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=200&entity=song`);
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout. iTunes API is slow.")), 10000));
+                    // Apply API limit based on Difficulty
+                    let fetchLimit = gameState.level === 'easy' ? 30 : 200;
+
+                    const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${fetchLimit}&entity=song`);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout.")), 10000));
                     
                     const res = await Promise.race([fetchPromise, timeoutPromise]);
                     const d = await res.json();
@@ -891,29 +907,28 @@
                         const cleanTitle = t.trackName.toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]/g, '');
                         if (seenTracks.has(cleanTitle)) return false; 
                         
-                        if (currentMode === 'mode-genre' && !isDailyMode) {
+                        if (gameState.mode === 'genre') {
                             const yr = new Date(t.releaseDate).getFullYear();
                             if (yr < minYear - 8 || yr > maxYear + 8) return false; 
                         } 
                         
                         const cArt = (t.artistName || "").toLowerCase();
-                        if (hitLimit < 30 && artistCount[cArt] >= (hitLimit <= 5 ? 1 : 2)) return false;
+                        if (gameState.level === 'easy' && artistCount[cArt] >= 1) return false;
                         artistCount[cArt] = (artistCount[cArt] || 0) + 1;
                         
                         seenTracks.add(cleanTitle); return true;
                     });
                 }
-            } // END OF STANDARD FETCH
+            } 
             
             globalPool = [...pool]; 
             songs = [];
             let seenGameMovies = new Set();
-            let shuffledPool = isDailyMode ? seededShuffle(pool, parseInt(`${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDate()}`)) : pool.sort(() => 0.5 - Math.random());
+            let shuffledPool = pool.sort(() => 0.5 - Math.random());
 
             for (let t of shuffledPool) {
                 if (songs.length >= maxRounds) break;
-                
-                if (currentMode === 'mode-movie') {
+                if (gameState.mode === 'movie') {
                     let mName = getMovieName(t).toLowerCase();
                     if (seenGameMovies.has(mName)) continue; 
                     seenGameMovies.add(mName);
@@ -922,23 +937,14 @@
             }
 
             if(songs.length < 3) {
-                throw new Error("Not enough tracks found for a good game! Try broadening your search or ensuring correct spelling.");
+                throw new Error("Not enough tracks found! Try broadening your search.");
             } else if(songs.length < maxRounds) {
                 maxRounds = songs.length;
             }
             
-            if (window.location.search.includes('test=true')) {
-                console.log(`=== YARDBIRD DEV TEST MODE: Fetched ${globalPool.length} Valid Tracks ===`);
-                console.table(songs.map(t => ({ Artist: t.artistName, Song: t.trackName, ExtractedMovie: getMovieName(t), Year: new Date(t.releaseDate).getFullYear()})));
-                document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console.";
-                document.getElementById('start-btn-top').style.display = 'block';
-                document.getElementById('daily-btn-top').style.display = 'block';
-                return; 
-            }
-
             launchGameUI();
         } catch (e) { 
-            alert(e.message || "Network Error or iTunes timeout. Please try again or use wider search terms!"); 
+            alert(e.message || "Network Error or iTunes timeout. Please try again."); 
             document.getElementById('feedback-setup').innerText = "";
             document.getElementById('start-btn-top').style.display = 'block';
             document.getElementById('daily-btn-top').style.display = 'block';
@@ -948,12 +954,23 @@
     function launchGameUI() {
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('play-screen').classList.remove('hidden');
-        document.getElementById('guess-artist').classList.toggle('hidden', currentMode !== 'mode-genre');
-        document.getElementById('guess-song').classList.toggle('hidden', currentMode === 'mode-movie');
-        document.getElementById('guess-movie').classList.toggle('hidden', currentMode !== 'mode-movie');
+        document.getElementById('guess-artist').classList.toggle('hidden', gameState.mode !== 'genre');
+        document.getElementById('guess-song').classList.toggle('hidden', gameState.mode === 'movie');
+        document.getElementById('guess-movie').classList.toggle('hidden', gameState.mode !== 'movie');
         updateLeaderboard(0);
         
-        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY TEN CHALLENGE"; }
+        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY THREE CHALLENGE"; }
+        
+        // Track Modes Played for Explorer Trophy
+        if (!isDailyMode) {
+            if (gameState.mode === 'genre') userStats.modesPlayed.genre = true;
+            if (gameState.mode === 'artist') userStats.modesPlayed.artist = true;
+            if (gameState.mode === 'movie') userStats.modesPlayed.movie = true;
+            if (userStats.modesPlayed.genre && userStats.modesPlayed.artist && userStats.modesPlayed.movie) {
+                userStats.trophies.expl = true;
+            }
+        }
+
         nextTrack();
     }
 
@@ -961,13 +978,13 @@
         if (curIdx >= maxRounds) { endGameSequence(); return; }
         clearAllTimers();
         isProcessing = false; 
+        hasUsedLifeline = false;
         
         const pIdx = curIdx % numPlayers;
         const currentColor = colors[pIdx];
         
         updateLeaderboard(pIdx); 
         document.documentElement.style.setProperty('--active-vis', currentColor);
-        
         if(!isDailyMode) document.getElementById('main-title').style.color = currentColor;
         
         const tag = document.getElementById('active-player');
@@ -980,7 +997,6 @@
         
         document.getElementById('feedback').innerHTML = "";
         document.getElementById('feedback').classList.remove('fade-in');
-        document.getElementById('hint-area').style.display = 'none';
         document.getElementById('reveal-art').style.display = 'none';
         document.getElementById('reveal-art').classList.remove('fade-in');
         
@@ -989,17 +1005,9 @@
         document.getElementById('visualizer').classList.remove('active', 'paused');
         document.getElementById('visualizer').classList.add('hidden');
         
-        if (answerFormat === 'mc') {
-            document.getElementById('stop-btn').classList.add('hidden');
-            document.getElementById('guess-fields').classList.add('hidden');
-            document.getElementById('mc-fields').classList.remove('hidden');
-            document.getElementById('mc-fields').classList.add('fade-in');
-            setupMC();
-        } else {
-            document.getElementById('stop-btn').classList.remove('hidden');
-            document.getElementById('guess-fields').classList.add('hidden');
-            document.getElementById('mc-fields').classList.add('hidden');
-        }
+        document.getElementById('stop-btn').classList.remove('hidden');
+        document.getElementById('guess-fields').classList.add('hidden');
+        document.getElementById('mc-fields').classList.add('hidden');
 
         audio.src = songs[curIdx].previewUrl; 
         audio.load();
@@ -1023,63 +1031,25 @@
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
             if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
             
-            if (isHintMode && answerFormat !== 'mc' && timeLeft === Math.floor(timeLimit / 2)) showHint();
+            // THE MCQ LIFELINE (Drops in at 10 seconds for Easy/Medium)
+            if (timeLeft === 10 && gameState.level !== 'hard') {
+                triggerLifeline();
+            }
             
             if (timeLeft <= 0) {
                 clearAllTimers(); audio.pause();
                 document.getElementById('visualizer').classList.add('paused');
-                if (answerFormat === 'mc') { timeTaken = timeLimit; evaluateGuess(false); } 
-                else { handleStop(); }
+                handleStop(); 
             }
         }, 1000);
     }
 
-    function showHint() {
-        if (answerFormat === 'mc') return; 
-
-        const s = songs[curIdx];
-        let h1 = "", h2 = "", funFact = "";
-        
-        const stripPrefix = str => str.replace(/^(the|a|an)\s+/i, '');
-        let cleanArtist = stripPrefix(s.artistName);
-        let cleanSong = stripPrefix(s.trackName);
-
-        if (currentMode === 'mode-movie') {
-            cleanSong = cleanSong.replace(/\s*[\(\[-]\s*from\b[^)\]]*[\)\]]?/ig, '').trim();
-            cleanSong = cleanSong.replace(/\s*[\(\[-]\s*original motion picture[^)\]]*[\)\]]?/ig, '').trim();
-
-            let artistChunks = cleanArtist.split(/,|&/);
-            let validChunks = artistChunks.filter(chunk => !/cast\b/i.test(chunk) && !/ensemble/i.test(chunk));
-            cleanArtist = validChunks.map(c => c.trim()).filter(c => c).join(', ');
-            
-            cleanArtist = cleanArtist.replace(/\bof\b.*?$/ig, '').replace(/from.*?$/ig, '').trim();
-            cleanArtist = cleanArtist.replace(/[-\&,\s]+$/, '');
-            if(!cleanArtist) cleanArtist = "Various Artists";
-
-            h1 = `🎼 <b>Composer/Artist:</b> ${cleanArtist}`;
-            h2 = `🎵 <b>Song:</b> ${cleanSong}`;
-            funFact = `📅 <b>Year:</b> ${new Date(s.releaseDate).getFullYear()} — Can you name the Movie?`;
-        } else if (currentMode === 'mode-artist') {
-            let cleanAlbum = s.collectionName ? s.collectionName.replace(/\(.*?\)|\[.*?\]/g, '').trim() : "Unknown Album";
-            h1 = `📅 <b>Year:</b> ${new Date(s.releaseDate).getFullYear()}`;
-            h2 = `💿 <b>Album:</b> ${cleanAlbum}`;
-            funFact = `Song Initials: ${cleanSong.substring(0, 3).toUpperCase()}...`;
-        } else {
-            h1 = `🎤 <b>Artist:</b> ${cleanArtist.substring(0, 3).toUpperCase()}...`;
-            h2 = `🎵 <b>Song:</b> ${cleanSong.substring(0, 3).toUpperCase()}...`;
-            funFact = s.trackNumber === 1 ? "This was a massive album opener!" : `A classic from ${new Date(s.releaseDate).getFullYear()}.`;
-        }
-
-        const hintBox = document.getElementById('hint-area');
-        hintBox.innerHTML = `
-            <div style="font-weight:bold; color:#ffcc00; margin-bottom:8px; border-bottom: 1px solid rgba(255,204,0,0.3); padding-bottom: 4px;">💡 YARDBIRD HINT</div>
-            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; color: #fff;">
-                <span>${h1}</span><span>${h2}</span>
-                <span style="margin-top:6px; font-style:italic; color:#aaa; font-size:0.85rem;">"${funFact}"</span>
-            </div>
-        `;
-        hintBox.classList.add('fade-in');
-        hintBox.style.display = 'block';
+    function triggerLifeline() {
+        hasUsedLifeline = true;
+        document.getElementById('stop-btn').classList.add('hidden');
+        document.getElementById('mc-fields').classList.remove('hidden');
+        document.getElementById('mc-fields').classList.add('fade-in');
+        setupMC(); 
     }
 
     function handleStop() { 
@@ -1088,31 +1058,28 @@
         
         clearAllTimers(); audio.pause(); 
         document.getElementById('visualizer').classList.add('paused');
-        timeTaken = (Date.now() - startTime) / 1000; 
         document.getElementById('stop-btn').classList.add('hidden'); 
         
-        document.getElementById('guess-fields').classList.remove('hidden');
-        document.getElementById('guess-fields').classList.add('fade-in');
-        
-        setTimeout(() => {
-            isProcessing = false; 
-            if(currentMode === 'mode-genre') document.getElementById('guess-artist').focus();
-            if(currentMode === 'mode-artist') document.getElementById('guess-song').focus();
-            if(currentMode === 'mode-movie') document.getElementById('guess-movie').focus();
-        }, 50);
-
-        let guessTime = 20; document.getElementById('timer').innerText = guessTime; document.getElementById('timer').style.color = '#ffcc00'; 
-        
-        guessTimerId = setInterval(() => {
-            guessTime--; document.getElementById('timer').innerText = guessTime;
-            if (guessTime <= 3 && guessTime > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
-            if (guessTime <= 0) { clearAllTimers(); evaluateGuess(); }
-        }, 1000);
+        if (!hasUsedLifeline) {
+            document.getElementById('guess-fields').classList.remove('hidden');
+            document.getElementById('guess-fields').classList.add('fade-in');
+            
+            setTimeout(() => {
+                isProcessing = false; 
+                if(gameState.mode === 'genre') document.getElementById('guess-artist').focus();
+                if(gameState.mode === 'artist') document.getElementById('guess-song').focus();
+                if(gameState.mode === 'movie') document.getElementById('guess-movie').focus();
+            }, 50);
+        } else {
+            // If the timer hit zero during the lifeline, force a wrong answer
+            if (timeLeft <= 0) evaluateGuess(false);
+            else isProcessing = false; 
+        }
     }
 
     function getMCLabel(s) {
-        if (currentMode === 'mode-movie') return getMovieName(s); 
-        else if (currentMode === 'mode-artist') return s.trackName;
+        if (gameState.mode === 'movie') return getMovieName(s); 
+        else if (gameState.mode === 'artist') return s.trackName;
         else return `${s.artistName} - ${s.trackName}`;
     }
 
@@ -1128,13 +1095,13 @@
         });
 
         let fallbacks = [];
-        if (currentMode === 'mode-movie') {
-            let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
+        if (gameState.mode === 'movie') {
+            let searchContext = gameState.sub.toLowerCase();
             if (searchContext.includes('tamil')) fallbacks = [...fullTamilList];
             else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fullBollywoodList];
             else if (searchContext.includes('disney')) fallbacks = [...fullDisneyList]; 
             else fallbacks = [...fullHollywoodList];
-        } else if (currentMode === 'mode-artist') {
+        } else if (gameState.mode === 'artist') {
             fallbacks = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Oo Antava", "Hukum", "Kavala"];
         } else {
             fallbacks = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Ed Sheeran", "Taylor Swift", "The Weeknd"];
@@ -1144,9 +1111,7 @@
         
         let finalWrongStrs = new Set();
         for (let str of wrongOptionsPool) {
-            if (str !== correctStr && !finalWrongStrs.has(str)) {
-                finalWrongStrs.add(str);
-            }
+            if (str !== correctStr && !finalWrongStrs.has(str)) finalWrongStrs.add(str);
             if (finalWrongStrs.size === 2) break; 
         }
 
@@ -1168,7 +1133,7 @@
     }
 
     function evaluateGuess(isCorrectMC = null) {
-        if(isProcessing) return; 
+        if(isProcessing && isCorrectMC === null) return; // Prevent double submit from enter key
         isProcessing = true;
         
         clearAllTimers(); audio.pause(); 
@@ -1177,14 +1142,12 @@
         document.getElementById('guess-fields').classList.add('hidden');
         document.getElementById('stop-btn').classList.add('hidden');
         
-        if (answerFormat === 'mc') {
+        if (hasUsedLifeline) {
             document.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
-            if (isCorrectMC !== null && timeLeft > 0) timeTaken = Math.min(timeLimit, (Date.now() - startTime) / 1000);
         }
 
         const pIdx = curIdx % numPlayers;
-        let roundPts = Math.max(0, timeLimit - timeTaken);
-        if (timeLimit === 10) roundPts = roundPts * 3; 
+        let roundPts = Math.max(0, timeLeft); // No penalty. Score is the clock.
 
         let correct = false;
         let artOk = false, sonOk = false, movOk = false;
@@ -1193,25 +1156,25 @@
         const realS = songs[curIdx].trackName;
         const realM = getMovieName(songs[curIdx]); 
 
-        if (answerFormat === 'mc') {
+        if (hasUsedLifeline) {
             correct = (isCorrectMC === true);
-            if (correct) { artOk = true; sonOk = true; movOk = true; roundPts *= 2; }
+            if (correct) { artOk = true; sonOk = true; movOk = true; }
         } else {
             const artG = document.getElementById('guess-artist').value;
             const sonG = document.getElementById('guess-song').value;
             const movG = document.getElementById('guess-movie').value;
             
-            if (currentMode === 'mode-genre') {
-                artOk = isCloseEnough(artG, realA);
-                sonOk = isCloseEnough(sonG, realS);
+            if (gameState.mode === 'genre') {
+                artOk = isCloseEnough(artG, realA, true);
+                sonOk = isCloseEnough(sonG, realS, false);
                 if (artOk || sonOk) {
                     correct = true;
-                    if (artOk && sonOk) roundPts *= 2;
+                    if (artOk && sonOk) roundPts *= 2; // Double points for perfect text recall
                 }
-            } else if (currentMode === 'mode-artist') {
-                if (isCloseEnough(sonG, realS)) { correct = true; sonOk = true; roundPts *= 2; }
-            } else if (currentMode === 'mode-movie') {
-                if (isCloseEnough(movG, realM)) { correct = true; movOk = true; roundPts *= 2; }
+            } else if (gameState.mode === 'artist') {
+                if (isCloseEnough(sonG, realS, false)) { correct = true; sonOk = true; }
+            } else if (gameState.mode === 'movie') {
+                if (isCloseEnough(movG, realM, false)) { correct = true; movOk = true; }
             }
         }
 
@@ -1220,18 +1183,18 @@
         userStats.totalGuesses++;
         if (correct) {
             userStats.correctGuesses++;
-            if (timeTaken <= 3 && answerFormat === 'text') userStats.sniperHits++;
+            if (timeLeft >= 27 && !hasUsedLifeline) userStats.sniperHits++;
         }
 
         let fbHTML = "";
         const succColor = "var(--success)"; const failColor = "var(--fail)";
 
-        if (currentMode === 'mode-genre' && answerFormat === 'text') {
+        if (gameState.mode === 'genre' && !hasUsedLifeline) {
             if (artOk && sonOk) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 PERFECT DOUBLE!</div>`;
             else if (artOk || sonOk) fbHTML += `<div style="font-size:1.1rem; font-weight:bold; display:flex; justify-content:center; gap:15px;"><span style="color:${artOk ? succColor : failColor}">${artOk ? '✅' : '❌'} ARTIST</span><span style="color:#666;">|</span><span style="color:${sonOk ? succColor : failColor}">${sonOk ? '✅' : '❌'} SONG</span></div>`;
             else fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
         } else {
-            if (correct) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 CORRECT (+2x PTS)!</div>`;
+            if (correct) fbHTML += `<div style="color:${succColor}; font-size:1.2rem; font-weight:bold;">🔥 CORRECT!</div>`;
             else fbHTML += `<div style="color:${failColor}; font-size:1.2rem; font-weight:bold;">❌ INCORRECT</div>`;
         }
 
@@ -1248,7 +1211,7 @@
         updateLeaderboard(pIdx); 
 
         fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
-        if (currentMode === 'mode-movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM}</div>`;
+        if (gameState.mode === 'movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM}</div>`;
 
         document.getElementById('feedback').innerHTML = fbHTML;
         document.getElementById('feedback').classList.add('fade-in');
@@ -1297,10 +1260,10 @@
             return res;
         }, '');
         
-        let headerText = isDailyMode ? `🌍 Yardbird TODAY TEN` : `Yardbird's Song Trivia 🎸`;
+        let headerText = isDailyMode ? `🌍 Yardbird TODAY THREE` : `Yardbird's Song Trivia 🎸`;
 
         const trackIds = songs.map(s => s.trackId).join(',');
-        const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}&fmt=${answerFormat}&mode=${currentMode}`;
+        const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}`;
         
         const text = `${headerText}\nScore: ${maxScore}/750 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
         
@@ -1315,7 +1278,7 @@
     function endGameSequence() {
         document.getElementById('play-screen').classList.add('hidden');
         document.getElementById('final-screen').classList.remove('hidden');
-        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY TEN CHALLENGE"; }
+        if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY THREE CHALLENGE"; }
         document.getElementById('main-title').style.color = '#ffffff'; 
         
         updateLeaderboard(-1); 
@@ -1329,8 +1292,7 @@
         document.getElementById('winner-text').style.color = colors[winIdx];
 
         userStats.gamesPlayed++;
-        if (answerFormat === 'text' && maxScore > userStats.hsText) userStats.hsText = maxScore;
-        if (answerFormat === 'mc' && maxScore > userStats.hsMC) userStats.hsMC = maxScore;
+        if (maxScore > userStats.hsText) userStats.hsText = maxScore;
         
         if (maxScore > 700) userStats.trophies.perf = true;
         if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
@@ -1355,7 +1317,6 @@
 
         if (maxScore > globalHighScore && maxScore > 0) {
             localStorage.setItem('yardbirdHighScore', maxScore);
-            document.getElementById('high-score-display').innerText = `🏆 All-Time Record: ${maxScore} Pts`;
             document.getElementById('new-record-msg').style.display = 'block';
         }
     }
