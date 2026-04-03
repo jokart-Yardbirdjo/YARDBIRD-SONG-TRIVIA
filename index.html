@@ -126,8 +126,9 @@
         .trophy-row.unlocked .trophy-text p { color: #ccc; }
 
         @media (max-width: 768px) {
-            #game-header { padding: 0; justify-content: flex-start; }
-            #main-title { font-size: 1.35rem; }
+            #game-header { padding: 0; justify-content: flex-start; align-items: flex-start; }
+            /* Added padding-right to act as a bumper against the buttons, forcing the text to wrap safely */
+            #main-title { font-size: 1.3rem; padding-right: 85px; text-align: left; }
             #info-btn { right: 40px; }
         }
         .hidden { display: none !important; }
