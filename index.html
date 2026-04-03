@@ -147,7 +147,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v4.8 Master Edition</strong><br>
+            <strong>Yardbird v4.9 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    // --- GLOBAL VARIABLES & STATS V4.8 ---
+    // --- GLOBAL VARIABLES & STATS V4.9 ---
     let songs = [], globalPool = []; 
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
@@ -382,10 +382,15 @@
     let isHintMode = true, currentMode = 'mode-genre', answerFormat = 'text', isDailyMode = false;
     let isProcessing = false; 
     
-    // Top 20 Movie Arrays
+    // V4.9 Full 50-100 Item Master Lists for MC Variety
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
     const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
     const top20TamilMovies = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal"];
+
+    const fullDisneyList = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan", "Mary Poppins", "Sleeping Beauty", "Dumbo", "Bambi", "Tarzan", "Hercules", "Pocahontas", "The Emperor's New Groove", "Toy Story 3", "Fantasia", "Lady and the Tramp", "Robin Hood", "The Fox and the Hound", "101 Dalmatians", "The Great Mouse Detective", "Alice in Wonderland", "The Aristocats", "Bedknobs and Broomsticks", "Swiss Family Robinson", "Enchanted", "Pirates of the Caribbean", "Cars", "Bridge to Terabithia", "Remember the Titans", "National Treasure", "The Santa Clause", "Honey, I Shrunk the Kids", "Treasure Planet", "The Rescuers Down Under", "The Rescuers"];
+    const fullBollywoodList = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK", "Andaz Apna Apna", "Hera Pheri", "Munna Bhai M.B.B.S.", "Lage Raho Munna Bhai", "Barfi!", "Rockstar", "Queen", "Kahaani", "Drishyam", "A Wednesday", "Special 26", "Tumbbad", "The Lunchbox", "Masaan", "Udaan", "Haider", "Omkara", "Maqbool", "Satya", "Company", "Parinda", "Black Friday", "Dev.D", "Gully Boy", "Article 15", "Newton", "Badhaai Ho", "Stree", "Piku", "Wake Up Sid", "Jab We Met", "Dil Chahta Hai", "Hum Aapke Hain Koun..!", "Silsila", "Kabhi Kabhie", "Amar Akbar Anthony", "Shree 420", "Awara", "Don", "Kaagaz Ke Phool", "Bawarchi", "Chupke Chupke", "Gol Maal", "Jaane Bhi Do Yaaro", "Satte Pe Satta", "Mr. India", "Bobby", "Sahib Bibi Aur Ghulam", "Do Aankhen Barah Haath", "Abhimaan", "Aradhana", "Kati Patang", "Ardh Satya", "Nishant", "Shatranj Ke Khiladi", "Sparsh", "Saaransh", "Pyaasa", "Devdas", "Chhoti Si Baat", "Hum Dono", "Mera Naam Joker", "Raat Akeli Hai", "Ek Tha Tiger", "Singham", "Don 2", "Kal Ho Naa Ho", "Veer-Zaara", "My Name Is Khan", "Rock On!!", "Bhaag Milkha Bhaag", "Saathiya", "Hum Saath-Saath Hain", "Hum Tum", "Om Shanti Om", "Main Hoon Na", "Student of the Year", "Raazi"];
+    const fullTamilList = ["Nayakan", "Thalapathi", "Indian", "Baasha", "Anbe Sivam", "Mouna Ragam", "Roja", "Moondram Pirai", "Mullum Malarum", "Nizhalgal", "Thiruda Thiruda", "Gentleman", "Thevar Magan", "Paruthiveeran", "Karnan", "Kannathil Muthamittal", "Alaipayuthey", "Bombay", "Sethu", "Kaadhal", "Subramaniapuram", "Autograph", "Kaakha Kaakha", "Vaaranam Aayiram", "Pariyerum Perumal", "Asuran", "Kaithi", "Vikram", "Soorarai Pottru", "Visaaranai", "Jigarthanda", "Anniyan", "Enthiran", "Ghajini", "Mersal", "Kabali", "Thuppakki", "Dasavathaaram", "Vikram Vedha", "96", "OK Kanmani", "Kandukondain Kandukondain", "Pithamagan", "Aruvi", "Sivaji", "Petta", "Vinnaithaandi Varuvaayaa", "Neram", "Kireedam", "Aayirathil Oruvan", "Sivaranjani", "Pudhupettai", "Aadukalam", "Soodhu Kavvum", "Velaikkaran", "Thani Oruvan", "Ratsasan", "Dhuruvangal Pathinaaru", "Peranbu", "Sangam", "Maya Bazaar", "Kizhakku Cheemayile", "Naan Kadavul", "Kattradhu Thamizh", "Aayutha Ezhuthu", "Sivakasi", "Papanasam", "Kanchivaram", "Vettaiyaadu Vilaiyaadu", "Kumki", "Sillunu Oru Kaadhal", "Thupparivaalan", "Sathuranga Vettai", "Kadal", "Sathya", "Kadalora Kavithaigal", "Naanum Rowdy Dhaan", "Remo", "Kaala", "Sivappu", "Kanchana", "Maya", "Aranmanai", "Kakka Muttai", "Sethupathi", "Master", "Bigil", "Jilla", "Raatchasi"];
+    const fallbackHollywood = ["Inception", "Top Gun: Maverick", "The Lion King", "Interstellar", "Gladiator", "The Dark Knight", "Titanic", "Jurassic Park", "Avatar", "The Matrix", "Spider-Man: Into the Spider-Verse", "Black Panther", "Guardians of the Galaxy", "Dune"];
 
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, trophies: { perf: false, mara: false, snip: false, streak: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV4')) || defaultStats;
@@ -661,7 +666,6 @@
         executeFetchLogic();
     }
 
-    // --- V4.8 CORE FETCH LOGIC (ALL JSON INTEGRATIONS) ---
     async function executeFetchLogic() {
         rawScores = new Array(numPlayers).fill(0); streaks = new Array(numPlayers).fill(0);
         matchHistory = new Array(numPlayers).fill().map(() => []); 
@@ -671,7 +675,6 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            // V4.8 DISNEY VAULT
             if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Disney Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Disney Vault...";
                 
@@ -707,7 +710,6 @@
                 });
 
             } 
-            // V4.8 BOLLYWOOD VAULT
             else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Bollywood Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Bollywood Vault...";
                 
@@ -742,7 +744,6 @@
                     seenTracks.add(cleanTitle); return true;
                 });
             } 
-            // V4.8 TAMIL VAULT
             else if (currentMode === 'mode-movie' && document.getElementById('movie-select').value === 'Tamil Movie Soundtrack') {
                 document.getElementById('feedback-setup').innerText = "Loading Curated Tamil Vault...";
                 
@@ -777,7 +778,6 @@
                     seenTracks.add(cleanTitle); return true;
                 });
             } else {
-                // STANDARD API FETCH ROUTE
                 let apiSearchTerm = searchTerm;
 
                 if(isDailyMode) {
@@ -945,13 +945,20 @@
             } // END OF DB VS STANDARD FETCH
             
             globalPool = [...pool]; 
-            
-            if (isDailyMode) {
-                const today = new Date();
-                const dailySeed = parseInt(`${today.getFullYear()}${today.getMonth()}${today.getDate()}`);
-                songs = seededShuffle(pool, dailySeed).slice(0, maxRounds);
-            } else {
-                songs = pool.sort(() => 0.5 - Math.random()).slice(0, maxRounds);
+            songs = [];
+            let seenGameMovies = new Set();
+            let shuffledPool = isDailyMode ? seededShuffle(pool, parseInt(`${new Date().getFullYear()}${new Date().getMonth()}${new Date().getDate()}`)) : pool.sort(() => 0.5 - Math.random());
+
+            // V4.9 "1 Song Per Movie" Strict Lock
+            for (let t of shuffledPool) {
+                if (songs.length >= maxRounds) break;
+                
+                if (currentMode === 'mode-movie') {
+                    let mName = getMovieName(t).toLowerCase();
+                    if (seenGameMovies.has(mName)) continue; // Skip if we already have a song from this movie!
+                    seenGameMovies.add(mName);
+                }
+                songs.push(t);
             }
 
             if(songs.length < 3) {
@@ -962,7 +969,7 @@
             
             if (window.location.search.includes('test=true')) {
                 console.log(`=== YARDBIRD DEV TEST MODE: Fetched ${globalPool.length} Valid Tracks ===`);
-                console.table(globalPool.map(t => ({ Artist: t.artistName, Song: t.trackName, ExtractedMovie: getMovieName(t), Year: new Date(t.releaseDate).getFullYear()})));
+                console.table(songs.map(t => ({ Artist: t.artistName, Song: t.trackName, ExtractedMovie: getMovieName(t), Year: new Date(t.releaseDate).getFullYear()})));
                 document.getElementById('feedback-setup').innerText = "Test Complete! Check Dev Console.";
                 document.getElementById('start-btn-top').style.display = 'block';
                 document.getElementById('daily-btn-top').style.display = 'block';
@@ -990,7 +997,6 @@
         nextTrack();
     }
 
-    // --- GAMEPLAY LOGIC ---
     function nextTrack() {
         if (curIdx >= maxRounds) { endGameSequence(); return; }
         clearAllTimers();
@@ -1150,62 +1156,51 @@
         else return `${s.artistName} - ${s.trackName}`;
     }
 
+    // V4.9 True Random Non-Repetitive MC Generator
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        let shuffPool = [...globalPool].sort(() => 0.5 - Math.random());
-        let wrongPool = shuffPool.filter(s => getMCLabel(s) !== correctStr);
+        let wrongOptionsPool = [];
         
-        let wrongStrs = new Set(); let wrongOptions = [];
-        
-        for(let s of wrongPool) {
+        // 1. Pour every unique string from the API fetch into the blender
+        globalPool.forEach(s => {
             let str = getMCLabel(s);
-            if(!wrongStrs.has(str) && str !== "Unknown Movie" && str !== "Unknown") {
-                wrongStrs.add(str); wrongOptions.push({song: s, str: str, correct: false});
+            if (str !== correctStr && str !== "Unknown Movie" && str !== "Unknown") {
+                wrongOptionsPool.push(str);
             }
-            if(wrongOptions.length === 2) break;
-        }
+        });
 
-        const fallbackHollywood = ["Inception", "Top Gun: Maverick", "The Lion King", "Interstellar", "Gladiator", "The Dark Knight", "Titanic", "Jurassic Park", "Avatar", "The Matrix", "Spider-Man: Into the Spider-Verse", "Black Panther", "Guardians of the Galaxy", "Dune"];
-        const fallbackBollywood = ["Lagaan", "Dangal", "Kabir Singh", "Pathaan", "Jawan", "Dilwale Dulhania Le Jayenge", "Sholay", "3 Idiots", "Yeh Jawaani Hai Deewani", "Kal Ho Naa Ho", "Zindagi Na Milegi Dobara", "Gully Boy", "Brahmastra", "Animal"];
-        const fallbackTamil = ["Roja", "Bombay", "Alaipayuthey", "Ghilli", "Mankatha", "Vikram", "Master", "Mersal", "Theri", "Kaithi", "Nayagan", "Sivaji", "Baasha", "Thalapathi", "Ponniyin Selvan", "Jailer", "Leo", "O Kadhal Kanmani"];
-        const fallbackSongs = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Why This Kolaveri Di", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Enjoy Enjaami", "Oo Antava", "Srivalli", "Hukum", "Kavala", "Vathi Coming"];
-        const fallbackArtists = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Harris Jayaraj", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Sonu Nigam", "Kishore Kumar", "Ed Sheeran", "The Weeknd", "Dua Lipa", "Drake", "Taylor Swift"];
-        const fallbackDisney = ["The Lion King", "Aladdin", "Frozen", "Moana", "Beauty and the Beast", "The Little Mermaid", "Mulan", "Tangled", "Encanto", "Tarzan", "Pocahontas", "Hercules", "Zootopia", "Coco", "Toy Story", "Cinderella", "The Jungle Book", "Peter Pan", "101 Dalmatians", "Bambi"];
-
+        // 2. Pour the massive 100-item Master Lists into the blender
         let fallbacks = [];
         if (currentMode === 'mode-movie') {
             let searchContext = document.getElementById('movie-select').value === 'custom' ? document.getElementById('custom-input').value.toLowerCase() : document.getElementById('movie-select').value.toLowerCase();
-            if (searchContext.includes('tamil')) fallbacks = [...fallbackTamil];
-            else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fallbackBollywood];
-            else if (searchContext.includes('disney')) fallbacks = [...fallbackDisney]; 
+            if (searchContext.includes('tamil')) fallbacks = [...fullTamilList];
+            else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fullBollywoodList];
+            else if (searchContext.includes('disney')) fallbacks = [...fullDisneyList]; 
             else fallbacks = [...fallbackHollywood];
         } else if (currentMode === 'mode-artist') {
-            fallbacks = [...fallbackSongs];
+            // Keep artist/genre lists simple for now
+            fallbacks = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Oo Antava", "Hukum", "Kavala"];
         } else {
-            fallbacks = [...fallbackArtists];
+            fallbacks = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Ed Sheeran", "Taylor Swift", "The Weeknd"];
         }
         
-        fallbacks = fallbacks.sort(() => 0.5 - Math.random());
-
-        if (wrongOptions.length < 2 || Math.random() > 0.7) {
-            let fStr = fallbacks.pop();
-            while((fStr === correctStr || wrongStrs.has(fStr)) && fallbacks.length > 0) { fStr = fallbacks.pop(); }
-            if (fStr) {
-                if (wrongOptions.length === 2) wrongOptions.pop(); 
-                wrongStrs.add(fStr);
-                wrongOptions.push({song: null, str: fStr, correct: false});
-            }
-        }
+        // Combine, Shuffle, and Extract 2 Unique Answers
+        wrongOptionsPool = [...wrongOptionsPool, ...fallbacks].sort(() => 0.5 - Math.random());
         
-        while(wrongOptions.length < 2 && fallbacks.length > 0) {
-            let fStr = fallbacks.pop();
-            if (fStr !== correctStr && !wrongStrs.has(fStr)) {
-                wrongStrs.add(fStr);
-                wrongOptions.push({song: null, str: fStr, correct: false});
+        let finalWrongStrs = new Set();
+        for (let str of wrongOptionsPool) {
+            if (str !== correctStr && !finalWrongStrs.has(str)) {
+                finalWrongStrs.add(str);
             }
+            if (finalWrongStrs.size === 2) break; // Stop once we have exactly 2 wrong answers
         }
 
-        let options = [{song: songs[curIdx], str: correctStr, correct: true}, ...wrongOptions].sort(() => 0.5 - Math.random());
+        let options = [{song: songs[curIdx], str: correctStr, correct: true}];
+        finalWrongStrs.forEach(str => {
+            options.push({song: null, str: str, correct: false});
+        });
+
+        options = options.sort(() => 0.5 - Math.random()); // Final shuffle of the 3 buttons
         
         const container = document.getElementById('mc-fields');
         container.innerHTML = '';
@@ -1217,7 +1212,6 @@
         });
     }
 
-    // --- EVALUATION & STATS TRACKING ---
     function evaluateGuess(isCorrectMC = null) {
         if(isProcessing) return; 
         isProcessing = true;
