@@ -148,7 +148,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird v6.0 Master Edition</strong><br>
+            <strong>Yardbird's Song Trivia v6.2 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -1153,48 +1153,40 @@
 
     function setupMC() {
         const correctStr = getMCLabel(songs[curIdx]);
-        let wrongOptionsPool = [];
         
+        // 1. Build the wrong options STRICTLY from the contextual globalPool
+        let wrongOptionsPool = [];
         globalPool.forEach(s => {
             let str = getMCLabel(s);
+            // Ensure we don't add the correct answer or empty labels
             if (str !== correctStr && str !== "Unknown Movie" && str !== "Unknown") {
                 wrongOptionsPool.push(str);
             }
         });
 
-        let fallbacks = [];
-        if (gameState.mode === 'movie') {
-            let searchContext = gameState.sub.toLowerCase();
-            if (searchContext.includes('tamil')) fallbacks = [...fullTamilList];
-            else if (searchContext.includes('bollywood') || searchContext.includes('hindi')) fallbacks = [...fullBollywoodList];
-            else if (searchContext.includes('disney')) fallbacks = [...fullDisneyList]; 
-            else fallbacks = [...fullHollywoodList];
-        } else if (gameState.mode === 'artist') {
-            fallbacks = ["Tum Hi Ho", "Chaleya", "Naatu Naatu", "Rowdy Baby", "Apna Bana Le", "Kesariya", "Arabic Kuthu", "Oo Antava", "Hukum", "Kavala"];
-        } else {
-            fallbacks = ["A.R. Rahman", "Anirudh Ravichander", "Ilayaraja", "Yuvan Shankar Raja", "Sid Sriram", "Shreya Ghoshal", "Arijit Singh", "Ed Sheeran", "Taylor Swift", "The Weeknd"];
-        }
+        // 2. Remove any exact duplicates from the pool and shuffle it
+        wrongOptionsPool = [...new Set(wrongOptionsPool)].sort(() => 0.5 - Math.random());
         
-        wrongOptionsPool = [...wrongOptionsPool, ...fallbacks].sort(() => 0.5 - Math.random());
-        
-        let finalWrongStrs = new Set();
-        for (let str of wrongOptionsPool) {
-            if (str !== correctStr && !finalWrongStrs.has(str)) finalWrongStrs.add(str);
-            if (finalWrongStrs.size === 2) break; 
-        }
+        // 3. Grab up to 3 wrong options from the freshly shuffled contextual pool
+        let finalWrongStrs = wrongOptionsPool.slice(0, 3);
 
-        let options = [{song: songs[curIdx], str: correctStr, correct: true}];
+        // 4. Assemble the final button list (1 Correct + Up to 3 Wrong)
+        let options = [{ str: correctStr, correct: true }];
         finalWrongStrs.forEach(str => {
-            options.push({song: null, str: str, correct: false});
+            options.push({ str: str, correct: false });
         });
 
+        // 5. Shuffle the final display order so the correct answer isn't always first
         options = options.sort(() => 0.5 - Math.random()); 
         
+        // 6. Render the buttons to the screen
         const container = document.getElementById('mc-fields');
-        container.innerHTML = '';
+        container.innerHTML = ''; // Clear old buttons
+        
         options.forEach(opt => {
             const btn = document.createElement('button');
-            btn.className = 'mc-btn'; btn.innerText = opt.str;
+            btn.className = 'mc-btn'; 
+            btn.innerText = opt.str;
             btn.onclick = () => evaluateGuess(opt.correct);
             container.appendChild(btn);
         });
