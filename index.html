@@ -42,6 +42,7 @@
         .btn-daily:hover { box-shadow: 0 0 15px var(--brand-glow); transform: scale(1.02); }
         .btn-main { background: var(--highlight); color: black; font-size: 1.2rem; }
         .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .btn-alt { background: var(--surface); color: #fff; border: 2px solid var(--border); font-size: 0.9rem; }
         
         .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; width: auto; min-width: 120px; }
         .btn-reset:hover { background: #444; color: #fff; }
@@ -56,7 +57,7 @@
         .pill.active { background: var(--highlight); border-color: var(--highlight); color: black; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
         .pill-wide { min-width: 140px; font-size: 0.9rem; padding: 12px 10px; }
 
-        .card-group { display: flex; flex-direction: column; gap: 10px; }
+        .card-group { display: flex; flex-direction: column; gap: 10px; transition: opacity 0.3s; }
         .select-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 15px; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; overflow: hidden; }
         .select-card.active { border-color: var(--highlight); background: rgba(255, 255, 255, 0.05); }
         .select-card.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--highlight); }
@@ -65,7 +66,7 @@
 
         input[type="text"] { background: var(--surface); border: 2px solid var(--border); color: white; padding: 15px; border-radius: 12px; font-size: 1rem; width: 100%; outline: none; margin-top: 10px; transition: border-color 0.3s; }
         input[type="text"]:focus { border-color: var(--highlight); }
-        input[type="text"]::placeholder { color: #666; }
+        input[type="text"]::placeholder { color: #666; font-size: 0.85rem;}
 
         /* PLAY SCREEN */
         .player-tag { font-size: 1.2rem; font-weight: 800; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; border: 2px solid transparent; transition: all 0.4s ease; }
@@ -127,7 +128,6 @@
 
         @media (max-width: 768px) {
             #game-header { padding: 0; justify-content: flex-start; align-items: flex-start; }
-            /* Added padding-right to act as a bumper against the buttons, forcing the text to wrap safely */
             #main-title { font-size: 1.3rem; padding-right: 85px; text-align: left; }
             #info-btn { right: 40px; }
         }
@@ -142,9 +142,9 @@
         <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.6; color: #ccc;">
             <li><strong>Modes:</strong> Play Classic Genre, Artist-Specific, or Guess the Movie!</li>
             <li><strong>Today Three:</strong> A daily synced 3-round challenge spanning the 80s, 90s, and 2000s.</li>
-            <li><strong>The Lifeline (Easy/Medium):</strong> If you don't guess before the timer hits 10 seconds, Multiple Choice options will automatically appear to save you.</li>
+            <li><strong>The Lifeline (Easy/Medium):</strong> You have 20 seconds to type an answer. If you get stuck at 10 seconds, Multiple Choice options will automatically appear to save you. (Or press the button to force it early!)</li>
             <li><strong>Epic Intros (Hard):</strong> Set the level to Hard to only get a 10-second snippet (No lifeline!).</li>
-            <li><strong>Scoring:</strong> Scores are driven by the timer. The faster you guess, the more points you get. If you wait for the Lifeline, your max points are capped at 10. Normalizes to 750 max!</li>
+            <li><strong>1000 Point Ceiling:</strong> Scores are mathematically normalized to a perfect 1000, no matter how many rounds you play.</li>
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
@@ -180,7 +180,7 @@
         
         <div class="trophy-row" id="trophy-perf">
             <div class="trophy-icon">🏆</div>
-            <div class="trophy-text"><h4>The Perfectionist</h4><p>Score higher than 700/750 points.</p></div>
+            <div class="trophy-text"><h4>The Perfectionist</h4><p>Score higher than 900/1000 points.</p></div>
         </div>
         <div class="trophy-row" id="trophy-mara">
             <div class="trophy-icon">🏃</div>
@@ -246,7 +246,7 @@
                 <div class="pill-group" id="sub-pills"></div>
             </div>
             
-            <input type="text" id="custom-input" class="hidden" placeholder="Type your custom filter here...">
+            <input type="text" id="custom-input" class="hidden" placeholder="Separate multiple entries with a comma (e.g., Nirvana, 90s)">
 
             <div style="display: flex; gap: 15px; margin-top: 5px;">
                 <div style="flex:1;">
@@ -271,15 +271,15 @@
 
             <label class="section-label">2. Select Difficulty</label>
             <div class="card-group" id="level-group" style="margin-bottom: 20px;">
-                <div class="select-card active" onclick="setLevel('easy', this)">
+                <div id="lvl-easy" class="select-card active" onclick="setLevel('easy', this)">
                     <div class="card-title">🟢 Easy (Top Hits)</div>
-                    <div class="card-desc">30 seconds. Plays the biggest iconic hits. The MCQ Lifeline drops in at 10s.</div>
+                    <div class="card-desc">30 seconds. Plays the biggest iconic hits. Multiple Choice Lifeline drops in at 10s.</div>
                 </div>
-                <div class="select-card" onclick="setLevel('medium', this)">
+                <div id="lvl-medium" class="select-card" onclick="setLevel('medium', this)">
                     <div class="card-title">🟡 Medium (Deep Catalog)</div>
                     <div class="card-desc">30 seconds. Pulls from all available songs, including B-sides. Lifeline enabled.</div>
                 </div>
-                <div class="select-card" onclick="setLevel('hard', this)">
+                <div id="lvl-hard" class="select-card" onclick="setLevel('hard', this)">
                     <div class="card-title">🔴 Hard (The 10s Sprint)</div>
                     <div class="card-desc">Brutal 10-second audio cutoff. Full catalog. Pure recall typing. <strong>No Lifeline.</strong></div>
                 </div>
@@ -303,7 +303,10 @@
             <div id="feedback"></div>
             <img id="reveal-art" class="cover-art" src="" alt="Album Art">
             
-            <button id="stop-btn" class="btn btn-main" style="margin-bottom:10px;" onclick="handleStop()">STOP & GUESS</button>
+            <div style="display:flex; gap:10px; margin-bottom:10px; width:100%;" id="btn-container">
+                <button id="stop-btn" class="btn btn-main" style="flex:2;" onclick="handleStop()">STOP & GUESS</button>
+                <button id="force-mc-btn" class="btn btn-alt" style="flex:1; margin-bottom:0;" onclick="forceLifeline()">MULTIPLE CHOICE</button>
+            </div>
             
             <div id="guess-fields" class="hidden">
                 <input type="text" id="guess-artist" placeholder="Artist Name..." autocomplete="off">
@@ -319,11 +322,13 @@
 
         <div id="final-screen" class="hidden">
             <h2 id="congrats-text" style="font-size:1.6rem; color:#fff; margin-bottom: 5px;">Game Finished!</h2>
-            <div style="color:var(--brand); font-size:0.8rem; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">Scores Normalized to 750</div>
+            <div style="color:var(--brand); font-size:0.8rem; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">Scores Normalized to 1000</div>
             
             <p id="winner-text" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 10px;"></p>
-            <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:20px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
+            <div id="new-record-msg" style="color:var(--p1); font-weight:bold; margin-bottom:10px; display:none;">🎉 NEW ALL-TIME RECORD! 🎉</div>
             
+            <div id="final-grid" style="margin-bottom: 20px;"></div>
+
             <button class="btn btn-main" style="margin-bottom:20px;" onclick="shareChallenge()">⚔️ CHALLENGE A FRIEND</button>
             
             <div class="playlist-box">
@@ -368,6 +373,17 @@
         document.getElementById('sub-label').innerText = mode === 'movie' ? 'Select Cinema Region' : (mode === 'artist' ? 'Select Artist' : 'Select Era / Genre');
         document.getElementById('custom-input').classList.add('hidden');
         renderSubPills();
+
+        // Movie Mode Default Level Constraint
+        const levelGroup = document.getElementById('level-group');
+        if (mode === 'movie') {
+            setLevel('medium', document.getElementById('lvl-medium'));
+            levelGroup.style.opacity = '0.5';
+            levelGroup.style.pointerEvents = 'none';
+        } else {
+            levelGroup.style.opacity = '1';
+            levelGroup.style.pointerEvents = 'auto';
+        }
     }
 
     function renderSubPills() {
@@ -414,9 +430,9 @@
     let curIdx = 0, numPlayers = 1, maxRounds = 10, roundsPerPlayer = 10;
     let rawScores = [], streaks = [], matchHistory = [];
     let timeLimit = 30, timeTaken = 0;
-    let timerId, timeLeft, startTime;
+    let timerId, guessTimerId, timeLeft, startTime;
     let isDailyMode = false, isProcessing = false; 
-    let hasUsedLifeline = false;
+    let hasUsedLifeline = false, scoreLock = 0;
     
     const top20DisneyMovies = ["The Lion King", "Beauty and the Beast", "Aladdin", "Toy Story", "Snow White and the Seven Dwarfs", "The Little Mermaid", "Finding Nemo", "Up", "Monsters, Inc.", "Cinderella", "Mulan", "Tangled", "The Princess and the Frog", "The Incredibles", "Ratatouille", "WALL-E", "Frozen", "Lilo & Stitch", "The Jungle Book", "Peter Pan"];
     const top20BollywoodMovies = ["Lagaan", "Sholay", "Mughal-e-Azam", "Mother India", "Pakeezah", "Deewaar", "Anand", "Guide", "Dilwale Dulhania Le Jayenge", "Kabhi Khushi Kabhie Gham", "3 Idiots", "Taare Zameen Par", "Rang De Basanti", "Gangs of Wasseypur", "Black", "Swades", "Chak De! India", "Dangal", "Bajrangi Bhaijaan", "PK"];
@@ -431,7 +447,6 @@
     const defaultStats = { gamesPlayed: 0, totalGuesses: 0, correctGuesses: 0, hsText: 0, hsMC: 0, sniperHits: 0, lastPlayedDate: null, currentStreak: 0, playedDailyToday: false, modesPlayed: { genre: false, artist: false, movie: false }, trophies: { perf: false, mara: false, snip: false, streak: false, expl: false } };
     let userStats = JSON.parse(localStorage.getItem('yardbirdStatsV6')) || defaultStats;
     
-    // Safety checks for V6 variables
     if (userStats.currentStreak === undefined) userStats.currentStreak = 0;
     if (userStats.lastPlayedDate === undefined) userStats.lastPlayedDate = null;
     if (userStats.playedDailyToday === undefined) userStats.playedDailyToday = false;
@@ -565,6 +580,9 @@
         let cleanA = actual.replace(/\(.*?\)|\[.*?\]/g, '').toLowerCase().trim();
         let cleanG = guess.toLowerCase().trim();
 
+        // Exact match check first
+        if (cleanA === cleanG || cleanA.includes(cleanG)) return true;
+
         const reduce = s => s.replace(/[^a-z0-9 ]/g, '').replace(/([a-z])\1+/g, '$1').replace(/y/g, 'i').replace(/h/g, '');
         let phonA = reduce(cleanA); let phonG = reduce(cleanG);
 
@@ -575,7 +593,7 @@
         
         if (gWords.length === 0) return false;
 
-        // First/Last Name Forgiveness
+        // First/Last Name Forgiveness for Artists
         if (isArtist && gWords.length === 1) {
             let gW = gWords[0];
             let allowedTypos = gW.length >= 8 ? 2 : (gW.length > 5 ? 1 : 0);
@@ -584,6 +602,23 @@
                     return true; 
                 }
             }
+        }
+
+        // More forgiving song title matching
+        if (!isArtist) {
+            let matchCount = 0;
+            gWords.forEach(gW => {
+                let allowedTypos = gW.length >= 7 ? 2 : (gW.length >= 4 ? 1 : 0);
+                for (let aW of aWords) {
+                    if (aW === gW || aW.includes(gW) || gW.includes(aW) || levenshtein(gW, aW) <= allowedTypos) {
+                        matchCount++;
+                        break;
+                    }
+                }
+            });
+            // If they got at least one significant word right and the string isn't totally wrong
+            if (aWords.length <= 2 && matchCount >= 1) return true;
+            if (matchCount >= 2) return true;
         }
 
         if (aWords.length <= 1) {
@@ -614,8 +649,11 @@
     }
 
     function getNormalizedScore(rawScore) {
+        // Max possible raw points per round = 60 (30 seconds * 2 multiplier for typing perfectly)
+        // Hard mode = 10 seconds * 3 hard multiplier * 2 perfect typing = 60.
+        // Plus 50 streak bonus every 3 rounds
         const maxRawPossible = (roundsPerPlayer * 60) + (Math.floor(roundsPerPlayer / 3) * 50);
-        return Math.min(750, Math.round((rawScore / maxRawPossible) * 750));
+        return Math.min(1000, Math.round((rawScore / maxRawPossible) * 1000));
     }
 
     function updateLeaderboard(activeIdx = 0) {
@@ -637,12 +675,13 @@
 
     function clearAllTimers() {
         if(timerId) clearInterval(timerId);
+        if(guessTimerId) clearInterval(guessTimerId);
     }
 
     async function startDailyChallenge() {
         isDailyMode = true;
         numPlayers = 1; roundsPerPlayer = 3; maxRounds = 3; 
-        timeLimit = 30; gameState.level = 'easy'; // Automatically set easy/medium logic for 30s timer
+        timeLimit = 30; gameState.level = 'easy'; 
         
         document.getElementById('start-btn-top').style.display = 'none';
         document.getElementById('daily-btn-top').style.display = 'none';
@@ -667,8 +706,7 @@
             rawScores = [0]; streaks = [0]; matchHistory = [[]];
             launchGameUI();
         } catch (e) {
-            alert(e.message || "Daily Vault requires db_daily.json to be hosted. Playing random proxy instead...");
-            // Fallback for local testing
+            alert(e.message || "Daily Vault requires db_daily.json. Playing fallback...");
             const fallbackRes = await fetch(`https://itunes.apple.com/search?term=pop+rock+hits&limit=20&entity=song`);
             const fallbackData = await fallbackRes.json();
             globalPool = fallbackData.results.filter(t => t.previewUrl);
@@ -700,7 +738,6 @@
             const customVal = document.getElementById('custom-input').value;
             const seenTracks = new Set(); const artistCount = {}; 
             
-            // MAP DIFFICULTY TO HIT DENSITY
             let hitLimit = gameState.level === 'easy' ? 15 : 150; 
             
             if (gameState.mode === 'movie') {
@@ -719,7 +756,7 @@
                     document.getElementById('feedback-setup').innerText = `Loading Curated ${vaultName} Vault...`;
                     
                     const dbRes = await fetch(jsonFile);
-                    if (!dbRes.ok) throw new Error(`Could not find ${jsonFile}. Ensure it is uploaded to your repository.`);
+                    if (!dbRes.ok) throw new Error(`Could not find ${jsonFile}. Ensure it is uploaded.`);
                     const allIds = await dbRes.json();
 
                     const shuffledIds = allIds.sort(() => 0.5 - Math.random()).slice(0, 200);
@@ -744,7 +781,6 @@
                         seenTracks.add(cleanTitle); return true;
                     });
                 } else {
-                    // CUSTOM MOVIE SEARCH (Legacy Fallback)
                     searchTerm = customVal;
                     if (searchTerm === customVal && customVal.includes(',')) {
                         let terms = customVal.split(',').map(s => s.trim().toLowerCase());
@@ -817,7 +853,7 @@
                     if (genre === 'shwe-special' || genre === 'one-hit-wonders') {
                         let selectedArr = genre === 'shwe-special' ? shweArtistsFull : oneHitWondersFull;
                         const selected = selectedArr.sort(() => 0.5 - Math.random()).slice(0, 15);
-                        let localHitLimit = gameState.level === 'easy' ? 5 : 15; // Tighter hits for easy
+                        let localHitLimit = gameState.level === 'easy' ? 5 : 15; 
                         if(genre === 'one-hit-wonders') localHitLimit = 1;
 
                         const fetches = selected.map(a => fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=song&limit=${localHitLimit === 1 ? 5 : 15}`));
@@ -894,7 +930,6 @@
                     const wildcards = ['a', 'e', 'i', 'o', 'u'];
                     apiSearchTerm = apiSearchTerm + " " + wildcards[Math.floor(Math.random() * wildcards.length)];
 
-                    // Apply API limit based on Difficulty
                     let fetchLimit = gameState.level === 'easy' ? 30 : 200;
 
                     const fetchPromise = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(apiSearchTerm)}&limit=${fetchLimit}&entity=song`);
@@ -962,7 +997,6 @@
         
         if(isDailyMode) { document.getElementById('main-title').innerText = "🌍 TODAY THREE CHALLENGE"; }
         
-        // Track Modes Played for Explorer Trophy
         if (!isDailyMode) {
             if (gameState.mode === 'genre') userStats.modesPlayed.genre = true;
             if (gameState.mode === 'artist') userStats.modesPlayed.artist = true;
@@ -1006,7 +1040,10 @@
         document.getElementById('visualizer').classList.remove('active', 'paused');
         document.getElementById('visualizer').classList.add('hidden');
         
+        document.getElementById('btn-container').classList.remove('hidden');
         document.getElementById('stop-btn').classList.remove('hidden');
+        document.getElementById('force-mc-btn').classList.toggle('hidden', gameState.level === 'hard');
+        
         document.getElementById('guess-fields').classList.add('hidden');
         document.getElementById('mc-fields').classList.add('hidden');
 
@@ -1026,28 +1063,41 @@
         document.getElementById('visualizer').classList.add('active');
         
         timeLeft = timeLimit; startTime = Date.now();
+        scoreLock = 0; 
         document.getElementById('timer').innerText = timeLeft;
+        document.getElementById('timer').style.color = 'var(--highlight)';
         
         timerId = setInterval(() => {
             timeLeft--; document.getElementById('timer').innerText = timeLeft;
-            if (timeLeft <= 3 && timeLeft > 0) { document.getElementById('timer').style.color = '#ff3333'; sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); }
+            if (timeLeft <= 3 && timeLeft > 0 && !hasUsedLifeline) { 
+                document.getElementById('timer').style.color = '#ff3333'; 
+                sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); 
+            }
             
-            // THE MCQ LIFELINE (Drops in at 10 seconds for Easy/Medium)
-            if (timeLeft === 10 && gameState.level !== 'hard') {
+            if (timeLeft === 10 && gameState.level !== 'hard' && !hasUsedLifeline) {
                 triggerLifeline();
             }
             
             if (timeLeft <= 0) {
                 clearAllTimers(); audio.pause();
                 document.getElementById('visualizer').classList.add('paused');
-                handleStop(); 
+                if (hasUsedLifeline) evaluateGuess(false); 
+                else handleStop(); 
             }
         }, 1000);
     }
 
+    function forceLifeline() {
+        if (timeLeft > 10 && !hasUsedLifeline) {
+            timeLeft = 10;
+            document.getElementById('timer').innerText = timeLeft;
+            triggerLifeline();
+        }
+    }
+
     function triggerLifeline() {
         hasUsedLifeline = true;
-        document.getElementById('stop-btn').classList.add('hidden');
+        document.getElementById('btn-container').classList.add('hidden');
         document.getElementById('mc-fields').classList.remove('hidden');
         document.getElementById('mc-fields').classList.add('fade-in');
         setupMC(); 
@@ -1059,7 +1109,10 @@
         
         clearAllTimers(); audio.pause(); 
         document.getElementById('visualizer').classList.add('paused');
-        document.getElementById('stop-btn').classList.add('hidden'); 
+        document.getElementById('btn-container').classList.add('hidden');
+
+        scoreLock = Math.max(0, timeLeft);
+        if (gameState.level === 'hard') scoreLock *= 3; 
         
         if (!hasUsedLifeline) {
             document.getElementById('guess-fields').classList.remove('hidden');
@@ -1068,13 +1121,27 @@
             setTimeout(() => {
                 isProcessing = false; 
                 if(gameState.mode === 'genre') document.getElementById('guess-artist').focus();
-                if(gameState.mode === 'artist') document.getElementById('guess-song').focus();
-                if(gameState.mode === 'movie') document.getElementById('guess-movie').focus();
+                else if(gameState.mode === 'artist') document.getElementById('guess-song').focus();
+                else document.getElementById('guess-movie').focus();
             }, 50);
+
+            let guessTime = 20; 
+            document.getElementById('timer').innerText = guessTime; 
+            document.getElementById('timer').style.color = '#ffcc00'; 
+            
+            guessTimerId = setInterval(() => {
+                guessTime--; document.getElementById('timer').innerText = guessTime;
+                if (guessTime <= 3 && guessTime > 0) { 
+                    document.getElementById('timer').style.color = '#ff3333'; 
+                    sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); 
+                }
+                if (guessTime <= 0) { 
+                    clearAllTimers(); evaluateGuess(); 
+                }
+            }, 1000);
+
         } else {
-            // If the timer hit zero during the lifeline, force a wrong answer
-            if (timeLeft <= 0) evaluateGuess(false);
-            else isProcessing = false; 
+            evaluateGuess(false); 
         }
     }
 
@@ -1134,21 +1201,21 @@
     }
 
     function evaluateGuess(isCorrectMC = null) {
-        if(isProcessing && isCorrectMC === null) return; // Prevent double submit from enter key
+        if(isProcessing && isCorrectMC === null) return; 
         isProcessing = true;
         
         clearAllTimers(); audio.pause(); 
         document.getElementById('visualizer').classList.add('paused');
         
         document.getElementById('guess-fields').classList.add('hidden');
-        document.getElementById('stop-btn').classList.add('hidden');
+        document.getElementById('btn-container').classList.add('hidden');
         
         if (hasUsedLifeline) {
             document.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
         }
 
         const pIdx = curIdx % numPlayers;
-        let roundPts = Math.max(0, timeLeft); // No penalty. Score is the clock.
+        let roundPts = hasUsedLifeline ? Math.max(0, timeLeft) : scoreLock;
 
         let correct = false;
         let artOk = false, sonOk = false, movOk = false;
@@ -1170,21 +1237,21 @@
                 sonOk = isCloseEnough(sonG, realS, false);
                 if (artOk || sonOk) {
                     correct = true;
-                    if (artOk && sonOk) roundPts *= 2; // Double points for perfect text recall
+                    if (artOk && sonOk) roundPts *= 2; 
                 }
             } else if (gameState.mode === 'artist') {
-                if (isCloseEnough(sonG, realS, false)) { correct = true; sonOk = true; }
+                if (isCloseEnough(sonG, realS, false)) { correct = true; sonOk = true; roundPts *= 2; }
             } else if (gameState.mode === 'movie') {
-                if (isCloseEnough(movG, realM, false)) { correct = true; movOk = true; }
+                if (isCloseEnough(movG, realM, false)) { correct = true; movOk = true; roundPts *= 2; }
             }
         }
 
-        matchHistory[pIdx].push(correct ? '🟩' : '🟥');
+        matchHistory[pIdx].push(correct ? (hasUsedLifeline ? '🟨' : '🟩') : '🟥');
 
         userStats.totalGuesses++;
         if (correct) {
             userStats.correctGuesses++;
-            if (timeLeft >= 27 && !hasUsedLifeline) userStats.sniperHits++;
+            if (!hasUsedLifeline && scoreLock >= 27) userStats.sniperHits++;
         }
 
         let fbHTML = "";
@@ -1266,7 +1333,7 @@
         const trackIds = songs.map(s => s.trackId).join(',');
         const url = `${window.location.origin}${window.location.pathname}?score=${maxScore}&tracks=${trackIds}`;
         
-        const text = `${headerText}\nScore: ${maxScore}/750 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
+        const text = `${headerText}\nScore: ${maxScore}/1000 Pts\n\n${grid}\nThink you can beat me? Play my exact songs here:`;
         
         if (navigator.share) {
             navigator.share({ title: "Beat My Score!", text: text, url: url }).catch(console.error);
@@ -1292,10 +1359,19 @@
         document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
         document.getElementById('winner-text').style.color = colors[winIdx];
 
+        // Generate the Final Visual Grid
+        let gridHTML = '<div style="font-size:1.8rem; letter-spacing:4px; margin: 15px 0; text-align:center;">';
+        matchHistory[winIdx].forEach((res, idx) => {
+            gridHTML += res;
+            if ((idx + 1) % 5 === 0) gridHTML += '<br>';
+        });
+        gridHTML += '</div>';
+        document.getElementById('final-grid').innerHTML = gridHTML;
+
         userStats.gamesPlayed++;
         if (maxScore > userStats.hsText) userStats.hsText = maxScore;
         
-        if (maxScore > 700) userStats.trophies.perf = true;
+        if (maxScore > 900) userStats.trophies.perf = true;
         if (roundsPerPlayer >= 20) userStats.trophies.mara = true;
         if (userStats.sniperHits >= 10) userStats.trophies.snip = true;
         
