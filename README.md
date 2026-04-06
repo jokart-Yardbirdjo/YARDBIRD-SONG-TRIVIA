@@ -1,71 +1,79 @@
-# 🎸 Yardbird's Song Trivia: Master Edition (v3.7)
+# Yardbird's Song Trivia 🎵
+Version 7.0
+A real-time, Kahoot-style multiplayer song guessing game built for the web. Guess the artist, song title, or movie soundtrack as fast as you can. Play solo to climb the lifetime leaderboard, or host a Party Mode session and let your friends join via a dynamic QR code using their phones as controllers.
 
-**Yardbird's Song Trivia** is a highly polished, serverless, front-end web application that turns any screen into a competitive music trivia game night. Powered dynamically by the iTunes API, it features advanced fuzzy-string matching, robust metadata scrubbers, and a true standalone PWA (Progressive Web App) mobile experience.
-
-Play the live version here: https://jokart-yardbirdjo.github.io/YARDBIRD-SONG-TRIVIA/
-
----
-
-## 🌟 Key Features
-
-### 🎮 Three Distinct Game Modes
-* **Mode 1: Decades & Genres:** Test your knowledge on classic rock, 90s pop, or the heavily curated "One-Hit Wonders" mode. 
-* **Mode 2: Artist specific & Mixtapes:** Guess the song from a specific artist. Type multiple artists separated by commas (e.g., `Queen, Adele, Prince`) to instantly generate a custom multi-artist mixtape challenge.
-* **Mode 3: Cinema & Soundtracks:** Guess the movie based on the soundtrack. Supports Disney, Hollywood, Bollywood, Tamil, and custom searches (e.g., `Hindi, 90s` or `A.R. Rahman`).
-
-### ⚙️ Advanced Engine Logic & API "Bouncers"
-Apple's iTunes API is notoriously messy. Yardbird's engine includes industrial-strength scrubbers to ensure perfect gameplay:
-* **The Compilation Killer:** A deep Regex blocklist actively scans albums and song titles, incinerating "Greatest Hits," "Lofi Covers," and "Karaoke" tracks to ensure only original anthems and movie soundtracks are played.
-* **The "Grease" Protocol:** In Movie Mode, the engine scans hidden metadata to guarantee random English pop songs don't bleed into regional (Bollywood/Tamil) movie categories.
-* **Deep Pool True Shuffle:** Bypasses API limitations to pull up to 300 tracks and truly randomize them, ensuring deep-cuts and zero repetition between games.
-* **Anti-Spoiler Hint Scrubbers:** Actively deletes giveaway phrases like `(From "The Matrix")` or `& ZOMBIES - Cast` before they render on the hint screen.
-
-### 🧠 Forgiving "Fuzzy Logic" 
-No need to be a perfect typist under pressure. The game uses a custom Levenshtein distance algorithm:
-* Ignores special characters and punctuation.
-* Allows sliding-scale typo leniency for longer words (e.g., "Pocohantas" triggers a match for "Pocahontas").
-* Matches compound words and partial strings.
-
-### 🏆 Competitive Multiplayer & Scoring
-* **Up to 4 Players:** Pass-and-play mechanics with color-coded UI indicators.
-* **The 750-Point Normalizer:** Whether you play a 3-round sprint or a 20-round marathon, the engine mathematically calculates your maximum possible raw score and perfectly normalizes it to a clean 750-point ceiling for true leaderboard tracking.
-* **Difficulty Scaling:** Play on **Easy** (standard 30s snippet) or **Hard** (a merciless 10-second intro cutoff with a 3x point multiplier).
-
-### 📱 Premium UX & PWA Support
-* **True Native App Feel:** Save it to your iOS or Android home screen for a fullscreen, browser-bar-free experience with a custom app icon.
-* **Fair-Play Audio Sync:** The game clock refuses to start ticking until the audio has successfully buffered and hit the user's ears.
-* **Dynamic Audio Visualizers:** Neon equalizer bars bounce to the music and dynamically change color to match the active player.
-* **Playlist Export:** At the end of the game, instantly export your session's tracklist to Apple Music, Spotify, or YouTube.
+Developed by Karthik Raja.
 
 ---
 
-## 🚀 How to Run Locally
+## 🌟 Features
 
-Because Yardbird is a 100% serverless front-end application, there are no dependencies, node modules, or build steps required.
+### 🎮 Game Modes
+* **Classic Genre:** Guess the Artist and the Song from specific decades or custom genres. 
+* **Artist-Specific:** Pure catalog recall. Focus entirely on a single artist.
+* **Movie Mode:** Identify the cinematic film from its original soundtrack (e.g., Disney Classics, Bollywood Hits, Hollywood Blockbusters).
+* **The "Today Three" Daily Challenge:** A globally synced 3-round challenge that resets every day.
 
-1. Clone or download this repository.
-2. Open `index.html` in any modern web browser.
-3. Start playing!
+### 👥 Party Mode (Kahoot-Style Multiplayer)
+* **The Host Screen (TV/Laptop):** Creates a lobby, displays a dynamic QR code for instant phone pairing, visualizes the bouncing audio, and reveals the post-round scoreboards.
+* **The Phone Controller:** Seamlessly joins via QR code or 4-letter room code. Displays adaptive input fields depending on the game mode, synchronized countdown clocks, and a giant final score reveal.
+* **Massive Scaling:** Firebase backend allows an unlimited number of players to connect simultaneously with looping UI colors.
+
+### ⚙️ Mechanics & Difficulty
+* **Easy & Medium:** 30 seconds to guess. If you get stuck, a "Multiple Choice" lifeline automatically drops in at the 10-second mark to save you (capping points at a lower tier).
+* **Hard Mode:** A brutal 10-second audio sprint. Pure recall typing. No lifelines.
+* **The Grace Period:** In Party Mode, players get a silent 30-second grace period after the music ends to finish typing their answers on mobile keyboards.
+
+---
+
+## 📐 The Scoring Engine
+
+Scores are mathematically normalized to a **Perfect 1000** regardless of how many rounds are played, allowing lifetime accuracy and high scores to be tracked fairly across all settings. 
+
+**Raw Point Breakdown (Per Song):**
+* **Perfect Typing (30s remaining):** Up to 60 Pts
+* **Multiple Choice Lifeline (10s remaining):** Max 10 Pts
+* **Grace Period Typing (0s remaining):** Flat 5 Pts
+* **Streak Bonus:** Every 3 consecutive correct answers awards a flat **+50 Pts**.
 
 ---
 
 ## 🛠️ Tech Stack
-* **HTML5:** Semantic structure and layout.
-* **CSS3:** Custom styling, CSS variables for dynamic theming, and keyframe animations.
-* **Vanilla JavaScript (ES6+):** Async/Await API fetching, Levenshtein algorithms, and DOM manipulation. No frameworks required.
-* **API:** Apple iTunes Search API.
+
+* **Frontend:** Vanilla HTML, CSS, and JavaScript. No build steps or heavy frameworks required.
+* **Backend & Multiplayer Synchronization:** Firebase Realtime Database.
+* **Music Data:** Apple iTunes Search API (Live Audio Previews & Metadata).
+* **QR Generation:** `qrcode.js` (Local lightweight rendering).
 
 ---
 
-## 📜 Recent Updates (v3.1 - v3.7)
-* **v3.7:** Added "One-Hit Wonders" mode, Multi-Constraint custom parsing (e.g., `1980s, Pop`), Hit Density overhaul, and the Epic Intros (Hard Mode) 10-second cutoff.
-* **v3.6:** Implemented "Deep Pool Shuffle" to fix seed repetition, and added "The Grease Protocol" to lock down Bollywood/Tamil metadata.
-* **v3.5:** Built the "Chunk Filter" to strip Cast/Ensemble names from hints, and upgraded the Compilation Killer regex.
-* **v3.4:** Added the "From [Movie]" scrubber to prevent song titles from spoiling Movie Mode.
-* **v3.2:** Introduced the Comma-Separated Mixtape fetch for Artist mode, Duplicate Track Killer, and single/EP rejector.
-* **v3.1:** Added the 750-Point Score Normalizer, Fair-Play Audio Sync, dynamic color-coded visualizers, CSS UI fade-ins, and the endgame Confetti Cannon. 
+## 🚀 Setup & Installation
+
+Because the game is built with pure web technologies, it can be hosted on any static file server. 
+
+### 1. Local Testing
+1. Clone the repository to your local machine.
+2. Open `index.html` directly in any modern web browser.
+3. *Note: The QR code scanner will only auto-join when hosted on a live URL. To test multiplayer locally, open multiple tabs and manually enter the 4-letter room code.*
+
+### 2. Deploying to GitHub Pages
+1. Rename your main HTML file to `index.html`.
+2. Push your code to a public GitHub repository.
+3. Go to your repository **Settings** > **Pages**.
+4. Set the Source branch to `main` and save.
+5. Your game will be live at `https://[your-username].github.io/`! 
+
+### 3. Firebase Configuration
+The game currently uses a default Firebase configuration. If you plan to scale the game or keep it public long-term, it is highly recommended to:
+1. Create your own project at [Firebase Console](https://console.firebase.google.com/).
+2. Enable the **Realtime Database**.
+3. Set your read/write security rules.
+4. Replace the `firebaseConfig` object at the top of the `<script>` section in `index.html` with your new project keys.
 
 ---
 
-## 📝 License
-This project is for educational and entertainment purposes. Audio previews and metadata are provided by the iTunes Search API.
+## 🏆 Lifetime Locker Room
+
+The game utilizes `localStorage` to securely save your lifetime stats directly to your device. 
+* **Trophy Cabinet:** Unlock achievements like *The Sniper* (10 hits under 3 seconds) and *The Daily Devotee* (5-day streak).
+* **Performance Tracking:** Monitors global high scores, lifetime accuracy, and total matches played.
