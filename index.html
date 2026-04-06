@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yardbird's Song Trivia</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <link rel="icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
@@ -32,7 +37,7 @@
         .header-btn:hover { border-color: var(--highlight); color: var(--highlight); transform: scale(1.1); }
         #info-btn { right: 40px; }
         #stats-btn { right: 0; font-size: 0.9rem; } 
-        #main-title { margin: 0; color: #fff; font-size: 1.6rem; line-height: 1.2; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+        #main-title { margin: 0; color: #fff; font-size: 1.4rem; line-height: 1.2; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; padding: 0 80px 0 45px; text-align: center; }
 
         .section-label { display: block; text-align: left; font-size: 0.75rem; color: var(--text-muted); margin: 25px 0 10px 0; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
 
@@ -42,6 +47,7 @@
         .btn-daily:hover { box-shadow: 0 0 15px var(--brand-glow); transform: scale(1.02); }
         .btn-main { background: var(--highlight); color: black; font-size: 1.2rem; }
         .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        #start-multiplayer-btn:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-alt { background: var(--surface); color: #fff; border: 2px solid var(--border); font-size: 0.9rem; }
         
         .btn-reset { background: #333; color: #aaa; font-size: 0.8rem; padding: 10px; border: 1px solid #444; margin-top: 20px; width: auto; min-width: 120px; }
@@ -126,9 +132,9 @@
         .trophy-row.unlocked .trophy-text h4 { color: #ffcc00; }
         .trophy-row.unlocked .trophy-text p { color: #ccc; }
 
-        @media (max-width: 768px) {
-            #game-header { padding: 0; justify-content: flex-start; align-items: flex-start; }
-            #main-title { font-size: 1.3rem; padding-right: 85px; text-align: left; }
+       @media (max-width: 768px) {
+            #game-header { padding: 0; justify-content: center; align-items: center; }
+            #main-title { font-size: 1.1rem; padding: 0 75px 0 45px; text-align: center; }
             #info-btn { right: 40px; }
         }
         .hidden { display: none !important; }
@@ -148,7 +154,7 @@
         </ul>
         <button class="btn btn-main" onclick="hideModal('rules-modal')" style="margin-top: 10px;">Got it! Let's Play</button>
         <div style="text-align:center; color:#555; margin-top:20px; font-size:0.8rem; line-height: 1.4;">
-            <strong>Yardbird's Song Trivia v6.2 Master Edition</strong><br>
+            <strong>Yardbird's Song Trivia v7.0 Master Edition</strong><br>
             Developed by Karthik Raja, 2026
         </div>
     </div>
@@ -206,15 +212,99 @@
     </div>
 </div>
 
+<div id="multiplayer-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="text-align: center;">
+        <h2 style="margin-bottom: 25px;">Party Mode</h2>
+        
+        <button class="btn btn-daily" onclick="handleHostSetup()">📺 HOST A GAME (TV/Laptop)</button>
+        <div style="font-size:0.75rem; color:#aaa; margin: 10px 0 25px 0; text-transform:uppercase; font-weight:bold;">Control the music and display the board</div>
+        
+        <button class="btn btn-main" onclick="handleJoinScreen()">📱 JOIN A GAME (Phone)</button>
+        <div style="font-size:0.75rem; color:#aaa; margin: 10px 0 25px 0; text-transform:uppercase; font-weight:bold;">Use your phone as a Kahoot-style controller</div>
+        
+        <hr class="separator-line">
+        
+        <button class="btn btn-alt" onclick="hideModal('multiplayer-modal')">▶ BACK TO SOLO</button>
+    </div>
+</div>
+
 <div class="game-wrapper">
     <div class="container">
         
         <div id="game-header">
+            <button onclick="showModal('multiplayer-modal')" class="header-btn" id="menu-btn" style="left: 0; font-size: 1.2rem; padding-bottom: 4px;">☰</button>
+            
             <h1 id="main-title">YARDBIRD'S SONG TRIVIA</h1>
             <button onclick="showModal('rules-modal')" class="header-btn" id="info-btn">i</button>
             <button onclick="showModal('stats-modal')" class="header-btn" id="stats-btn">📊</button>
         </div>
+
+        <div id="join-screen" class="hidden">
+            <h2 style="color:var(--highlight); margin-top:0;">Join Party</h2>
+            <input type="text" id="join-code" placeholder="4-LETTER CODE" style="text-transform:uppercase; text-align:center; font-size:1.5rem; letter-spacing:5px;" maxlength="4" autocomplete="off">
+            <input type="text" id="join-name" placeholder="Your Nickname" style="text-align:center; font-size:1.2rem; margin-top:15px;" maxlength="12" autocomplete="off">
+            <button class="btn btn-main" style="margin-top:20px;" onclick="joinRoom()">JOIN ROOM</button>
+            <button class="btn btn-reset" onclick="location.reload()">Back</button>
+            <div id="join-feedback" style="color:var(--fail); margin-top:15px; font-weight:bold;"></div>
+        </div>
+
+        <div id="host-lobby-screen" class="hidden">
+            <h2 style="color:var(--highlight); margin-top:0;">Waiting for players...</h2>
+            <div style="font-size:1.1rem; color:#aaa; margin-bottom:10px;">Join at <span style="color:#fff; font-weight:bold;">yardbirdjo.github.io</span></div>
+            <div style="font-size:0.9rem; color:#888; text-transform:uppercase;">Room Code:</div>
+            <div id="display-room-code" style="font-size:4rem; font-weight:900; color:var(--brand); letter-spacing:8px; margin:10px 0; font-family:'Courier New', monospace;">----</div>
+            
+            <div style="margin-bottom: 20px;">
+                <div id="qr-container" style="background: white; padding: 15px; border-radius: 12px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></div>
+                <div style="font-size: 0.8rem; color: #aaa; margin-top: 10px; text-transform: uppercase; font-weight: bold;">Scan to Auto-Join</div>
+            </div>
+            
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px; min-height:100px; margin-bottom:20px;">
+                <div style="font-size:0.8rem; color:#888; text-transform:uppercase; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">Players Connected (<span id="player-count">0</span>)</div>
+                <div id="lobby-player-list" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+                </div>
+            </div>
+            
+            <button class="btn btn-main" id="start-multiplayer-btn" onclick="startMultiplayerGame()" disabled>Start Game</button>
+            <button class="btn btn-reset" onclick="cancelLobby()">Cancel</button>
+        </div>
+
+        <div id="client-play-screen" class="hidden" style="width: 100%; max-width: 400px; margin: 0 auto; text-align: center;">
+            <div id="client-status" style="font-size: 1.2rem; font-weight: bold; color: var(--brand); margin-bottom: 20px;">ROUND 1</div>
+            
+            <div id="client-timer-display" style="font-size: 4rem; color: var(--highlight); font-family: 'Courier New', monospace; font-weight: 900; margin-bottom: 5px;">30</div>
+            <div id="client-grace-msg" class="hidden" style="color:var(--p4); font-size:0.9rem; font-weight:bold; margin-bottom:15px; text-transform: uppercase;">🎵 Audio Ended. 30s Grace Period.</div>
+            <div id="client-text-inputs">
+                <input type="text" id="client-guess-artist" placeholder="Artist Name..." autocomplete="off">
+                <input type="text" id="client-guess-song" placeholder="Song Title..." autocomplete="off">
+                <input type="text" id="client-guess-movie" placeholder="Movie Name..." class="hidden" autocomplete="off">
+                
+                <button class="btn btn-main" style="margin-top: 15px;" onclick="submitClientTextGuess()">SUBMIT GUESS</button>
+                <button class="btn btn-alt" style="margin-top: 10px;" onclick="requestClientLifeline()">MULTIPLE CHOICE</button>
+            </div>
+
+            <div id="client-mc-inputs" class="hidden">
+                </div>
+
+            <div id="client-locked-screen" class="hidden" style="padding: 30px 10px;">
+                <h2 style="color:var(--success);">Answer Locked!</h2>
+                <p style="font-size: 1.1rem; color: #ccc;">Look at the big screen.</p>
+            </div>
+        </div>
+              
         
+        <div id="client-end-screen" class="hidden" style="width: 100%; max-width: 400px; margin: 0 auto; text-align: center; padding: 40px 10px;">
+            <h2 style="color:var(--brand); font-size: 2.5rem; margin-bottom: 5px;">Game Over!</h2>
+            <div style="font-size: 1.1rem; color: #ccc; margin-bottom: 25px;">Look at the big screen for the final podium!</div>
+            
+            <div style="background: var(--surface); border: 2px solid var(--border); padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div style="font-size: 0.9rem; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Your Final Score</div>
+                <div id="client-final-score" style="font-size: 4.5rem; font-weight: 900; color: var(--highlight); font-family: 'Courier New', monospace; margin-top: 5px;">0</div>
+            </div>
+
+            <button class="btn btn-main" onclick="location.reload()">Return to Main Menu</button>
+        </div>
+
         <div id="setup-screen">
             <div>
                 <button class="btn btn-daily" id="daily-btn-top" onclick="startDailyChallenge()">🌍 PLAY TODAY THREE</button>
@@ -286,6 +376,7 @@
             </div>
             
             <div id="feedback-setup" style="margin-top:15px; color:var(--brand); font-weight:bold;"></div>
+            <button class="btn btn-reset hidden" id="cancel-setup-btn" onclick="location.reload()" style="margin-top: 20px;">Cancel Multiplayer</button>
         </div>
 
         <div id="play-screen" class="hidden">
@@ -317,7 +408,7 @@
 
             <div id="mc-fields" class="hidden"></div>
 
-            <button class="btn btn-reset" onclick="location.reload()">Reset Game</button>
+            <button class="btn btn-reset" onclick="cancelActiveGame()">End Game / Leave Room</button>
         </div>
 
         <div id="final-screen" class="hidden">
@@ -349,6 +440,386 @@
 </div>
 
 <script>
+
+    // --- FIREBASE MULTIPLAYER INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAK-y072g7RmxEXt438H6Votoci6T4S9uQ",
+      authDomain: "yardbird-song-trivia.firebaseapp.com",
+      projectId: "yardbird-song-trivia",
+      storageBucket: "yardbird-song-trivia.firebasestorage.app",
+      messagingSenderId: "707080141874",
+      appId: "1:707080141874:web:7a48da42643bc46f69d02b",
+      // Explicitly adding the databaseURL just to be safe!
+      databaseURL: "https://yardbird-song-trivia-default-rtdb.firebaseio.com" 
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // Multiplayer State Variables
+    let isMultiplayer = false;
+    let isHost = false;
+    let roomCode = "";
+    let myPlayerId = "";
+    let isGracePeriod = false;
+
+    // --- MULTIPLAYER LOBBY LOGIC ---
+
+    function handleHostSetup() {
+        hideModal('multiplayer-modal');
+        document.getElementById('setup-screen').classList.remove('hidden');
+        
+        // Modify setup screen for Host mode
+        document.getElementById('start-btn-top').innerText = "▶ CREATE MULTIPLAYER ROOM";
+        document.getElementById('start-btn-top').onclick = createRoom;
+        document.getElementById('daily-btn-top').parentElement.classList.add('hidden'); // Hide daily
+        document.getElementById('players-group').parentElement.classList.add('hidden'); // Hide local players
+        document.getElementById('cancel-setup-btn').classList.remove('hidden');
+        
+        // NEW: Hide the stats button on the TV
+        document.getElementById('stats-btn').classList.add('hidden');
+        
+        isMultiplayer = true;
+        isHost = true;
+    }
+
+    function handleJoinScreen() {
+        hideModal('multiplayer-modal');
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('join-screen').classList.remove('hidden');
+        
+        // NEW: Hide the stats button on the Phone
+        document.getElementById('stats-btn').classList.add('hidden');
+        
+        isMultiplayer = true;
+        isHost = false;
+    }
+
+    function generateRoomCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed I, O, 1, 0 for clarity
+        let code = '';
+        for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+        return code;
+    }
+
+    async function createRoom() {
+        // First, we lock in the game settings the host chose
+        numPlayers = 0; // Will be set by connected players
+        timeLimit = gameState.level === 'hard' ? 10 : 30; 
+        roundsPerPlayer = gameState.rounds;
+        maxRounds = gameState.rounds; // FIX: Lock the total rounds to what the host selected!
+        
+        roomCode = generateRoomCode();
+        
+        // Setup the initial Firebase room state
+        await db.ref(`rooms/${roomCode}`).set({
+            state: 'lobby',
+            settings: gameState,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        // Transition UI
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('host-lobby-screen').classList.remove('hidden');
+        document.getElementById('display-room-code').innerText = roomCode;
+
+        // --- NEW: Generate the Auto-Join QR Code ---
+        document.getElementById('qr-container').innerHTML = ""; // Clear any old QR codes
+        const joinUrl = window.location.origin + window.location.pathname + "?room=" + roomCode;
+        new QRCode(document.getElementById("qr-container"), {
+            text: joinUrl,
+            width: 160,
+            height: 160,
+            colorDark : "#0a0a0c", // Keep it dark for contrast
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+        // -------------------------------------------
+
+        // Listen for players joining
+        db.ref(`rooms/${roomCode}/players`).on('value', (snapshot) => {
+            const players = snapshot.val();
+            const listDiv = document.getElementById('lobby-player-list');
+            listDiv.innerHTML = '';
+            
+            if (players) {
+                const playerIds = Object.keys(players);
+                numPlayers = playerIds.length;
+                document.getElementById('player-count').innerText = numPlayers;
+                
+                // Enable start button if at least 1 person joined
+                document.getElementById('start-multiplayer-btn').disabled = numPlayers === 0;
+
+                playerIds.forEach((pid, index) => {
+                    const p = players[pid];
+                    const pTag = document.createElement('div');
+                    pTag.className = 'pill active';
+                    pTag.style.borderColor = colors[index % colors.length];
+                    pTag.innerText = p.name;
+                    listDiv.appendChild(pTag);
+                });
+            } else {
+                numPlayers = 0;
+                document.getElementById('player-count').innerText = 0;
+                document.getElementById('start-multiplayer-btn').disabled = true;
+            }
+        });
+    }
+
+    // --- CLIENT CONTROLLER LOGIC ---
+    function submitClientTextGuess() {
+        const artG = document.getElementById('client-guess-artist').value.trim();
+        const sonG = document.getElementById('client-guess-song').value.trim();
+        const movG = document.getElementById('client-guess-movie').value.trim();
+        
+        // Capture exact time and phase
+        const currentTime = parseInt(document.getElementById('client-timer-display').innerText) || 0;
+        const currentPhase = !document.getElementById('client-grace-msg').classList.contains('hidden') ? 'grace' : 'audio';
+
+        db.ref(`rooms/${roomCode}/players/${myPlayerId}`).update({
+            guess: { artist: artG, song: sonG, movie: movG, isMC: false, time: currentTime, phase: currentPhase },
+            status: 'locked'
+        });
+
+        document.getElementById('client-text-inputs').classList.add('hidden');
+        document.getElementById('client-locked-screen').classList.remove('hidden');
+    }
+
+    function requestClientLifeline() {
+        // Fetch the options the Host just built
+        db.ref(`rooms/${roomCode}/currentMC`).once('value', snap => {
+            const options = snap.val();
+            if(options) renderClientMC(options);
+        });
+    }
+
+    function renderClientMC(options) {
+        document.getElementById('client-text-inputs').classList.add('hidden');
+        const mcContainer = document.getElementById('client-mc-inputs');
+        mcContainer.innerHTML = '';
+        mcContainer.classList.remove('hidden');
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'mc-btn';
+            btn.innerText = opt.str;
+            // Send the guess back to Firebase when clicked
+            btn.onclick = () => submitClientMCGuess(opt.isCorrect);
+            mcContainer.appendChild(btn);
+        });
+    }
+
+    function submitClientMCGuess(isCorrect) {
+        const currentTime = parseInt(document.getElementById('client-timer-display').innerText) || 0;
+        const currentPhase = !document.getElementById('client-grace-msg').classList.contains('hidden') ? 'grace' : 'audio';
+        
+        // Penalize MC usage by capping their score potential to 10 max
+        const finalTime = Math.min(10, currentTime);
+
+        db.ref(`rooms/${roomCode}/players/${myPlayerId}`).update({
+            guess: { isMC: true, correct: isCorrect, time: finalTime, phase: currentPhase },
+            status: 'locked'
+        });
+        
+        document.getElementById('client-mc-inputs').classList.add('hidden');
+        document.getElementById('client-locked-screen').classList.remove('hidden');
+    }
+
+    async function startMultiplayerGame() {
+        // Hide the lobby
+        document.getElementById('host-lobby-screen').classList.add('hidden');
+        
+        // Tell Firebase the game is starting!
+        await db.ref(`rooms/${roomCode}`).update({
+            state: 'playing',
+            currentRound: 1,
+            mode: gameState.mode // Save the mode so phones know which inputs to show
+        });
+
+        // HOST LISTENER: Watch for players locking in their guesses
+        db.ref(`rooms/${roomCode}/players`).on('value', (snap) => {
+            if (!isHost || !snap.exists()) return;
+            
+            const players = snap.val();
+            let allLocked = true;
+            let lockedCount = 0;
+            let totalPlayers = 0;
+            
+            Object.values(players).forEach(p => {
+                totalPlayers++;
+                if (p.status === 'locked') {
+                    lockedCount++;
+                } else {
+                    allLocked = false;
+                }
+            });
+
+            // Update the TV screen counter smoothly
+            const lockStatusDiv = document.getElementById('host-lock-status');
+            if (lockStatusDiv) {
+                lockStatusDiv.innerText = `LOCKED IN: ${lockedCount} / ${totalPlayers}`;
+            }
+
+            // If everyone guessed early, trigger the scoring engine!
+            if (allLocked && totalPlayers > 0 && !isProcessing) {
+                console.log("EVERYONE IS LOCKED IN! GRADING ANSWERS...");
+                evaluateMultiplayerRound(players);
+            }
+        });
+
+        // Trigger the standard Yardbird engine to fetch songs
+        document.getElementById('feedback-setup').innerText = "Connecting to iTunes Database...";
+        executeFetchLogic();
+    }
+
+    async function cancelLobby() {
+        if (roomCode) {
+            await db.ref(`rooms/${roomCode}`).remove(); // Delete the room from the database
+        }
+        location.reload(); // Refresh the host's screen
+    }
+
+    async function cancelActiveGame() {
+        if (confirm("Are you sure you want to end the game for everyone?")) {
+            if (isMultiplayer && isHost && roomCode) {
+                // This deletes the room, which triggers the phones to go home
+                await db.ref(`rooms/${roomCode}`).remove();
+            }
+            location.reload(); // Reset the local screen
+        }
+    }
+
+    async function joinRoom() {
+        const codeInput = document.getElementById('join-code').value.toUpperCase().trim();
+        const nameInput = document.getElementById('join-name').value.trim();
+        const fb = document.getElementById('join-feedback');
+        
+        if (codeInput.length !== 4) { fb.innerText = "Please enter a 4-letter code."; return; }
+        if (nameInput.length < 2) { fb.innerText = "Nickname must be at least 2 characters."; return; }
+
+        fb.innerText = "Connecting...";
+
+        // Check if room exists and is in lobby state
+        const roomSnap = await db.ref(`rooms/${codeInput}`).once('value');
+        if (!roomSnap.exists()) {
+            fb.innerText = "Room not found. Check the code!";
+            return;
+        }
+        
+        const roomData = roomSnap.val();
+        if (roomData.state !== 'lobby') {
+            fb.innerText = "Game is already in progress!";
+            return;
+        }
+
+        // Room is good! Add the player
+        roomCode = codeInput;
+        myPlayerId = "player_" + Date.now() + Math.floor(Math.random()*1000); // Unique ID
+
+        await db.ref(`rooms/${roomCode}/players/${myPlayerId}`).set({
+            name: nameInput,
+            score: 0,
+            status: 'waiting'
+        });
+
+        // Set up disconnect hook (if they close browser, remove them from lobby)
+        db.ref(`rooms/${roomCode}/players/${myPlayerId}`).onDisconnect().remove();
+
+        // UI Transition to waiting screen
+        document.getElementById('join-screen').classList.add('hidden');
+        
+        // Quick temporary waiting screen for the client
+        const waitScreen = document.createElement('div');
+        waitScreen.id = 'client-wait-screen';
+        waitScreen.innerHTML = `
+            <h2 style="color:var(--brand);">You're in!</h2>
+            <p style="font-size:1.2rem;">Look at the big screen.</p>
+            <div class="visualizer active" style="margin-top:20px;">
+                <div class="vis-bar" style="background:var(--p1)"></div>
+                <div class="vis-bar" style="background:var(--p2)"></div>
+                <div class="vis-bar" style="background:var(--p3)"></div>
+            </div>
+        `;
+        document.querySelector('.container').appendChild(waitScreen);
+
+        // Listen for the host starting, ending, or canceling the game
+        db.ref(`rooms/${roomCode}/state`).on('value', (snap) => {
+            if (!snap.exists()) {
+                alert("The host has ended the session!");
+                location.reload();
+            } else if (snap.val() === 'playing') {
+                console.log("HOST STARTED THE GAME!");
+                document.getElementById('client-wait-screen').classList.add('hidden');
+                document.getElementById('client-play-screen').classList.remove('hidden');
+                
+                db.ref(`rooms/${roomCode}/mode`).once('value', (modeSnap) => {
+                    const mode = modeSnap.val();
+                    document.getElementById('client-guess-artist').classList.toggle('hidden', mode !== 'genre');
+                    document.getElementById('client-guess-song').classList.toggle('hidden', mode === 'movie');
+                    document.getElementById('client-guess-movie').classList.toggle('hidden', mode !== 'movie');
+                });
+            } else if (snap.val() === 'finished') {
+                // Hide the play screen and show the Game Over screen
+                document.getElementById('client-play-screen').classList.add('hidden');
+                document.getElementById('client-end-screen').classList.remove('hidden');
+                
+                // Watch Firebase for the final math to drop!
+                db.ref(`rooms/${roomCode}/players/${myPlayerId}/finalScore`).on('value', scoreSnap => {
+                    if (scoreSnap.exists()) {
+                        document.getElementById('client-final-score').innerText = scoreSnap.val();
+                    }
+                });
+            }
+        });
+
+        // Listen for the 10-second auto-drop signal
+        db.ref(`rooms/${roomCode}/lifelineForced`).on('value', snap => {
+            if (snap.val() === true && document.getElementById('client-locked-screen').classList.contains('hidden') && !document.getElementById('client-play-screen').classList.contains('hidden')) {
+                requestClientLifeline();
+            }
+        });
+
+        // Listen for the Host resetting the round (status goes back to 'guessing')
+        db.ref(`rooms/${roomCode}/players/${myPlayerId}/status`).on('value', snap => {
+            if (snap.val() === 'guessing') {
+                // Reset the phone UI for the new round
+                document.getElementById('client-locked-screen').classList.add('hidden');
+                document.getElementById('client-mc-inputs').classList.add('hidden');
+                
+                // Show the text boxes again and clear out the old typing
+                document.getElementById('client-text-inputs').classList.remove('hidden');
+                document.getElementById('client-guess-artist').value = "";
+                document.getElementById('client-guess-song').value = "";
+                document.getElementById('client-guess-movie').value = "";
+            }
+        });
+
+        // Listen to the synced clock
+        db.ref(`rooms/${roomCode}/timeLeft`).on('value', snap => {
+            if(snap.exists() && document.getElementById('client-timer-display')) {
+                document.getElementById('client-timer-display').innerText = snap.val();
+            }
+        });
+
+        // Listen for the Grace Period
+        db.ref(`rooms/${roomCode}/phase`).on('value', snap => {
+            if(snap.exists() && snap.val() === 'grace') {
+                document.getElementById('client-grace-msg').classList.remove('hidden');
+            } else if (snap.exists() && snap.val() === 'audio') {
+                document.getElementById('client-grace-msg').classList.add('hidden');
+            }
+        });
+
+        // Listen for the current round number
+        db.ref(`rooms/${roomCode}/currentRound`).on('value', snap => {
+            if(snap.exists() && document.getElementById('client-status')) {
+                document.getElementById('client-status').innerText = `ROUND ${snap.val()}`;
+            }
+        });
+    }
+
+
     // --- STATE LOGIC (Replaces Dropdowns) ---
     let gameState = {
         mode: 'genre',
@@ -476,6 +947,21 @@
         }
         populateStats();
         setupDailyButton();
+
+        // --- NEW: Auto-Join Logic from QR Code ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoRoom = urlParams.get('room');
+        if (autoRoom) {
+            handleJoinScreen(); // Jump directly to the Join screen
+            document.getElementById('join-code').value = autoRoom; // Pre-fill the room code!
+            
+            // Clean up the URL so it looks nice in the browser
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Focus the nickname box so they can immediately type their name
+            setTimeout(() => document.getElementById('join-name').focus(), 100);
+        }
+        // -----------------------------------------
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -657,10 +1143,18 @@
     }
 
     function updateLeaderboard(activeIdx = 0) {
+        // --- NEW: Hide the cumulative scoreboard during Party Mode! ---
+        if (isMultiplayer && isHost) {
+            document.getElementById('score-board').innerHTML = '';
+            return; // Stop running the rest of the function
+        }
+        // --------------------------------------------------------------
+
         document.getElementById('score-board').innerHTML = rawScores.map((s, i) => {
             const isActive = (i === activeIdx) || activeIdx === -1;
-            const bColor = isActive ? colors[i] : '#333';
-            const tColor = isActive ? colors[i] : '#666';
+            
+            const bColor = isActive ? colors[i % colors.length] : '#333';
+            const tColor = isActive ? colors[i % colors.length] : '#666';
             const ptsColor = isActive ? '#fff' : '#aaa';
             const displayScore = activeIdx === -1 ? getNormalizedScore(s) : Math.round(s);
             
@@ -1016,19 +1510,32 @@
         hasUsedLifeline = false;
         
         const pIdx = curIdx % numPlayers;
-        const currentColor = colors[pIdx];
-        
-        updateLeaderboard(pIdx); 
-        document.documentElement.style.setProperty('--active-vis', currentColor);
-        if(!isDailyMode) document.getElementById('main-title').style.color = currentColor;
-        
+        const currentColor = colors[pIdx % colors.length]; // Safe lookup for >4 players
         const tag = document.getElementById('active-player');
-        const currentRound = Math.floor(curIdx / numPlayers) + 1;
-        tag.innerText = numPlayers > 1 ? `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})` : `Round ${currentRound}/${roundsPerPlayer}`;
-        tag.style.color = currentColor; tag.style.borderColor = currentColor;
         
-        document.getElementById('stop-btn').style.backgroundColor = currentColor; document.getElementById('stop-btn').style.color = "#000";
-        document.getElementById('submit-btn').style.backgroundColor = currentColor; document.getElementById('submit-btn').style.color = "#000";
+        if (isMultiplayer && isHost) {
+            // --- PARTY HOST UI ---
+            updateLeaderboard(-1); // Everyone is active! Stop oscillation.
+            document.documentElement.style.setProperty('--active-vis', 'var(--highlight)');
+            document.getElementById('main-title').style.color = '#ffffff';
+            
+            tag.innerText = `ROUND ${curIdx + 1} / ${maxRounds}`;
+            tag.style.color = "var(--highlight)"; tag.style.borderColor = "var(--highlight)";
+            db.ref(`rooms/${roomCode}/currentRound`).set(curIdx + 1);
+            
+        } else {
+            // --- SOLO / PASS-AND-PLAY UI ---
+            updateLeaderboard(pIdx); 
+            document.documentElement.style.setProperty('--active-vis', currentColor);
+            if(!isDailyMode) document.getElementById('main-title').style.color = currentColor;
+            
+            const currentRound = Math.floor(curIdx / numPlayers) + 1;
+            tag.innerText = numPlayers > 1 ? `PLAYER ${pIdx + 1} TURN (Round ${currentRound}/${roundsPerPlayer})` : `Round ${currentRound}/${roundsPerPlayer}`;
+            tag.style.color = currentColor; tag.style.borderColor = currentColor;
+            
+            document.getElementById('stop-btn').style.backgroundColor = currentColor; document.getElementById('stop-btn').style.color = "#000";
+            document.getElementById('submit-btn').style.backgroundColor = currentColor; document.getElementById('submit-btn').style.color = "#000";
+        }
         
         document.getElementById('feedback').innerHTML = "";
         document.getElementById('feedback').classList.remove('fade-in');
@@ -1040,10 +1547,48 @@
         document.getElementById('visualizer').classList.remove('active', 'paused');
         document.getElementById('visualizer').classList.add('hidden');
         
-        document.getElementById('btn-container').classList.remove('hidden');
-        document.getElementById('stop-btn').classList.remove('hidden');
-        document.getElementById('force-mc-btn').classList.toggle('hidden', gameState.level === 'hard');
-        
+        if (isMultiplayer && isHost) {
+            // TV Mode: Hide local buttons and set the baseline Locked In counter
+            document.getElementById('btn-container').classList.add('hidden');
+            document.getElementById('feedback').innerHTML = `<div id="host-lock-status" style="color:var(--brand); font-size:1.3rem; font-weight:bold; margin-top:20px;">LOCKED IN: 0 / ${numPlayers}</div>`;
+            document.getElementById('feedback').classList.add('fade-in');
+
+            // Reset all players in Firebase for the new round
+            db.ref(`rooms/${roomCode}/players`).once('value', snap => {
+                if (snap.exists()) {
+                    let updates = {};
+                    snap.forEach(p => { 
+                        updates[`${p.key}/status`] = 'guessing'; 
+                        updates[`${p.key}/guess`] = null; 
+                    });
+                    db.ref(`rooms/${roomCode}/players`).update(updates);
+                }
+            });
+
+            // --- NEW: Generate MC options for the phones ---
+            const correctStr = getMCLabel(songs[curIdx]);
+            let wrongOptionsPool = [];
+            globalPool.forEach(s => {
+                let str = getMCLabel(s);
+                if (str !== correctStr && str !== "Unknown Movie" && str !== "Unknown") wrongOptionsPool.push(str);
+            });
+            wrongOptionsPool = [...new Set(wrongOptionsPool)].sort(() => 0.5 - Math.random());
+            
+            let options = [{ str: correctStr, isCorrect: true }];
+            wrongOptionsPool.slice(0, 3).forEach(str => options.push({ str: str, isCorrect: false }));
+            options = options.sort(() => 0.5 - Math.random());
+
+            db.ref(`rooms/${roomCode}/currentMC`).set(options);
+            db.ref(`rooms/${roomCode}/lifelineForced`).set(false); // Reset the 10-second auto-drop
+            // -----------------------------------------------
+
+        } else {
+            // Solo Mode: Show normal buttons
+            document.getElementById('btn-container').classList.remove('hidden');
+            document.getElementById('stop-btn').classList.remove('hidden');
+            document.getElementById('force-mc-btn').classList.toggle('hidden', gameState.level === 'hard');
+        }
+
         document.getElementById('guess-fields').classList.add('hidden');
         document.getElementById('mc-fields').classList.add('hidden');
 
@@ -1061,28 +1606,58 @@
     function startRoundClock() {
         document.getElementById('visualizer').classList.remove('hidden');
         document.getElementById('visualizer').classList.add('active');
-        
+
         timeLeft = timeLimit; startTime = Date.now();
-        scoreLock = 0; 
+        scoreLock = 0; isGracePeriod = false;
         document.getElementById('timer').innerText = timeLeft;
         document.getElementById('timer').style.color = 'var(--highlight)';
-        
+
         timerId = setInterval(() => {
-            timeLeft--; document.getElementById('timer').innerText = timeLeft;
+            timeLeft--; 
+            document.getElementById('timer').innerText = timeLeft;
+            
+            // MULTIPLAYER: Sync time and phase to the phones
+            if (isMultiplayer && isHost) {
+                db.ref(`rooms/${roomCode}/timeLeft`).set(timeLeft);
+                db.ref(`rooms/${roomCode}/phase`).set(isGracePeriod ? 'grace' : 'audio');
+            }
+
             if (timeLeft <= 3 && timeLeft > 0 && !hasUsedLifeline) { 
                 document.getElementById('timer').style.color = '#ff3333'; 
                 sfxTick.currentTime = 0; sfxTick.play().catch(e => {}); 
             }
             
-            if (timeLeft === 10 && gameState.level !== 'hard' && !hasUsedLifeline) {
-                triggerLifeline();
+            if (timeLeft === 10 && !isGracePeriod && gameState.level !== 'hard' && !hasUsedLifeline) {
+                if (isMultiplayer && isHost) {
+                    db.ref(`rooms/${roomCode}/lifelineForced`).set(true); 
+                } else {
+                    triggerLifeline(); 
+                }
             }
             
             if (timeLeft <= 0) {
-                clearAllTimers(); audio.pause();
-                document.getElementById('visualizer').classList.add('paused');
-                if (hasUsedLifeline) evaluateGuess(false); 
-                else handleStop(); 
+                if (isMultiplayer && isHost && !isGracePeriod) {
+                    // Enter Grace Period!
+                    isGracePeriod = true;
+                    timeLeft = 30; // 30 seconds of typing time
+                    audio.pause();
+                    document.getElementById('visualizer').classList.add('paused');
+                    document.getElementById('feedback').innerHTML += `<div style="color:var(--p4); font-size:1.1rem; margin-top:10px; font-weight:bold;">Song completed! Please submit final answers in the next 30 seconds.</div>`;
+                } else {
+                    // Time is fully up, evaluate the round
+                    clearAllTimers(); audio.pause();
+                    document.getElementById('visualizer').classList.add('paused');
+                    
+                    if (isMultiplayer && isHost) {
+                        db.ref(`rooms/${roomCode}/players`).once('value', snap => {
+                            evaluateMultiplayerRound(snap.val());
+                        });
+                    } else if (hasUsedLifeline) {
+                        evaluateGuess(false); 
+                    } else {
+                        handleStop(); 
+                    }
+                }
             }
         }, 1000);
     }
@@ -1288,6 +1863,97 @@
         curIdx++; setTimeout(nextTrack, 4000); 
     }
 
+    function evaluateMultiplayerRound(players) {
+        if(isProcessing) return; 
+        isProcessing = true;
+        
+        clearAllTimers(); audio.pause(); 
+        document.getElementById('visualizer').classList.add('paused');
+        document.getElementById('btn-container').classList.add('hidden');
+
+        const realA = songs[curIdx].artistName;
+        const realS = songs[curIdx].trackName;
+        const realM = getMovieName(songs[curIdx]); 
+
+        let fbHTML = `<div style="display:flex; flex-direction:column; gap:6px; margin-bottom:15px; font-weight:bold;">`;
+
+        const playerIds = Object.keys(players);
+        
+        // Loop through every connected player and grade their guess
+        playerIds.forEach((pid, index) => {
+            const p = players[pid];
+            let roundPts = 0;
+            let correct = false;
+            let artOk = false, sonOk = false, movOk = false;
+
+            // Calculate base points. If they guess during grace period, they get a flat 5 points.
+            let basePts = (p.guess && p.guess.phase === 'grace') ? 5 : (p.guess ? p.guess.time : 0);
+
+            // Check if they used the MC Lifeline or typed it manually
+            if (p.guess && p.guess.isMC) {
+                correct = p.guess.correct;
+                if (correct) {
+                    roundPts = basePts; // MC is capped at a max of 10, no multiplier.
+                }
+            } else {
+                let artG = p.guess ? p.guess.artist || "" : "";
+                let sonG = p.guess ? p.guess.song || "" : "";
+                let movG = p.guess ? p.guess.movie || "" : "";
+
+                // Evaluate text based on the game mode
+                if (gameState.mode === 'genre') {
+                    artOk = isCloseEnough(artG, realA, true);
+                    sonOk = isCloseEnough(sonG, realS, false);
+                    if (artOk || sonOk) {
+                        correct = true;
+                        roundPts = basePts;
+                        if (artOk && sonOk) roundPts *= 2; // Double multiplier for perfect text
+                    }
+                } else if (gameState.mode === 'artist') {
+                    if (isCloseEnough(sonG, realS, false)) { correct = true; roundPts = basePts * 2; }
+                } else if (gameState.mode === 'movie') {
+                    if (isCloseEnough(movG, realM, false)) { correct = true; roundPts = basePts * 2; }
+                }
+                
+                // NEW: If they typed it during the Grace Period, override multipliers to a flat 5 points
+                if (correct && p.guess && p.guess.phase === 'grace') {
+                    roundPts = 5;
+                }
+            }
+
+            // Record stats and generate TV display for this player
+            if (correct) {
+                streaks[index]++;
+                if (streaks[index] % 3 === 0) { roundPts += 50; } // NEW: Apply the Party Mode streak bonus!
+                
+                rawScores[index] += roundPts;
+                fbHTML += `<div style="color:var(--success); font-size:1.1rem;">✅ ${p.name}: +${roundPts}</div>`;
+            } else {
+                fbHTML += `<div style="color:var(--fail); font-size:1.1rem;">❌ ${p.name}: 0</div>`;
+                streaks[index] = 0;
+            }
+        });
+        fbHTML += `</div>`;
+
+        // Add the actual song info below the player results
+        fbHTML += `<div style="font-size:1.05rem; color:#fff; margin-top:10px;">${realA} - ${realS}</div>`;
+        if (gameState.mode === 'movie') fbHTML += `<div style="font-size:0.9rem; color:#ffcc00; margin-top:3px;">🎬 ${realM}</div>`;
+
+        // Update TV UI
+        updateLeaderboard(-1); 
+        document.getElementById('feedback').innerHTML = fbHTML;
+        document.getElementById('feedback').classList.add('fade-in');
+        
+        const img = document.getElementById('reveal-art');
+        img.src = songs[curIdx].artworkUrl100.replace('100x100bb', '400x400bb'); 
+        img.classList.add('fade-in');
+        img.style.display = 'block';
+
+        // Wait 5 seconds so people can see the scores, then go to next round!
+        curIdx++; 
+        setTimeout(nextTrack, 5000); 
+    }
+
     function shootConfetti() {
         const colors = ['#39ff14', '#00f2ff', '#ff00e1', '#ffff00'];
         for(let i=0; i<100; i++) {
@@ -1347,18 +2013,63 @@
         const normalizedScores = rawScores.map(s => getNormalizedScore(s));
         const maxScore = Math.max(...normalizedScores); 
         const winIdx = normalizedScores.indexOf(maxScore);
-        
-        document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
-        document.getElementById('winner-text').style.color = colors[winIdx];
 
-        // Generate the Final Visual Grid
-        let gridHTML = '<div style="font-size:1.8rem; letter-spacing:4px; margin: 15px 0; text-align:center;">';
-        matchHistory[winIdx].forEach((res, idx) => {
-            gridHTML += res;
-            if ((idx + 1) % 5 === 0) gridHTML += '<br>';
-        });
-        gridHTML += '</div>';
-        document.getElementById('final-grid').innerHTML = gridHTML;
+        if (isMultiplayer && isHost && roomCode) {
+            // --- MULTIPLAYER PODIUM ---
+            db.ref(`rooms/${roomCode}/players`).once('value', snap => {
+                const players = snap.val();
+                if (players) {
+                    const pIds = Object.keys(players);
+                    let finalResults = [];
+                    pIds.forEach((pid, index) => {
+                        const normScore = normalizedScores[index] || 0;
+                        finalResults.push({ name: players[pid].name, score: normScore, id: pid });
+                        
+                        // Send this specific phone its final math!
+                        db.ref(`rooms/${roomCode}/players/${pid}`).update({ finalScore: normScore });
+                    });
+                    
+                    // Sort the players from Highest to Lowest
+                    finalResults.sort((a, b) => b.score - a.score); 
+                    
+                    let podiumHTML = `<div style="margin-top: 15px; text-align: left; background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">`;
+                    podiumHTML += `<h3 style="margin-top:0; color:var(--brand); text-align:center; text-transform:uppercase; margin-bottom:15px;">Final Standings</h3>`;
+                    
+                    finalResults.forEach((p, idx) => {
+                        let medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '👏'));
+                        let color = idx === 0 ? 'var(--p1)' : (idx === 1 ? 'var(--p2)' : '#ccc');
+                        podiumHTML += `<div style="display:flex; justify-content:space-between; padding: 12px 5px; border-bottom: 1px solid #333; font-size: 1.3rem; font-weight: bold; color: ${color};">
+                            <span>${medal} ${p.name}</span>
+                            <span style="font-family:'Courier New', monospace;">${p.score}</span>
+                        </div>`;
+                    });
+                    podiumHTML += `</div>`;
+                    
+                    document.getElementById('winner-text').innerHTML = podiumHTML;
+                    document.getElementById('final-grid').innerHTML = ""; // Hide the solo grid
+                                        
+                    // NEW: Hide the extra solo buttons on the TV
+                    const challengeBtn = document.querySelector('button[onclick="shareChallenge()"]');
+                    if(challengeBtn) challengeBtn.style.display = 'none';
+                    const playlistBox = document.querySelector('.playlist-box');
+                    if(playlistBox) playlistBox.style.display = 'none';
+                }
+                // Tell phones the game is over AFTER sending the scores!
+                db.ref(`rooms/${roomCode}/state`).set('finished');
+            });
+        } else {
+            // --- SOLO RESULTS ---
+            document.getElementById('winner-text').innerText = numPlayers > 1 ? `🏆 PLAYER ${winIdx + 1} WINS! Total: ${maxScore} Pts` : `🏆 Final Score: ${maxScore} Pts`;
+            document.getElementById('winner-text').style.color = colors[winIdx];
+
+            let gridHTML = '<div style="font-size:1.8rem; letter-spacing:4px; margin: 15px 0; text-align:center;">';
+            matchHistory[winIdx].forEach((res, idx) => {
+                gridHTML += res;
+                if ((idx + 1) % 5 === 0) gridHTML += '<br>';
+            });
+            gridHTML += '</div>';
+            document.getElementById('final-grid').innerHTML = gridHTML;
+        }
 
         userStats.gamesPlayed++;
         if (maxScore > userStats.hsText) userStats.hsText = maxScore;
